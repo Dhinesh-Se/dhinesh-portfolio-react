@@ -2,52 +2,42 @@
 
 Cinematic developer portfolio built with React + Vite.
 
-## Core Experience
+## Implemented Features
 
-- Matrix rain aesthetic with command palette controls.
-- Mobile-first behavior where Matrix starts enabled by default.
-- Cinematic dialogue ticker visible on both desktop and mobile.
-- Full portfolio sections: About, Skills, Experience, Projects, Achievements, Cinema Lab, Contact.
-- Live Coimbatore (IST) clock widget is active inside Cinema Lab.
+1. **3D Globe / World Map**
+   - Interactive rotating globe visualization with Dubai and India pins plus animated route link.
+2. **AI Chat Assistant (Ask Dhinesh)**
+   - Floating chat bubble for recruiter-style questions (skills, WHI, project context).
+3. **Cinematic Scroll Storytelling**
+   - Scroll-driven story scene transitions with dynamic cinematic background movement.
+4. **Live Code Playground**
+   - In-browser JavaScript runner and Java preview mode.
+5. **Movie Trailer Overlay**
+   - Fullscreen trailer-style career storytelling modal.
+6. **IMAX Mode**
+   - Toggle cinematic letterbox bars for widescreen feel.
+7. **Genre Selector**
+   - Thriller / Sci-Fi / Action UI mood switching.
+8. **Live Clock & Timezone**
+   - Real-time Coimbatore (IST) clock.
+9. **Binary/Hex Name Decoder**
+   - Animated decode display for “DHINESH” from binary/hex style representation.
 
-## Cinema Lab (Requested Feature Roadmap)
+## Sections
 
-The portfolio now includes a dedicated **Cinema Lab** section with planned features only.
-
-### 1) 3D Globe / World Map
-Interactive spinning globe showing deployments in Dubai and India with glowing pins and animated links. *(Planned)*
-
-### 2) AI Chat Assistant ("Ask Dhinesh")
-Floating recruiter Q&A assistant powered by Claude API with resume-aware context. *(Planned)*
-
-### 3) Cinematic Scroll Storytelling
-Movie-like scene progression as users scroll through the career timeline. *(Planned)*
-
-### 4) Live Code Playground
-In-browser Java/JavaScript editor to run snippets. *(Planned)*
-
-### 5) Movie Trailer Overlay
-A full-screen trailer-style career narrative modal. *(Planned)*
-
-### 6) IMAX Mode
-Letterboxed top/bottom bars for widescreen cinematic framing. *(Planned)*
-
-### 7) Genre Selector
-Theme switcher (Thriller / Sci-Fi / Action) to alter aesthetic mood. *(Planned)*
-
-### 8) Live Clock & Timezone
-Real-time Coimbatore (IST) clock for recruiter timezone context. *(Live)*
-
-### 9) Binary/Hex Name Decoder
-Animated encoded stream that decodes into **DHINESH**. *(Planned)*
-
----
+- About
+- Skills
+- Experience
+- Projects
+- Achievements
+- Cinema Lab
+- Contact
 
 ## Component Structure
 
-- `src/App.jsx` – main page composition and cinematic sections.
-- `src/components/TopNavigation.jsx` – desktop/mobile nav + mobile utility controls.
-- `src/components/MovieTicker.jsx` – reusable movie dialogue ticker.
+- `src/App.jsx` – primary page and feature composition.
+- `src/components/TopNavigation.jsx` – desktop/mobile navigation + controls.
+- `src/components/MovieTicker.jsx` – cinematic quote ticker.
 
 ## Run Locally
 
@@ -67,4 +57,3 @@ npm run build
 ```bash
 npm run lint
 ```
-

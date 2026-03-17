@@ -54,17 +54,7 @@ const MOVIE_QUOTES = [
   { quote:"It's not who I am underneath, but what I do that defines me.", film:"Batman Begins" },
 ];
 
-const CINEMA_FEATURES = [
-  { title:"3D Globe / World Map", desc:"Interactive spinning globe with Dubai ↔ India deployment story, glowing pins, and connection arcs.", status:"Planned" },
-  { title:"AI Chat Assistant (Ask Dhinesh)", desc:"Floating assistant that answers recruiter questions from resume/project context.", status:"Planned" },
-  { title:"Cinematic Scroll Storytelling", desc:"Scroll-driven scenes with dramatic reveals, layered motion, and chapter transitions.", status:"Planned" },
-  { title:"Live Code Playground", desc:"Inline Java/JavaScript editor to run snippets directly from the portfolio.", status:"Planned" },
-  { title:"Movie Trailer Overlay", desc:"Full-screen trailer mode with dramatic slide narration about career milestones.", status:"Planned" },
-  { title:"IMAX Mode", desc:"Letterboxed cinematic view with widescreen feel across the full portfolio.", status:"Planned" },
-  { title:"Genre Selector", desc:"Switch visual mood between Thriller, Sci-Fi, and Action palette profiles.", status:"Planned" },
-  { title:"Live Clock & Timezone", desc:"Real-time Coimbatore (IST) clock for quick recruiter timezone context.", status:"Planned" },
-  { title:"Binary/Hex Name Decoder", desc:'Animated binary/hex stream that decodes into "DHINESH" on loop.', status:"Planned" },
-];
+
 
 const CODE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*<>/\\|{}[]";
 const KONAMI = ["ArrowUp","ArrowUp","ArrowDown","ArrowDown","ArrowLeft","ArrowRight","ArrowLeft","ArrowRight","b","a"];
@@ -530,6 +520,97 @@ function RocketBtn({show}){
   );
 }
 
+
+function GlobeWidget(){
+  const ref=useRef(null);
+  useEffect(()=>{
+    const c=ref.current; if(!c) return; const ctx=c.getContext("2d");
+    let w=c.width=320,h=c.height=320,t=0,raf;
+    const pts=[
+      {name:"Dubai",lat:25.2,lon:55.3,color:"#FFE600"},
+      {name:"India",lat:20.6,lon:78.9,color:"#00C9A7"},
+    ];
+    const draw=()=>{
+      t+=0.01; ctx.clearRect(0,0,w,h);
+      const cx=w/2,cy=h/2,r=110;
+      const grad=ctx.createRadialGradient(cx-25,cy-35,10,cx,cy,r+20);
+      grad.addColorStop(0,"rgba(255,230,0,.28)"); grad.addColorStop(1,"rgba(255,255,255,.03)");
+      ctx.fillStyle=grad; ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle="rgba(255,255,255,.2)"; ctx.stroke();
+      for(let i=-2;i<=2;i++){
+        ctx.beginPath();ctx.ellipse(cx,cy,r,Math.abs(r*Math.cos(i*0.5+t))*0.95,0,0,Math.PI*2);
+        ctx.strokeStyle="rgba(255,255,255,.08)";ctx.stroke();
+      }
+      const projected=pts.map(p=>{
+        const phi=(90-p.lat)*Math.PI/180,theta=(p.lon+t*60)*Math.PI/180;
+        const x=r*Math.sin(phi)*Math.cos(theta),y=r*Math.cos(phi),z=r*Math.sin(phi)*Math.sin(theta);
+        return {...p,sx:cx+x,sy:cy+y,sz:z};
+      }).sort((a,b)=>a.sz-b.sz);
+      if(projected.length===2){
+        const [a,b]=projected;ctx.beginPath();ctx.moveTo(a.sx,a.sy);ctx.quadraticCurveTo(cx,cy-80,b.sx,b.sy);
+        ctx.strokeStyle="rgba(255,230,0,.35)";ctx.lineWidth=1.5;ctx.stroke();
+      }
+      projected.forEach(p=>{ctx.beginPath();ctx.arc(p.sx,p.sy,5,0,Math.PI*2);ctx.fillStyle=p.color;ctx.fill();
+        ctx.fillStyle="rgba(255,255,255,.75)";ctx.font="11px monospace";ctx.fillText(p.name,p.sx+8,p.sy-8);});
+      raf=requestAnimationFrame(draw);
+    };
+    draw(); return()=>cancelAnimationFrame(raf);
+  },[]);
+  return <canvas ref={ref} width={320} height={320} style={{width:"100%",maxWidth:340,border:"1px solid rgba(255,255,255,.12)",borderRadius:8,background:"rgba(0,0,0,.2)"}}/>;
+}
+
+function AskDhinesh(){
+  const[open,setOpen]=useState(false),[q,setQ]=useState(""),[msgs,setMsgs]=useState([{r:"bot",t:"Hi! Ask me about skills, WHI, or projects."}]);
+  const ask=()=>{if(!q.trim())return; const text=q.trim().toLowerCase(); let ans="I build enterprise apps with Java, Spring Boot, Angular, payments, and cloud-native patterns.";
+    if(text.includes("whi"))ans="WHI was delivered in 30 days with MOHRE sync, installments, and compliance workflows.";
+    if(text.includes("tech")||text.includes("stack"))ans="Java, Spring Boot, Angular, Oracle, REST/SOAP, Docker, payment gateways.";
+    setMsgs(m=>[...m,{r:"you",t:q},{r:"bot",t:ans}]); setQ("");};
+  return(<div style={{position:"fixed",left:16,bottom:16,zIndex:4500}}>
+    {open&&<div className="card" style={{width:300,padding:12,marginBottom:8,background:"#0C0C12"}}>
+      <div style={{maxHeight:220,overflow:"auto",display:"flex",flexDirection:"column",gap:8,marginBottom:8}}>{msgs.map((m,i)=><div key={i} style={{fontSize:11,color:m.r==="bot"?"#ddd":"#9ad",textAlign:m.r==="bot"?"left":"right"}}>{m.t}</div>)}</div>
+      <div style={{display:"flex",gap:6}}><input value={q} onChange={e=>setQ(e.target.value)} placeholder="Ask Dhinesh..." style={{flex:1,background:"#111",border:"1px solid #333",color:"#fff",padding:"6px 8px",fontSize:11}}/>
+      <button className="btn btn-primary" onClick={ask} style={{padding:"6px 8px",fontSize:10}}>Send</button></div>
+    </div>}
+    <button onClick={()=>setOpen(o=>!o)} className="btn btn-primary" style={{padding:"8px 12px",fontSize:10}}>💬 Ask Dhinesh</button>
+  </div>);
+}
+
+function LiveCodePlayground(){
+  const[lang,setLang]=useState("javascript");
+  const[code,setCode]=useState('console.log("Hello from Dhinesh portfolio")');
+  const[out,setOut]=useState("");
+  const run=()=>{
+    if(lang==="java"){
+      setOut('Java execution preview only in browser.\nclass Main { public static void main(String[] args){ System.out.println("Hello"); } }');
+      return;
+    }
+    try{const logs=[]; const fn=new Function("console",code); fn({log:(...a)=>logs.push(a.join(" "))}); setOut(logs.join("\n")||"Executed with no output.");}
+    catch(e){setOut(String(e));}
+  };
+  return(<div className="card" style={{padding:14}}>
+    <div style={{display:"flex",justifyContent:"space-between",marginBottom:8}}><span className="section-label">Live Code Playground</span>
+      <select value={lang} onChange={e=>setLang(e.target.value)} style={{background:"#111",color:"#ddd",border:"1px solid #333",fontSize:11}}><option value="javascript">JavaScript</option><option value="java">Java</option></select></div>
+    <textarea value={code} onChange={e=>setCode(e.target.value)} style={{width:"100%",minHeight:120,background:"#0d0d14",border:"1px solid #2a2a35",color:"#ddd",fontFamily:"monospace",fontSize:12,padding:8}}/>
+    <div style={{display:"flex",gap:8,marginTop:8}}><button className="btn btn-primary" style={{padding:"6px 10px",fontSize:10}} onClick={run}>Run</button></div>
+    <pre style={{marginTop:8,background:"#09090F",border:"1px solid #222",padding:8,fontSize:11,color:"#9fe",whiteSpace:"pre-wrap"}}>{out}</pre>
+  </div>);
+}
+
+function BinaryHexDecoder({progress=0}){
+  const name="DHINESH";
+  const idx=Math.min(name.length,Math.floor(progress/100*name.length));
+  const shown=name.slice(0,idx)+"_".repeat(name.length-idx);
+  const bin=name.split("").map(c=>c.charCodeAt(0).toString(2).padStart(8,"0")).join(" ");
+  const hex=name.split("").map(c=>c.charCodeAt(0).toString(16).toUpperCase()).join(" ");
+  return <div className="card" style={{padding:14}}><div className="section-label" style={{marginBottom:8}}>Binary/Hex Name Decoder</div><div style={{fontSize:11,color:"#aaa",fontFamily:"monospace"}}>{bin}</div><div style={{fontSize:11,color:"#777",fontFamily:"monospace",marginTop:6}}>{hex}</div><div className="syne" style={{fontSize:28,color:ACC,marginTop:10}}>{shown}</div></div>;
+}
+
+function ScrollStory({progress=0}){
+  const scenes=["In a world of enterprise software...","Dhinesh engineered large-scale insurance platforms...","Delivered WHI in just 30 days under pressure...","Now building the next cinematic developer experience."];
+  const i=Math.min(scenes.length-1,Math.floor(progress/25));
+  return <div className="card" style={{padding:16,position:"relative",overflow:"hidden"}}><div style={{position:"absolute",inset:0,background:`radial-gradient(circle at ${20+progress*0.6}% 30%, rgba(255,230,0,.18), transparent 45%)`}}/><div className="section-label" style={{position:"relative",zIndex:1,marginBottom:10}}>Cinematic Scroll Storytelling</div><div className="syne" style={{position:"relative",zIndex:1,fontSize:"clamp(18px,3vw,30px)",lineHeight:1.2}}>{scenes[i]}</div></div>;
+}
+
 /* ═══════════════ MAIN ═══════════════ */
 export default function Portfolio(){
   const[intro,setIntro]=useState(true);
@@ -542,6 +623,9 @@ export default function Portfolio(){
   const[konamiOn,setKonamiOn]=useState(false);
   const[showRocket,setShowRocket]=useState(false);
   const[istTime,setIstTime]=useState("");
+  const[trailerOpen,setTrailerOpen]=useState(false);
+  const[imaxMode,setImaxMode]=useState(false);
+  const[genre,setGenre]=useState("Sci-Fi");
   const confettiRef=useRef(null);
   const konamiSeq=useRef([]);
   const isMobile=useIsMobile();
@@ -610,8 +694,9 @@ export default function Portfolio(){
   );
 
   return(
-    <div style={{fontFamily:"'DM Mono',monospace",background:"#080810",color:"#E8E8F0",minHeight:"100vh",overflowX:"hidden",cursor:isMobile?"auto":"none"}}>
+    <div style={{fontFamily:"'DM Mono',monospace",background:genre==="Thriller"?"#07070B":genre==="Action"?"#120909":"#080810",color:"#E8E8F0",minHeight:"100vh",overflowX:"hidden",cursor:isMobile?"auto":"none",maxWidth:imaxMode?"1800px":"none",margin:"0 auto",transition:"background .3s"}}>
       {/* Overlays */}
+      {imaxMode&&<><div style={{position:"fixed",top:0,left:0,right:0,height:"8vh",background:"#000",zIndex:350}}/><div style={{position:"fixed",bottom:0,left:0,right:0,height:"8vh",background:"#000",zIndex:350}}/></>}
       {intro&&<CinematicIntro onDone={()=>setIntro(false)}/>}
       {!isMobile&&<CustomCursor/>}
       {matrixOn&&<MatrixRain active={matrixOn}/>}
@@ -623,6 +708,7 @@ export default function Portfolio(){
       {!isMobile&&<SectionDots active={active}/>}
       <RocketBtn show={showRocket}/>
       <canvas ref={confettiRef} style={{position:"fixed",inset:0,pointerEvents:"none",zIndex:4000}}/>
+      <AskDhinesh/>
 
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@600;700;800&family=Bebas+Neue&display=swap');
@@ -888,28 +974,38 @@ export default function Portfolio(){
       <section id="cinema-lab" style={{padding:"80px clamp(20px,7vw,120px)",background:"rgba(255,255,255,.015)"}}>
         <FadeIn>
           <div className="reel-divider"><span className="section-label">Cinematic Innovation</span></div>
-          <h2 className="section-h" style={{marginBottom:18}}>Portfolio <span style={{color:ACC}}>Cinema Lab</span></h2>
-          <p style={{color:"#888",fontSize:13,lineHeight:1.8,maxWidth:760,marginBottom:24}}>
-            Planned features only, based on your roadmap priorities.
-          </p>
+          <h2 className="section-h" style={{marginBottom:18}}>Cinema <span style={{color:ACC}}>Experience</span></h2>
         </FadeIn>
+        <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:14}}>
+          <button className="btn btn-primary" style={{padding:"7px 12px",fontSize:10}} onClick={()=>setTrailerOpen(true)}>▶ Watch Trailer</button>
+          <button className="btn btn-outline" style={{padding:"7px 12px",fontSize:10}} onClick={()=>setImaxMode(v=>!v)}>{imaxMode?"Disable":"Enable"} IMAX Mode</button>
+          {["Thriller","Sci-Fi","Action"].map(g=><button key={g} className="btn btn-outline" style={{padding:"7px 12px",fontSize:10,borderColor:genre===g?ACC:"rgba(255,255,255,.2)",color:genre===g?ACC:"#bbb"}} onClick={()=>setGenre(g)}>{g}</button>)}
+        </div>
         <div className="card" style={{padding:16,marginBottom:16}}>
           <div className="section-label" style={{marginBottom:8}}>Live Clock • Coimbatore (IST)</div>
           <div className="syne" style={{fontSize:28,color:ACC}}>{istTime}</div>
-          <div style={{fontSize:11,color:"#666"}}>Asia/Kolkata - recruiter-friendly timezone reference</div>
         </div>
-        <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"1fr 1fr",gap:14}}>
-          {CINEMA_FEATURES.map(item=>(
-            <div key={item.title} className="card" style={{padding:14}}>
-              <div style={{display:"flex",justifyContent:"space-between",gap:8,marginBottom:8}}>
-                <strong style={{fontSize:13,color:"#E8E8F0"}}>{item.title}</strong>
-                <span className="tag" style={{padding:"2px 8px",fontSize:9,background:"rgba(255,255,255,.05)",borderColor:"rgba(255,255,255,.2)",color:"#999"}}>{item.status}</span>
-              </div>
-              <p style={{fontSize:12,color:"#8d8d8d",lineHeight:1.6}}>{item.desc}</p>
-            </div>
-          ))}
+        <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"1fr 1fr",gap:14,alignItems:"start"}}>
+          <div className="card" style={{padding:14}}>
+            <div className="section-label" style={{marginBottom:8}}>3D Globe / World Map</div>
+            <GlobeWidget/>
+          </div>
+          <ScrollStory progress={scrollPct}/>
+          <LiveCodePlayground/>
+          <BinaryHexDecoder progress={scrollPct}/>
         </div>
       </section>
+
+      {trailerOpen&&(
+        <div onClick={()=>setTrailerOpen(false)} style={{position:"fixed",inset:0,zIndex:1200,background:"rgba(0,0,0,.92)",display:"grid",placeItems:"center",padding:20}}>
+          <div className="card" style={{maxWidth:760,width:"100%",padding:24,borderColor:"rgba(255,230,0,.35)"}} onClick={e=>e.stopPropagation()}>
+            <div className="section-label" style={{marginBottom:10}}>Career Trailer</div>
+            <h3 className="syne" style={{fontSize:"clamp(22px,4vw,36px)",marginBottom:12}}>"In a world of enterprise software..."</h3>
+            <p style={{color:"#a3a3a3",lineHeight:1.8,fontSize:13}}>One developer built insurance platforms at scale, delivered a government-grade WHI rollout in 30 days, and keeps shipping secure fintech experiences across Dubai and India.</p>
+            <button className="btn btn-primary" style={{marginTop:18}} onClick={()=>setTrailerOpen(false)}>Close Trailer</button>
+          </div>
+        </div>
+      )}
 
       {/* ── CONTACT ── */}
       <section id="contact" style={{padding:"80px clamp(20px,7vw,120px)",textAlign:"center",position:"relative",overflow:"hidden"}}>
