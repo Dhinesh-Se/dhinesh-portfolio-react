@@ -541,6 +541,7 @@ export default function Portfolio(){
   const[cmdOpen,setCmdOpen]=useState(false);
   const[konamiOn,setKonamiOn]=useState(false);
   const[showRocket,setShowRocket]=useState(false);
+  const[istTime,setIstTime]=useState("");
   const confettiRef=useRef(null);
   const konamiSeq=useRef([]);
   const isMobile=useIsMobile();
@@ -577,6 +578,15 @@ export default function Portfolio(){
       if(konamiSeq.current.join(",")===KONAMI.join(",")){setKonamiOn(true);konamiSeq.current=[];}
     };
     window.addEventListener("keydown",f); return()=>window.removeEventListener("keydown",f);
+  },[]);
+
+  useEffect(()=>{
+    const tick=()=>{
+      setIstTime(new Date().toLocaleTimeString("en-IN",{timeZone:"Asia/Kolkata",hour12:true}));
+    };
+    tick();
+    const id=setInterval(tick,1000);
+    return()=>clearInterval(id);
   },[]);
 
   const scrollTo=id=>{document.getElementById(toSectionId(id))?.scrollIntoView({behavior:"smooth"});setActive(id);setMenuOpen(false);};
@@ -883,6 +893,11 @@ export default function Portfolio(){
             Planned features only, based on your roadmap priorities.
           </p>
         </FadeIn>
+        <div className="card" style={{padding:16,marginBottom:16}}>
+          <div className="section-label" style={{marginBottom:8}}>Live Clock • Coimbatore (IST)</div>
+          <div className="syne" style={{fontSize:28,color:ACC}}>{istTime}</div>
+          <div style={{fontSize:11,color:"#666"}}>Asia/Kolkata - recruiter-friendly timezone reference</div>
+        </div>
         <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"1fr 1fr",gap:14}}>
           {CINEMA_FEATURES.map(item=>(
             <div key={item.title} className="card" style={{padding:14}}>

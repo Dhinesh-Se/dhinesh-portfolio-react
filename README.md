@@ -8,6 +8,7 @@ Cinematic developer portfolio built with React + Vite.
 - Mobile-first behavior where Matrix starts enabled by default.
 - Cinematic dialogue ticker visible on both desktop and mobile.
 - Full portfolio sections: About, Skills, Experience, Projects, Achievements, Cinema Lab, Contact.
+- Live Coimbatore (IST) clock widget is active inside Cinema Lab.
 
 ## Cinema Lab (Requested Feature Roadmap)
 
@@ -35,7 +36,7 @@ Letterboxed top/bottom bars for widescreen cinematic framing. *(Planned)*
 Theme switcher (Thriller / Sci-Fi / Action) to alter aesthetic mood. *(Planned)*
 
 ### 8) Live Clock & Timezone
-Real-time Coimbatore (IST) clock for recruiter timezone context. *(Planned)*
+Real-time Coimbatore (IST) clock for recruiter timezone context. *(Live)*
 
 ### 9) Binary/Hex Name Decoder
 Animated encoded stream that decodes into **DHINESH**. *(Planned)*
