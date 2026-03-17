@@ -1,16 +1,92 @@
-# React + Vite
+# Dhinesh Portfolio (React + Vite)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A cinematic, interactive personal portfolio built with **React** and **Vite**.
 
-Currently, two official plugins are available:
+This site showcases Dhinesh's full-stack engineering profile with movie-style visuals, animated storytelling elements, and developer-focused UI interactions.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## ✨ Highlights
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Matrix Rain Background** with toggle support.
+- **Cinematic Dialogue Ticker** (movie quote rotation).
+- **Responsive Navigation** with a mobile hamburger menu.
+- **Command Palette** (⌘K / Ctrl+K) for quick actions.
+- **Animated Sections** for About, Skills, Experience, Projects, Achievements, and Contact.
+- **Download CV** CTA and social/contact links.
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 📱 Mobile behavior
+
+Recent mobile-focused updates include:
+
+- Matrix effect is **enabled by default on mobile** (`< 768px`).
+- Matrix toggle is available directly in the **mobile top bar** (not hidden only inside menu).
+- Cinematic dialogue ticker is visible on mobile without opening the hamburger menu.
+
+---
+
+## 🧩 Component structure
+
+The app is still centered around `src/App.jsx`, with key UI pieces extracted into reusable components:
+
+- `src/components/TopNavigation.jsx` – desktop/mobile nav, matrix toggle, mobile menu.
+- `src/components/MovieTicker.jsx` – cinematic quote/dialogue ticker.
+
+---
+
+## 🚀 Run locally
+
+### Prerequisites
+
+- Node.js 18+
+- npm
+
+### Install
+
+```bash
+npm install
+```
+
+### Start dev server
+
+```bash
+npm run dev
+```
+
+### Build for production
+
+```bash
+npm run build
+```
+
+### Lint
+
+```bash
+npm run lint
+```
+
+---
+
+## 🛠 Tech stack
+
+- React
+- Vite
+- JavaScript (JSX)
+- CSS (inline + stylesheet)
+
+---
+
+## 📁 Project files
+
+- `src/App.jsx` – main portfolio page and section content.
+- `src/components/TopNavigation.jsx` – extracted top navigation component.
+- `src/components/MovieTicker.jsx` – extracted movie dialogue ticker component.
+- `src/main.jsx` – React entry point.
+
+---
+
+## 📄 License
+
+Personal portfolio project.
