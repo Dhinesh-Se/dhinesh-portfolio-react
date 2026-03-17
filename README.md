@@ -11,7 +11,7 @@ Cinematic developer portfolio built with React + Vite.
 
 ## Cinema Lab (Requested Feature Roadmap)
 
-The portfolio now includes a dedicated **Cinema Lab** section that tracks and previews advanced features.
+The portfolio now includes a dedicated **Cinema Lab** section with planned features only.
 
 ### 1) 3D Globe / World Map
 Interactive spinning globe showing deployments in Dubai and India with glowing pins and animated links. *(Planned)*
@@ -26,22 +26,19 @@ Movie-like scene progression as users scroll through the career timeline. *(Plan
 In-browser Java/JavaScript editor to run snippets. *(Planned)*
 
 ### 5) Movie Trailer Overlay
-A full-screen trailer-style career narrative modal. *(Live prototype)*
+A full-screen trailer-style career narrative modal. *(Planned)*
 
 ### 6) IMAX Mode
-Letterboxed top/bottom bars for widescreen cinematic framing. *(Live prototype)*
+Letterboxed top/bottom bars for widescreen cinematic framing. *(Planned)*
 
 ### 7) Genre Selector
-Theme switcher (Thriller / Sci-Fi / Action) to alter aesthetic mood. *(Live prototype)*
+Theme switcher (Thriller / Sci-Fi / Action) to alter aesthetic mood. *(Planned)*
 
 ### 8) Live Clock & Timezone
-Real-time Coimbatore (IST) clock for recruiter timezone context. *(Live)*
+Real-time Coimbatore (IST) clock for recruiter timezone context. *(Planned)*
 
-### 9) Commit History Visualization
-Career milestones presented in `git log --oneline` style. *(Live)*
-
-### 10) Binary/Hex Name Decoder
-Animated encoded stream that decodes into **DHINESH**. *(Live)*
+### 9) Binary/Hex Name Decoder
+Animated encoded stream that decodes into **DHINESH**. *(Planned)*
 
 ---
 
