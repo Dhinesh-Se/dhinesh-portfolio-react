@@ -3,7 +3,8 @@ import MovieTicker from "./components/MovieTicker";
 import TopNavigation from "./components/TopNavigation";
 
 /* ═══════════════ DATA ═══════════════ */
-const NAV_LINKS = ["About","Skills","Experience","Projects","Achievements","Contact"];
+const NAV_LINKS = ["About","Skills","Experience","Projects","Achievements","Cinema Lab","Contact"];
+const toSectionId=(label)=>label.toLowerCase().replace(/\s+/g,"-");
 const ACC = "#FFE600";
 
 const SKILLS = [
@@ -51,6 +52,19 @@ const MOVIE_QUOTES = [
   { quote:"I am inevitable.", film:"Avengers: Endgame" },
   { quote:"To infinity and beyond!", film:"Toy Story" },
   { quote:"It's not who I am underneath, but what I do that defines me.", film:"Batman Begins" },
+];
+
+const CINEMA_FEATURES = [
+  { title:"3D Globe / World Map", desc:"Interactive spinning globe with Dubai ↔ India deployment story, glowing pins, and connection arcs.", status:"Planned" },
+  { title:"AI Chat Assistant (Ask Dhinesh)", desc:"Floating assistant that answers recruiter questions from resume/project context.", status:"Planned" },
+  { title:"Cinematic Scroll Storytelling", desc:"Scroll-driven scenes with dramatic reveals, layered motion, and chapter transitions.", status:"Planned" },
+  { title:"Live Code Playground", desc:"Inline Java/JavaScript editor to run snippets directly from the portfolio.", status:"Planned" },
+  { title:"Movie Trailer Overlay", desc:"Full-screen trailer mode with dramatic slide narration about career milestones.", status:"Live" },
+  { title:"IMAX Mode", desc:"Letterboxed cinematic view with widescreen feel across the full portfolio.", status:"Live" },
+  { title:"Genre Selector", desc:"Switch visual mood between Thriller, Sci-Fi, and Action palette profiles.", status:"Live" },
+  { title:"Live Clock & Timezone", desc:"Real-time Coimbatore (IST) clock for quick recruiter timezone context.", status:"Live" },
+  { title:"Commit History Visualization", desc:"Career timeline styled like git log --oneline with commit-like milestones.", status:"Live" },
+  { title:"Binary/Hex Name Decoder", desc:'Animated binary/hex stream that decodes into "DHINESH" on loop.', status:"Live" },
 ];
 
 const CODE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*<>/\\|{}[]";
@@ -472,7 +486,7 @@ function GitHubStats(){
 
 /* ═══════════════ SECTION NAV DOTS ═══════════════ */
 function SectionDots({active}){
-  const sections=NAV_LINKS.map(l=>l.toLowerCase());
+  const sections=NAV_LINKS.map(l=>toSectionId(l));
   return(
     <div style={{position:"fixed",right:20,top:"50%",transform:"translateY(-50%)",zIndex:300,display:"flex",flexDirection:"column",gap:10}}>
       {sections.map(s=>(
@@ -528,6 +542,11 @@ export default function Portfolio(){
   const[cmdOpen,setCmdOpen]=useState(false);
   const[konamiOn,setKonamiOn]=useState(false);
   const[showRocket,setShowRocket]=useState(false);
+  const[genre,setGenre]=useState("Sci-Fi");
+  const[imaxMode,setImaxMode]=useState(false);
+  const[trailerOpen,setTrailerOpen]=useState(false);
+  const[istTime,setIstTime]=useState("");
+  const[decodedName,setDecodedName]=useState("01000100 01001000 01001001 01001110 01000101 01010011 01001000");
   const confettiRef=useRef(null);
   const konamiSeq=useRef([]);
   const isMobile=useIsMobile();
@@ -538,7 +557,7 @@ export default function Portfolio(){
     const f=()=>{
       const y=window.scrollY; setScrolled(y>40); setShowRocket(y>400);
       // Active section tracking
-      const secs=NAV_LINKS.map(l=>({id:l,el:document.getElementById(l.toLowerCase())}));
+      const secs=NAV_LINKS.map(l=>({id:l,el:document.getElementById(toSectionId(l))}));
       for(let i=secs.length-1;i>=0;i--){
         const el=secs[i].el; if(el&&el.getBoundingClientRect().top<=120){setActive(secs[i].id);break;}
       }
@@ -566,7 +585,27 @@ export default function Portfolio(){
     window.addEventListener("keydown",f); return()=>window.removeEventListener("keydown",f);
   },[]);
 
-  const scrollTo=id=>{document.getElementById(id.toLowerCase())?.scrollIntoView({behavior:"smooth"});setActive(id);setMenuOpen(false);};
+  useEffect(()=>{
+    const tick=()=>{
+      const now=new Date();
+      setIstTime(now.toLocaleTimeString("en-IN",{timeZone:"Asia/Kolkata",hour12:true}));
+    };
+    tick();
+    const id=setInterval(tick,1000);
+    return()=>clearInterval(id);
+  },[]);
+
+  useEffect(()=>{
+    const encoded=["44","48","49","4E","45","53","48"," ","01000100","01001000","01001001","01001110","01000101","01010011","01001000"];
+    let i=0;
+    const id=setInterval(()=>{
+      setDecodedName(i%2===0?encoded.slice(0,7).join(" "):encoded.slice(8).join(" "));
+      i++;
+    },1800);
+    return()=>clearInterval(id);
+  },[]);
+
+  const scrollTo=id=>{document.getElementById(toSectionId(id))?.scrollIntoView({behavior:"smooth"});setActive(id);setMenuOpen(false);};
 
   const handleDl=()=>{
     setDlState("loading");
@@ -587,8 +626,9 @@ export default function Portfolio(){
   );
 
   return(
-    <div style={{fontFamily:"'DM Mono',monospace",background:"#080810",color:"#E8E8F0",minHeight:"100vh",overflowX:"hidden",cursor:isMobile?"auto":"none"}}>
+    <div style={{fontFamily:"'DM Mono',monospace",background:genre==="Thriller"?"#07070B":genre==="Action"?"#0D0808":"#080810",color:"#E8E8F0",minHeight:"100vh",overflowX:"hidden",cursor:isMobile?"auto":"none",maxWidth:imaxMode?"1800px":"none",margin:"0 auto",transition:"background .4s"}}>
       {/* Overlays */}
+      {imaxMode&&<><div style={{position:"fixed",top:0,left:0,right:0,height:"8vh",background:"#000",zIndex:350}}/><div style={{position:"fixed",bottom:0,left:0,right:0,height:"8vh",background:"#000",zIndex:350}}/></>}
       {intro&&<CinematicIntro onDone={()=>setIntro(false)}/>}
       {!isMobile&&<CustomCursor/>}
       {matrixOn&&<MatrixRain active={matrixOn}/>}
@@ -860,6 +900,63 @@ export default function Portfolio(){
           </FadeIn>
         </div>
       </section>
+
+      {/* ── CINEMA LAB ── */}
+      <section id="cinema-lab" style={{padding:"80px clamp(20px,7vw,120px)",background:"rgba(255,255,255,.015)"}}>
+        <FadeIn>
+          <div className="reel-divider"><span className="section-label">Cinematic Innovation</span></div>
+          <h2 className="section-h" style={{marginBottom:18}}>Portfolio <span style={{color:ACC}}>Cinema Lab</span></h2>
+          <p style={{color:"#888",fontSize:13,lineHeight:1.8,maxWidth:760,marginBottom:24}}>A roadmap + prototype zone for the next-gen features you requested.</p>
+        </FadeIn>
+        <div style={{display:"flex",gap:10,flexWrap:"wrap",marginBottom:20}}>
+          {["Thriller","Sci-Fi","Action"].map(g=><button key={g} className="btn btn-outline" data-hover onClick={()=>setGenre(g)} style={{padding:"7px 12px",fontSize:10,borderColor:genre===g?ACC:"rgba(255,255,255,.2)",color:genre===g?ACC:"#aaa"}}>{g}</button>)}
+          <button className="btn btn-primary" data-hover onClick={()=>setTrailerOpen(true)} style={{padding:"7px 12px",fontSize:10}}>▶ Watch Trailer</button>
+          <button className="btn btn-outline" data-hover onClick={()=>setImaxMode(v=>!v)} style={{padding:"7px 12px",fontSize:10}}>{imaxMode?"Disable":"Enable"} IMAX Mode</button>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"1fr 1fr",gap:16,marginBottom:18}}>
+          <div className="card" style={{padding:16}}>
+            <div className="section-label" style={{marginBottom:8}}>Live Clock • Coimbatore (IST)</div>
+            <div className="syne" style={{fontSize:30,color:ACC}}>{istTime}</div>
+            <div style={{fontSize:11,color:"#666"}}>Asia/Kolkata - recruiter-friendly timezone reference</div>
+          </div>
+          <div className="card" style={{padding:16}}>
+            <div className="section-label" style={{marginBottom:8}}>Binary/Hex Decoder</div>
+            <div style={{fontFamily:"'DM Mono',monospace",fontSize:12,color:"#9f9f9f",marginBottom:8,wordBreak:"break-word"}}>{decodedName}</div>
+            <div style={{fontSize:14,color:ACC}}>→ DHINESH</div>
+          </div>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"1fr 1fr",gap:14}}>
+          {CINEMA_FEATURES.map(item=>(
+            <div key={item.title} className="card" style={{padding:14}}>
+              <div style={{display:"flex",justifyContent:"space-between",gap:8,marginBottom:8}}>
+                <strong style={{fontSize:13,color:"#E8E8F0"}}>{item.title}</strong>
+                <span className="tag" style={{padding:"2px 8px",fontSize:9,background:item.status==="Live"?"rgba(0,201,167,.12)":"rgba(255,255,255,.05)",borderColor:item.status==="Live"?"rgba(0,201,167,.4)":"rgba(255,255,255,.2)",color:item.status==="Live"?"#00C9A7":"#999"}}>{item.status}</span>
+              </div>
+              <p style={{fontSize:12,color:"#8d8d8d",lineHeight:1.6}}>{item.desc}</p>
+            </div>
+          ))}
+        </div>
+        <div className="card" style={{padding:16,marginTop:16}}>
+          <div className="section-label" style={{marginBottom:8}}>Commit History Visualization</div>
+          <div style={{fontFamily:"'DM Mono',monospace",fontSize:11,lineHeight:1.9,color:"#b5b5b5"}}>
+            <div>f4a9b2d feat: launch WHI platform in 30 days</div>
+            <div>9cd113a perf: reduce claims processing by 30%</div>
+            <div>31b7ef9 feat: add payment integrations (CyberSource, N-Genius)</div>
+            <div>ab40ce2 feat: introduce e-wallet premium collection flow</div>
+          </div>
+        </div>
+      </section>
+
+      {trailerOpen&&(
+        <div onClick={()=>setTrailerOpen(false)} style={{position:"fixed",inset:0,zIndex:1200,background:"rgba(0,0,0,.92)",display:"grid",placeItems:"center",padding:20}}>
+          <div className="card" style={{maxWidth:760,width:"100%",padding:24,borderColor:"rgba(255,230,0,.35)"}} onClick={e=>e.stopPropagation()}>
+            <div className="section-label" style={{marginBottom:10}}>Career Trailer</div>
+            <h3 className="syne" style={{fontSize:"clamp(22px,4vw,36px)",marginBottom:12}}>"In a world of enterprise software..."</h3>
+            <p style={{color:"#a3a3a3",lineHeight:1.8,fontSize:13}}>One developer built insurance platforms at scale, delivered a government-grade WHI rollout in 30 days, and keeps shipping secure fintech experiences across Dubai and India.</p>
+            <button className="btn btn-primary" style={{marginTop:18}} onClick={()=>setTrailerOpen(false)}>Close Trailer</button>
+          </div>
+        </div>
+      )}
 
       {/* ── CONTACT ── */}
       <section id="contact" style={{padding:"80px clamp(20px,7vw,120px)",textAlign:"center",position:"relative",overflow:"hidden"}}>

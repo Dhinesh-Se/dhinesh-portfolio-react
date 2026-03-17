@@ -1,92 +1,72 @@
 # Dhinesh Portfolio (React + Vite)
 
-A cinematic, interactive personal portfolio built with **React** and **Vite**.
+Cinematic developer portfolio built with React + Vite.
 
-This site showcases Dhinesh's full-stack engineering profile with movie-style visuals, animated storytelling elements, and developer-focused UI interactions.
+## Core Experience
+
+- Matrix rain aesthetic with command palette controls.
+- Mobile-first behavior where Matrix starts enabled by default.
+- Cinematic dialogue ticker visible on both desktop and mobile.
+- Full portfolio sections: About, Skills, Experience, Projects, Achievements, Cinema Lab, Contact.
+
+## Cinema Lab (Requested Feature Roadmap)
+
+The portfolio now includes a dedicated **Cinema Lab** section that tracks and previews advanced features.
+
+### 1) 3D Globe / World Map
+Interactive spinning globe showing deployments in Dubai and India with glowing pins and animated links. *(Planned)*
+
+### 2) AI Chat Assistant ("Ask Dhinesh")
+Floating recruiter Q&A assistant powered by Claude API with resume-aware context. *(Planned)*
+
+### 3) Cinematic Scroll Storytelling
+Movie-like scene progression as users scroll through the career timeline. *(Planned)*
+
+### 4) Live Code Playground
+In-browser Java/JavaScript editor to run snippets. *(Planned)*
+
+### 5) Movie Trailer Overlay
+A full-screen trailer-style career narrative modal. *(Live prototype)*
+
+### 6) IMAX Mode
+Letterboxed top/bottom bars for widescreen cinematic framing. *(Live prototype)*
+
+### 7) Genre Selector
+Theme switcher (Thriller / Sci-Fi / Action) to alter aesthetic mood. *(Live prototype)*
+
+### 8) Live Clock & Timezone
+Real-time Coimbatore (IST) clock for recruiter timezone context. *(Live)*
+
+### 9) Commit History Visualization
+Career milestones presented in `git log --oneline` style. *(Live)*
+
+### 10) Binary/Hex Name Decoder
+Animated encoded stream that decodes into **DHINESH**. *(Live)*
 
 ---
 
-## ✨ Highlights
+## Component Structure
 
-- **Matrix Rain Background** with toggle support.
-- **Cinematic Dialogue Ticker** (movie quote rotation).
-- **Responsive Navigation** with a mobile hamburger menu.
-- **Command Palette** (⌘K / Ctrl+K) for quick actions.
-- **Animated Sections** for About, Skills, Experience, Projects, Achievements, and Contact.
-- **Download CV** CTA and social/contact links.
+- `src/App.jsx` – main page composition and cinematic sections.
+- `src/components/TopNavigation.jsx` – desktop/mobile nav + mobile utility controls.
+- `src/components/MovieTicker.jsx` – reusable movie dialogue ticker.
 
----
-
-## 📱 Mobile behavior
-
-Recent mobile-focused updates include:
-
-- Matrix effect is **enabled by default on mobile** (`< 768px`).
-- Matrix toggle is available directly in the **mobile top bar** (not hidden only inside menu).
-- Cinematic dialogue ticker is visible on mobile without opening the hamburger menu.
-
----
-
-## 🧩 Component structure
-
-The app is still centered around `src/App.jsx`, with key UI pieces extracted into reusable components:
-
-- `src/components/TopNavigation.jsx` – desktop/mobile nav, matrix toggle, mobile menu.
-- `src/components/MovieTicker.jsx` – cinematic quote/dialogue ticker.
-
----
-
-## 🚀 Run locally
-
-### Prerequisites
-
-- Node.js 18+
-- npm
-
-### Install
+## Run Locally
 
 ```bash
 npm install
-```
-
-### Start dev server
-
-```bash
 npm run dev
 ```
 
-### Build for production
+## Build
 
 ```bash
 npm run build
 ```
 
-### Lint
+## Lint
 
 ```bash
 npm run lint
 ```
 
----
-
-## 🛠 Tech stack
-
-- React
-- Vite
-- JavaScript (JSX)
-- CSS (inline + stylesheet)
-
----
-
-## 📁 Project files
-
-- `src/App.jsx` – main portfolio page and section content.
-- `src/components/TopNavigation.jsx` – extracted top navigation component.
-- `src/components/MovieTicker.jsx` – extracted movie dialogue ticker component.
-- `src/main.jsx` – React entry point.
-
----
-
-## 📄 License
-
-Personal portfolio project.
