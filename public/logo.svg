@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Dhinesh portfolio logo">
+  <defs>
+    <linearGradient id="ring" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffe600"/>
+      <stop offset="100%" stop-color="#ff9f00"/>
+    </linearGradient>
+    <linearGradient id="glyph" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#e0e0e0"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="#09090f"/>
+  <rect x="4" y="4" width="56" height="56" rx="12" fill="none" stroke="url(#ring)" stroke-width="3"/>
+  <path d="M20 16h11c10 0 16 7 16 16s-6 16-16 16H20V16zm10 24c5 0 8-3.2 8-8s-3-8-8-8h-1.8v16H30z" fill="url(#glyph)"/>
+  <circle cx="48.5" cy="15.5" r="2.5" fill="#ffe600"/>
+</svg>

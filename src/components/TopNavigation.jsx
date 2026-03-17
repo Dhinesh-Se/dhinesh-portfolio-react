@@ -36,8 +36,17 @@ export default function TopNavigation({
           transition: "all .3s",
         }}
       >
-        <div className="syne" style={{ fontSize: 20, fontWeight: 700, letterSpacing: ".08em", color: accentColor }}>
-          DV
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <img
+            src="/logo.svg"
+            alt="Dhinesh logo"
+            width={30}
+            height={30}
+            style={{ borderRadius: 8, boxShadow: "0 0 18px rgba(255,230,0,.2)" }}
+          />
+          <div className="syne" style={{ fontSize: 16, fontWeight: 700, letterSpacing: ".08em", color: accentColor }}>
+            DHINESH
+          </div>
         </div>
         <div className="hide-mobile" style={{ display: "flex", alignItems: "center", gap: 22 }}>
           {navLinks.map((link) => (
