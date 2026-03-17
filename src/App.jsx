@@ -13,7 +13,7 @@ const SKILLS = [
 ];
 
 const EXPERIENCES = [
-  { company:"Ernst & Young (EY)", role:"Software Engineer", period:"Feb 2026 – Present", location:"India", color:ACC,
+  { company:"Ernst & Young (EY)", role:"Senior Software Engineer", period:"Feb 2026 – Present", location:"Coimbatore, India", color:ACC,
     desc:"Contributing to high-impact enterprise solutions at one of the world's leading professional services firms.",
     tags:["Enterprise Solutions","Consulting","Full Stack"] },
   { company:"KGISL Technologies", role:"Junior Associate – Full Stack Developer", period:"Dec 2022 – Jan 2026", location:"Coimbatore, India", color:"#00C9A7",
