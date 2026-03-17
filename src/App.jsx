@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import MovieTicker from "./components/MovieTicker";
+import TopNavigation from "./components/TopNavigation";
 
 /* ═══════════════ DATA ═══════════════ */
 const NAV_LINKS = ["About","Skills","Experience","Projects","Achievements","Contact"];
@@ -268,21 +270,6 @@ function GlitchText({text,style={}}){
   );
 }
 
-/* ═══════════════ MOVIE TICKER ═══════════════ */
-function MovieTicker(){
-  const[i,setI]=useState(0),[vis,setVis]=useState(true);
-  useEffect(()=>{const t=setInterval(()=>{setVis(false);setTimeout(()=>{setI(x=>(x+1)%MOVIE_QUOTES.length);setVis(true);},450);},4000);return()=>clearInterval(t);},[]);
-  const q=MOVIE_QUOTES[i];
-  return(
-    <div style={{display:"flex",alignItems:"center",gap:10,overflow:"hidden",maxWidth:360}}>
-      <span style={{fontSize:13,flexShrink:0}}>🎬</span>
-      <div style={{opacity:vis?1:0,transition:"opacity .4s",fontSize:11,color:"rgba(255,255,255,.4)",fontStyle:"italic",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
-        "{q.quote}" — <span style={{color:"rgba(255,230,0,.6)"}}>{q.film}</span>
-      </div>
-    </div>
-  );
-}
-
 /* ═══════════════ TERMINAL CARD ═══════════════ */
 function TerminalCard({lines=[],style={}}){
   const[n,setN]=useState(0);
@@ -537,7 +524,7 @@ export default function Portfolio(){
   const[scrolled,setScrolled]=useState(false);
   const[menuOpen,setMenuOpen]=useState(false);
   const[dlState,setDlState]=useState("idle");
-  const[matrixOn,setMatrixOn]=useState(false);
+  const[matrixOn,setMatrixOn]=useState(()=>typeof window!=="undefined"&&window.innerWidth<768);
   const[cmdOpen,setCmdOpen]=useState(false);
   const[konamiOn,setKonamiOn]=useState(false);
   const[showRocket,setShowRocket]=useState(false);
@@ -664,59 +651,21 @@ export default function Portfolio(){
         @media(min-width:769px){.hide-desktop{display:none!important;}}
       `}</style>
 
-      {/* ── NAV ── */}
-      <nav style={{position:"fixed",top:3,left:0,right:0,zIndex:200,height:60,display:"flex",alignItems:"center",justifyContent:"space-between",
-        padding:"0 clamp(16px,5vw,72px)",
-        background:scrolled||menuOpen?"rgba(8,8,16,.96)":"transparent",
-        backdropFilter:scrolled||menuOpen?"blur(16px)":"none",
-        borderBottom:scrolled&&!menuOpen?"1px solid rgba(255,230,0,.08)":"none",
-        transition:"background .3s,border-color .3s"}}>
-        <span data-hover onClick={()=>scrollTo("About")} style={{fontFamily:"'Syne',sans-serif",fontWeight:800,fontSize:20,color:ACC,letterSpacing:".02em",cursor:"pointer"}}>
-          DV<span style={{color:"#E8E8F0"}}>.</span>
-        </span>
-        <div className="hide-mobile" style={{display:"flex",alignItems:"center",gap:22}}>
-          {NAV_LINKS.map(l=>(
-            <span key={l} data-hover className={`nav-link ${active===l?"active":""}`} onClick={()=>scrollTo(l)}>{l}</span>
-          ))}
-          {/* Cmd+K hint */}
-          <button data-hover onClick={()=>setCmdOpen(true)}
-            style={{display:"flex",alignItems:"center",gap:6,background:"rgba(255,255,255,.04)",border:"1px solid rgba(255,255,255,.1)",padding:"5px 10px",borderRadius:5,fontSize:11,color:"rgba(255,255,255,.4)",fontFamily:"'DM Mono',monospace",transition:"all .2s"}}
-            title="Command Palette">
-            <span>⌘</span><span>K</span>
-          </button>
-          <button data-hover onClick={()=>setMatrixOn(o=>!o)}
-            style={{background:matrixOn?"rgba(255,230,0,.1)":"transparent",border:`1px solid ${matrixOn?ACC:"rgba(255,255,255,.12)"}`,color:matrixOn?ACC:"#888",padding:"5px 10px",borderRadius:3,fontSize:11,fontFamily:"'DM Mono',monospace"}}>
-            {matrixOn?"◼ MATRIX":"◻ MATRIX"}
-          </button>
-          <DlBtn style={{padding:"7px 14px",fontSize:11}}/>
-        </div>
-        <div className="hide-desktop" style={{display:"flex",alignItems:"center",gap:10}}>
-          <button data-hover onClick={()=>setCmdOpen(true)}
-            style={{background:"rgba(255,255,255,.04)",border:"1px solid rgba(255,255,255,.1)",padding:"5px 8px",borderRadius:4,fontSize:12,color:"rgba(255,255,255,.5)",fontFamily:"monospace"}}>⌘</button>
-          <button data-hover onClick={()=>setMenuOpen(o=>!o)} style={{background:"none",border:"none",padding:6,display:"flex",flexDirection:"column",gap:5,zIndex:201}} aria-label="Menu">
-            <span className="bar" style={{transform:menuOpen?"rotate(45deg) translate(5px,5px)":"none"}}/>
-            <span className="bar" style={{opacity:menuOpen?0:1}}/>
-            <span className="bar" style={{transform:menuOpen?"rotate(-45deg) translate(5px,-5px)":"none"}}/>
-          </button>
-        </div>
-      </nav>
-
-      {/* Mobile menu */}
-      {menuOpen&&(
-        <div style={{position:"fixed",inset:0,zIndex:199,background:"#09090F",display:"flex",flexDirection:"column",justifyContent:"center",alignItems:"flex-start",padding:"80px clamp(28px,8vw,60px) 40px",animation:"slideDown .3s ease"}}>
-          <div style={{marginBottom:20}}><MovieTicker/></div>
-          <nav style={{display:"flex",flexDirection:"column",gap:4,marginBottom:36}}>
-            {NAV_LINKS.map((l,i)=>(
-              <span key={l} data-hover onClick={()=>scrollTo(l)}
-                style={{fontFamily:"'Syne',sans-serif",fontWeight:700,fontSize:"clamp(28px,8vw,40px)",letterSpacing:"-.01em",color:active===l?ACC:"#555",textTransform:"uppercase",transition:"color .2s",display:"block",padding:"8px 0"}}>
-                <span style={{fontSize:".4em",color:ACC,marginRight:8}}>▸</span>{l}
-              </span>
-            ))}
-          </nav>
-          <DlBtn cls="btn btn-primary" style={{maxWidth:260,width:"100%",justifyContent:"center"}}/>
-          <div style={{marginTop:24,fontSize:11,color:"rgba(255,255,255,.25)",fontFamily:"'DM Mono',monospace"}}>Press ⌘K for command palette</div>
-        </div>
-      )}
+      <TopNavigation
+        scrolled={scrolled}
+        menuOpen={menuOpen}
+        setMenuOpen={setMenuOpen}
+        active={active}
+        navLinks={NAV_LINKS}
+        scrollTo={scrollTo}
+        accentColor={ACC}
+        matrixOn={matrixOn}
+        onToggleMatrix={()=>setMatrixOn(o=>!o)}
+        onOpenCommand={()=>setCmdOpen(true)}
+        DlBtn={DlBtn}
+        quotes={MOVIE_QUOTES}
+        isMobile={isMobile}
+      />
 
       {/* ── HERO ── */}
       <section id="about" className="dot-grid scanlines" style={{minHeight:"100vh",display:"flex",alignItems:"center",padding:"100px clamp(20px,7vw,120px) 72px",position:"relative",overflow:"hidden"}}>
@@ -728,7 +677,7 @@ export default function Portfolio(){
               <div className="pulse" style={{width:8,height:8,borderRadius:"50%",background:"#00C9A7",flexShrink:0}}/>
               <span className="section-label">Available for Opportunities</span>
             </div>
-            <div className="hide-mobile"><MovieTicker/></div>
+            <div className="hide-mobile"><MovieTicker quotes={MOVIE_QUOTES} accentColor={ACC}/></div>
           </div>
           <h1 style={{fontFamily:"'Bebas Neue',sans-serif",fontWeight:400,lineHeight:.85,fontSize:"clamp(72px,14vw,160px)",letterSpacing:".02em",color:"#E8E8F0",margin:"0 0 20px"}}>
             <GlitchText text="DHINESH" style={{display:"block"}}/>
