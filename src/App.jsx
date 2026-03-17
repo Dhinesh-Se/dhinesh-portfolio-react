@@ -1,7 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import MovieTicker from "./components/MovieTicker";
+import TopNavigation from "./components/TopNavigation";
 
 /* ═══════════════ DATA ═══════════════ */
-const NAV_LINKS = ["About","Skills","Experience","Projects","Achievements","Contact"];
+const NAV_LINKS = ["About","Skills","Experience","Projects","Achievements","Cinema Lab","Contact"];
+const toSectionId=(label)=>label.toLowerCase().replace(/\s+/g,"-");
 const ACC = "#FFE600";
 
 const SKILLS = [
@@ -268,21 +271,6 @@ function GlitchText({text,style={}}){
   );
 }
 
-/* ═══════════════ MOVIE TICKER ═══════════════ */
-function MovieTicker(){
-  const[i,setI]=useState(0),[vis,setVis]=useState(true);
-  useEffect(()=>{const t=setInterval(()=>{setVis(false);setTimeout(()=>{setI(x=>(x+1)%MOVIE_QUOTES.length);setVis(true);},450);},4000);return()=>clearInterval(t);},[]);
-  const q=MOVIE_QUOTES[i];
-  return(
-    <div style={{display:"flex",alignItems:"center",gap:10,overflow:"hidden",maxWidth:360}}>
-      <span style={{fontSize:13,flexShrink:0}}>🎬</span>
-      <div style={{opacity:vis?1:0,transition:"opacity .4s",fontSize:11,color:"rgba(255,255,255,.4)",fontStyle:"italic",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
-        "{q.quote}" — <span style={{color:"rgba(255,230,0,.6)"}}>{q.film}</span>
-      </div>
-    </div>
-  );
-}
-
 /* ═══════════════ TERMINAL CARD ═══════════════ */
 function TerminalCard({lines=[],style={}}){
   const[n,setN]=useState(0);
@@ -485,7 +473,7 @@ function GitHubStats(){
 
 /* ═══════════════ SECTION NAV DOTS ═══════════════ */
 function SectionDots({active}){
-  const sections=NAV_LINKS.map(l=>l.toLowerCase());
+  const sections=NAV_LINKS.map(l=>toSectionId(l));
   return(
     <div style={{position:"fixed",right:20,top:"50%",transform:"translateY(-50%)",zIndex:300,display:"flex",flexDirection:"column",gap:10}}>
       {sections.map(s=>(
@@ -537,10 +525,15 @@ export default function Portfolio(){
   const[scrolled,setScrolled]=useState(false);
   const[menuOpen,setMenuOpen]=useState(false);
   const[dlState,setDlState]=useState("idle");
-  const[matrixOn,setMatrixOn]=useState(false);
+  const[matrixOn,setMatrixOn]=useState(()=>typeof window!=="undefined"&&window.innerWidth<768);
   const[cmdOpen,setCmdOpen]=useState(false);
   const[konamiOn,setKonamiOn]=useState(false);
   const[showRocket,setShowRocket]=useState(false);
+  const[genre,setGenre]=useState("Sci-Fi");
+  const[imaxMode,setImaxMode]=useState(false);
+  const[trailerOpen,setTrailerOpen]=useState(false);
+  const[istTime,setIstTime]=useState("");
+  const[decodedName,setDecodedName]=useState("01000100 01001000 01001001 01001110 01000101 01010011 01001000");
   const confettiRef=useRef(null);
   const konamiSeq=useRef([]);
   const isMobile=useIsMobile();
@@ -551,7 +544,7 @@ export default function Portfolio(){
     const f=()=>{
       const y=window.scrollY; setScrolled(y>40); setShowRocket(y>400);
       // Active section tracking
-      const secs=NAV_LINKS.map(l=>({id:l,el:document.getElementById(l.toLowerCase())}));
+      const secs=NAV_LINKS.map(l=>({id:l,el:document.getElementById(toSectionId(l))}));
       for(let i=secs.length-1;i>=0;i--){
         const el=secs[i].el; if(el&&el.getBoundingClientRect().top<=120){setActive(secs[i].id);break;}
       }
@@ -579,7 +572,27 @@ export default function Portfolio(){
     window.addEventListener("keydown",f); return()=>window.removeEventListener("keydown",f);
   },[]);
 
-  const scrollTo=id=>{document.getElementById(id.toLowerCase())?.scrollIntoView({behavior:"smooth"});setActive(id);setMenuOpen(false);};
+  useEffect(()=>{
+    const tick=()=>{
+      const now=new Date();
+      setIstTime(now.toLocaleTimeString("en-IN",{timeZone:"Asia/Kolkata",hour12:true}));
+    };
+    tick();
+    const id=setInterval(tick,1000);
+    return()=>clearInterval(id);
+  },[]);
+
+  useEffect(()=>{
+    const encoded=["44","48","49","4E","45","53","48"," ","01000100","01001000","01001001","01001110","01000101","01010011","01001000"];
+    let i=0;
+    const id=setInterval(()=>{
+      setDecodedName(i%2===0?encoded.slice(0,7).join(" "):encoded.slice(8).join(" "));
+      i++;
+    },1800);
+    return()=>clearInterval(id);
+  },[]);
+
+  const scrollTo=id=>{document.getElementById(toSectionId(id))?.scrollIntoView({behavior:"smooth"});setActive(id);setMenuOpen(false);};
 
   const handleDl=()=>{
     setDlState("loading");
@@ -600,8 +613,9 @@ export default function Portfolio(){
   );
 
   return(
-    <div style={{fontFamily:"'DM Mono',monospace",background:"#080810",color:"#E8E8F0",minHeight:"100vh",overflowX:"hidden",cursor:isMobile?"auto":"none"}}>
+    <div style={{fontFamily:"'DM Mono',monospace",background:genre==="Thriller"?"#07070B":genre==="Action"?"#0D0808":"#080810",color:"#E8E8F0",minHeight:"100vh",overflowX:"hidden",cursor:isMobile?"auto":"none",maxWidth:imaxMode?"1800px":"none",margin:"0 auto",transition:"background .4s"}}>
       {/* Overlays */}
+      {imaxMode&&<><div style={{position:"fixed",top:0,left:0,right:0,height:"8vh",background:"#000",zIndex:350}}/><div style={{position:"fixed",bottom:0,left:0,right:0,height:"8vh",background:"#000",zIndex:350}}/></>}
       {intro&&<CinematicIntro onDone={()=>setIntro(false)}/>}
       {!isMobile&&<CustomCursor/>}
       {matrixOn&&<MatrixRain active={matrixOn}/>}
@@ -664,59 +678,21 @@ export default function Portfolio(){
         @media(min-width:769px){.hide-desktop{display:none!important;}}
       `}</style>
 
-      {/* ── NAV ── */}
-      <nav style={{position:"fixed",top:3,left:0,right:0,zIndex:200,height:60,display:"flex",alignItems:"center",justifyContent:"space-between",
-        padding:"0 clamp(16px,5vw,72px)",
-        background:scrolled||menuOpen?"rgba(8,8,16,.96)":"transparent",
-        backdropFilter:scrolled||menuOpen?"blur(16px)":"none",
-        borderBottom:scrolled&&!menuOpen?"1px solid rgba(255,230,0,.08)":"none",
-        transition:"background .3s,border-color .3s"}}>
-        <span data-hover onClick={()=>scrollTo("About")} style={{fontFamily:"'Syne',sans-serif",fontWeight:800,fontSize:20,color:ACC,letterSpacing:".02em",cursor:"pointer"}}>
-          DV<span style={{color:"#E8E8F0"}}>.</span>
-        </span>
-        <div className="hide-mobile" style={{display:"flex",alignItems:"center",gap:22}}>
-          {NAV_LINKS.map(l=>(
-            <span key={l} data-hover className={`nav-link ${active===l?"active":""}`} onClick={()=>scrollTo(l)}>{l}</span>
-          ))}
-          {/* Cmd+K hint */}
-          <button data-hover onClick={()=>setCmdOpen(true)}
-            style={{display:"flex",alignItems:"center",gap:6,background:"rgba(255,255,255,.04)",border:"1px solid rgba(255,255,255,.1)",padding:"5px 10px",borderRadius:5,fontSize:11,color:"rgba(255,255,255,.4)",fontFamily:"'DM Mono',monospace",transition:"all .2s"}}
-            title="Command Palette">
-            <span>⌘</span><span>K</span>
-          </button>
-          <button data-hover onClick={()=>setMatrixOn(o=>!o)}
-            style={{background:matrixOn?"rgba(255,230,0,.1)":"transparent",border:`1px solid ${matrixOn?ACC:"rgba(255,255,255,.12)"}`,color:matrixOn?ACC:"#888",padding:"5px 10px",borderRadius:3,fontSize:11,fontFamily:"'DM Mono',monospace"}}>
-            {matrixOn?"◼ MATRIX":"◻ MATRIX"}
-          </button>
-          <DlBtn style={{padding:"7px 14px",fontSize:11}}/>
-        </div>
-        <div className="hide-desktop" style={{display:"flex",alignItems:"center",gap:10}}>
-          <button data-hover onClick={()=>setCmdOpen(true)}
-            style={{background:"rgba(255,255,255,.04)",border:"1px solid rgba(255,255,255,.1)",padding:"5px 8px",borderRadius:4,fontSize:12,color:"rgba(255,255,255,.5)",fontFamily:"monospace"}}>⌘</button>
-          <button data-hover onClick={()=>setMenuOpen(o=>!o)} style={{background:"none",border:"none",padding:6,display:"flex",flexDirection:"column",gap:5,zIndex:201}} aria-label="Menu">
-            <span className="bar" style={{transform:menuOpen?"rotate(45deg) translate(5px,5px)":"none"}}/>
-            <span className="bar" style={{opacity:menuOpen?0:1}}/>
-            <span className="bar" style={{transform:menuOpen?"rotate(-45deg) translate(5px,-5px)":"none"}}/>
-          </button>
-        </div>
-      </nav>
-
-      {/* Mobile menu */}
-      {menuOpen&&(
-        <div style={{position:"fixed",inset:0,zIndex:199,background:"#09090F",display:"flex",flexDirection:"column",justifyContent:"center",alignItems:"flex-start",padding:"80px clamp(28px,8vw,60px) 40px",animation:"slideDown .3s ease"}}>
-          <div style={{marginBottom:20}}><MovieTicker/></div>
-          <nav style={{display:"flex",flexDirection:"column",gap:4,marginBottom:36}}>
-            {NAV_LINKS.map((l,i)=>(
-              <span key={l} data-hover onClick={()=>scrollTo(l)}
-                style={{fontFamily:"'Syne',sans-serif",fontWeight:700,fontSize:"clamp(28px,8vw,40px)",letterSpacing:"-.01em",color:active===l?ACC:"#555",textTransform:"uppercase",transition:"color .2s",display:"block",padding:"8px 0"}}>
-                <span style={{fontSize:".4em",color:ACC,marginRight:8}}>▸</span>{l}
-              </span>
-            ))}
-          </nav>
-          <DlBtn cls="btn btn-primary" style={{maxWidth:260,width:"100%",justifyContent:"center"}}/>
-          <div style={{marginTop:24,fontSize:11,color:"rgba(255,255,255,.25)",fontFamily:"'DM Mono',monospace"}}>Press ⌘K for command palette</div>
-        </div>
-      )}
+      <TopNavigation
+        scrolled={scrolled}
+        menuOpen={menuOpen}
+        setMenuOpen={setMenuOpen}
+        active={active}
+        navLinks={NAV_LINKS}
+        scrollTo={scrollTo}
+        accentColor={ACC}
+        matrixOn={matrixOn}
+        onToggleMatrix={()=>setMatrixOn(o=>!o)}
+        onOpenCommand={()=>setCmdOpen(true)}
+        DlBtn={DlBtn}
+        quotes={MOVIE_QUOTES}
+        isMobile={isMobile}
+      />
 
       {/* ── HERO ── */}
       <section id="about" className="dot-grid scanlines" style={{minHeight:"100vh",display:"flex",alignItems:"center",padding:"100px clamp(20px,7vw,120px) 72px",position:"relative",overflow:"hidden"}}>
@@ -728,7 +704,7 @@ export default function Portfolio(){
               <div className="pulse" style={{width:8,height:8,borderRadius:"50%",background:"#00C9A7",flexShrink:0}}/>
               <span className="section-label">Available for Opportunities</span>
             </div>
-            <div className="hide-mobile"><MovieTicker/></div>
+            <div className="hide-mobile"><MovieTicker quotes={MOVIE_QUOTES} accentColor={ACC}/></div>
           </div>
           <h1 style={{fontFamily:"'Bebas Neue',sans-serif",fontWeight:400,lineHeight:.85,fontSize:"clamp(72px,14vw,160px)",letterSpacing:".02em",color:"#E8E8F0",margin:"0 0 20px"}}>
             <GlitchText text="DHINESH" style={{display:"block"}}/>
@@ -911,6 +887,43 @@ export default function Portfolio(){
           </FadeIn>
         </div>
       </section>
+
+      {/* ── CINEMA LAB ── */}
+      <section id="cinema-lab" style={{padding:"80px clamp(20px,7vw,120px)",background:"rgba(255,255,255,.015)"}}>
+        <FadeIn>
+          <div className="reel-divider"><span className="section-label">Cinematic Innovation</span></div>
+          <h2 className="section-h" style={{marginBottom:18}}>Portfolio <span style={{color:ACC}}>Cinema Lab</span></h2>
+          <p style={{color:"#888",fontSize:13,lineHeight:1.8,maxWidth:760,marginBottom:24}}>A roadmap + prototype zone for the next-gen features you requested.</p>
+        </FadeIn>
+        <div style={{display:"flex",gap:10,flexWrap:"wrap",marginBottom:20}}>
+          {["Thriller","Sci-Fi","Action"].map(g=><button key={g} className="btn btn-outline" data-hover onClick={()=>setGenre(g)} style={{padding:"7px 12px",fontSize:10,borderColor:genre===g?ACC:"rgba(255,255,255,.2)",color:genre===g?ACC:"#aaa"}}>{g}</button>)}
+          <button className="btn btn-primary" data-hover onClick={()=>setTrailerOpen(true)} style={{padding:"7px 12px",fontSize:10}}>▶ Watch Trailer</button>
+          <button className="btn btn-outline" data-hover onClick={()=>setImaxMode(v=>!v)} style={{padding:"7px 12px",fontSize:10}}>{imaxMode?"Disable":"Enable"} IMAX Mode</button>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"1fr 1fr",gap:16,marginBottom:18}}>
+          <div className="card" style={{padding:16}}>
+            <div className="section-label" style={{marginBottom:8}}>Live Clock • Coimbatore (IST)</div>
+            <div className="syne" style={{fontSize:30,color:ACC}}>{istTime}</div>
+            <div style={{fontSize:11,color:"#666"}}>Asia/Kolkata - recruiter-friendly timezone reference</div>
+          </div>
+          <div className="card" style={{padding:16}}>
+            <div className="section-label" style={{marginBottom:8}}>Binary/Hex Decoder</div>
+            <div style={{fontFamily:"'DM Mono',monospace",fontSize:12,color:"#9f9f9f",marginBottom:8,wordBreak:"break-word"}}>{decodedName}</div>
+            <div style={{fontSize:14,color:ACC}}>→ DHINESH</div>
+          </div>
+        </div>
+      </section>
+
+      {trailerOpen&&(
+        <div onClick={()=>setTrailerOpen(false)} style={{position:"fixed",inset:0,zIndex:1200,background:"rgba(0,0,0,.92)",display:"grid",placeItems:"center",padding:20}}>
+          <div className="card" style={{maxWidth:760,width:"100%",padding:24,borderColor:"rgba(255,230,0,.35)"}} onClick={e=>e.stopPropagation()}>
+            <div className="section-label" style={{marginBottom:10}}>Career Trailer</div>
+            <h3 className="syne" style={{fontSize:"clamp(22px,4vw,36px)",marginBottom:12}}>"In a world of enterprise software..."</h3>
+            <p style={{color:"#a3a3a3",lineHeight:1.8,fontSize:13}}>One developer built insurance platforms at scale, delivered a government-grade WHI rollout in 30 days, and keeps shipping secure fintech experiences across Dubai and India.</p>
+            <button className="btn btn-primary" style={{marginTop:18}} onClick={()=>setTrailerOpen(false)}>Close Trailer</button>
+          </div>
+        </div>
+      )}
 
       {/* ── CONTACT ── */}
       <section id="contact" style={{padding:"80px clamp(20px,7vw,120px)",textAlign:"center",position:"relative",overflow:"hidden"}}>

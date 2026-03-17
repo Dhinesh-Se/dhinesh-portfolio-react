@@ -1,16 +1,59 @@
-# React + Vite
+# Dhinesh Portfolio (React + Vite)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Cinematic developer portfolio built with React + Vite.
 
-Currently, two official plugins are available:
+## Implemented Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+1. **3D Globe / World Map**
+   - Interactive rotating globe visualization with Dubai and India pins plus animated route link.
+2. **AI Chat Assistant (Ask Dhinesh)**
+   - Floating chat bubble for recruiter-style questions (skills, WHI, project context).
+3. **Cinematic Scroll Storytelling**
+   - Scroll-driven story scene transitions with dynamic cinematic background movement.
+4. **Live Code Playground**
+   - In-browser JavaScript runner and Java preview mode.
+5. **Movie Trailer Overlay**
+   - Fullscreen trailer-style career storytelling modal.
+6. **IMAX Mode**
+   - Toggle cinematic letterbox bars for widescreen feel.
+7. **Genre Selector**
+   - Thriller / Sci-Fi / Action UI mood switching.
+8. **Live Clock & Timezone**
+   - Real-time Coimbatore (IST) clock.
+9. **Binary/Hex Name Decoder**
+   - Animated decode display for “DHINESH” from binary/hex style representation.
 
-## React Compiler
+## Sections
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- About
+- Skills
+- Experience
+- Projects
+- Achievements
+- Cinema Lab
+- Contact
 
-## Expanding the ESLint configuration
+## Component Structure
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- `src/App.jsx` – primary page and feature composition.
+- `src/components/TopNavigation.jsx` – desktop/mobile navigation + controls.
+- `src/components/MovieTicker.jsx` – cinematic quote ticker.
+
+## Run Locally
+
+```bash
+npm install
+npm run dev
+```
+
+## Build
+
+```bash
+npm run build
+```
+
+## Lint
+
+```bash
+npm run lint
+```
