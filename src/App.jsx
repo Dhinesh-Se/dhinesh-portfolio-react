@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import MovieTicker from "./components/MovieTicker";
 import TopNavigation from "./components/TopNavigation";
+import AiChat from "./components/AiChat";
+import ContactForm from "./components/ContactForm";
 
-/* ═══════════════ DATA ═══════════════ */
+/* ═══════════ DATA ═══════════ */
 const NAV_LINKS = ["About","Skills","Experience","Projects","Achievements","Cinema Lab","Contact"];
-const toSectionId=(label)=>label.toLowerCase().replace(/\s+/g,"-");
+const toId = l => l.toLowerCase().replace(/\s+/g,"-");
 const ACC = "#FFE600";
 
 const SKILLS = [
@@ -16,7 +18,7 @@ const SKILLS = [
 ];
 
 const EXPERIENCES = [
-  { company:"Ernst & Young (EY)", role:"Senior Software Engineer", period:"Feb 2026 – Present", location:"Coimbatore, India", color:ACC,
+  { company:"Ernst & Young (EY)", role:"Software Engineer", period:"Feb 2026 – Present", location:"Coimbatore, India", color:ACC,
     desc:"Contributing to high-impact enterprise solutions at one of the world's leading professional services firms.",
     tags:["Enterprise Solutions","Consulting","Full Stack"] },
   { company:"KGISL Technologies", role:"Junior Associate – Full Stack Developer", period:"Dec 2022 – Jan 2026", location:"Coimbatore, India", color:"#00C9A7",
@@ -52,26 +54,29 @@ const MOVIE_QUOTES = [
   { quote:"I am inevitable.", film:"Avengers: Endgame" },
   { quote:"To infinity and beyond!", film:"Toy Story" },
   { quote:"It's not who I am underneath, but what I do that defines me.", film:"Batman Begins" },
+  { quote:"Every passing minute is another chance to turn it all around.", film:"Vanilla Sky" },
 ];
 
 const CODE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*<>/\\|{}[]";
 const KONAMI = ["ArrowUp","ArrowUp","ArrowDown","ArrowDown","ArrowLeft","ArrowRight","ArrowLeft","ArrowRight","b","a"];
 
 const CMD_ITEMS = [
-  { label:"Go to About",        icon:"👤", action:"scroll", id:"about" },
-  { label:"Go to Skills",       icon:"⚡", action:"scroll", id:"skills" },
-  { label:"Go to Experience",   icon:"💼", action:"scroll", id:"experience" },
-  { label:"Go to Projects",     icon:"🎬", action:"scroll", id:"projects" },
-  { label:"Go to Achievements", icon:"🏆", action:"scroll", id:"achievements" },
-  { label:"Go to Contact",      icon:"✉️",  action:"scroll", id:"contact" },
-  { label:"Download Resume",    icon:"📄", action:"download" },
-  { label:"Toggle Matrix Rain", icon:"💊", action:"matrix" },
-  { label:"Email Dhinesh",      icon:"📧", action:"email" },
-  { label:"Open LinkedIn",      icon:"🔗", action:"linkedin" },
-  { label:"Open GitHub",        icon:"🐙", action:"github" },
+  { label:"Go to About",          icon:"👤", action:"scroll", id:"about" },
+  { label:"Go to Skills",         icon:"⚡", action:"scroll", id:"skills" },
+  { label:"Go to Experience",     icon:"💼", action:"scroll", id:"experience" },
+  { label:"Go to Projects",       icon:"🎬", action:"scroll", id:"projects" },
+  { label:"Go to Achievements",   icon:"🏆", action:"scroll", id:"achievements" },
+  { label:"Go to Cinema Lab",     icon:"🎥", action:"scroll", id:"cinema-lab" },
+  { label:"Go to Contact",        icon:"✉️",  action:"scroll", id:"contact" },
+  { label:"Download Resume",      icon:"📄", action:"download" },
+  { label:"Toggle Matrix Rain",   icon:"💊", action:"matrix" },
+  { label:"Open AI Chat",         icon:"🤖", action:"chat" },
+  { label:"Email Dhinesh",        icon:"📧", action:"email" },
+  { label:"Open LinkedIn",        icon:"🔗", action:"linkedin" },
+  { label:"Open GitHub",          icon:"🐙", action:"github" },
 ];
 
-/* ═══════════════ HOOKS ═══════════════ */
+/* ═══════════ HOOKS ═══════════ */
 function useInView(t=0.1){
   const r=useRef(null); const [v,setV]=useState(false);
   useEffect(()=>{
@@ -88,52 +93,44 @@ function useIsMobile(){
 function useScrollProgress(){
   const[p,setP]=useState(0);
   useEffect(()=>{
-    const f=()=>{
-      const el=document.documentElement;
-      setP((el.scrollTop||document.body.scrollTop)/(el.scrollHeight-el.clientHeight)*100||0);
-    };
+    const f=()=>{const el=document.documentElement;setP((el.scrollTop||document.body.scrollTop)/(el.scrollHeight-el.clientHeight)*100||0);};
     window.addEventListener("scroll",f); return()=>window.removeEventListener("scroll",f);
   },[]);
   return p;
 }
 
-/* ═══════════════ UTILITIES ═══════════════ */
+/* ═══════════ UTILS ═══════════ */
 function triggerDownload(){
-  const t=`DHINESH V — Full Stack Software Engineer\njavadevdhinesh@gmail.com | 8754447528 | Coimbatore, India\nLinkedIn: linkedin.com/in/dhineshse | GitHub: github.com/Dhinesh-Se\n\nEXPERIENCE\nErnst & Young (EY) — Software Engineer | Feb 2026–Present\nKGiSL Technologies — Junior Associate | Dec 2022–Jan 2026\n\nSKILLS\nFrontend: Angular, TypeScript, JavaScript, HTML5, CSS3\nBackend: Java, Spring Boot, RESTful APIs, Microservices\nDatabase: MySQL, Oracle, MongoDB, PostgreSQL\nDevOps: Docker, Kubernetes, Git, Maven\nPayments: CyberSource, N-Genius, e-Wallet\n\nEDUCATION\nB.Tech – Information Technology (2018–2022)\nCoimbatore Institute of Engineering and Technology`;
+  const t=`DHINESH V — Full Stack Software Engineer\njavadevdhinesh@gmail.com | 8754447528 | Coimbatore, India\nLinkedIn: linkedin.com/in/dhineshse | GitHub: github.com/Dhinesh-Se\n\nEXPERIENCE\nErnst & Young (EY) — Software Engineer | Feb 2026 – Present\nKGiSL Technologies — Junior Associate / Full Stack Developer | Dec 2022 – Jan 2026\n\nSKILLS\nFrontend: Angular (v12+), TypeScript, JavaScript ES6+, HTML5, CSS3\nBackend: Java, Spring Boot, Spring MVC, Spring Security, RESTful APIs, Microservices\nDatabase: MySQL, PostgreSQL, PL/SQL (Oracle), MongoDB, Spring Data JPA, Hibernate\nDevOps: Docker, Kubernetes, Git/GitHub, Maven, Postman, Swagger/OpenAPI, JIRA\nPayments: CyberSource, N-Genius, e-Wallet Integration, Installment Flows\n\nPROJECTS\n1. Free Zone Portal (Dubai Insurance) — Spring Boot, Angular, Microservices, Oracle\n2. Worker Health Insurance WHI (Dubai Insurance) — Angular, Java, Spring Boot, SOAP\n3. Worker Protection Program WPP (Dubai Insurance) — Angular, Java, Spring Boot\n\nKEY ACHIEVEMENTS\n- WHI platform delivered in 30 days meeting government deadline\n- Group Claims workflow reduced settlement time by 30%\n- Bulk Policy Issuance dramatically improved throughput\n- Innovative e-wallet system integrated in WPP\n\nEDUCATION\nB.Tech – Information Technology (2018 – 2022)\nCoimbatore Institute of Engineering and Technology\nCertificate: Learn Java Programming – Beginner to Master`;
   const b=new Blob([t],{type:"text/plain"});const u=URL.createObjectURL(b);
   const a=document.createElement("a");a.href=u;a.download="Dhinesh_V_Resume.txt";a.click();URL.revokeObjectURL(u);
 }
 
-/* ═══════════════ CONFETTI ═══════════════ */
 function fireConfetti(canvasRef){
   const canvas=canvasRef.current; if(!canvas) return;
   const ctx=canvas.getContext("2d");
   canvas.width=window.innerWidth; canvas.height=window.innerHeight;
-  const particles=Array.from({length:120},()=>({
-    x:Math.random()*canvas.width, y:canvas.height*Math.random()*-.5-10,
-    vx:(Math.random()-0.5)*6, vy:Math.random()*4+2,
-    color:[ACC,"#00C9A7","#fff","#ff6b6b","#4ecdc4"][Math.floor(Math.random()*5)],
-    size:Math.random()*8+4, spin:Math.random()*0.2-0.1, angle:Math.random()*Math.PI*2,
-    life:1,
+  const particles=Array.from({length:140},()=>({
+    x:Math.random()*canvas.width, y:-10-Math.random()*canvas.height*.4,
+    vx:(Math.random()-0.5)*7, vy:Math.random()*5+2,
+    color:[ACC,"#00C9A7","#fff","#ff6b6b","#4ecdc4","#45b7d1"][Math.floor(Math.random()*6)],
+    size:Math.random()*9+4, spin:Math.random()*0.25-0.125, angle:Math.random()*Math.PI*2, life:1,
   }));
   let raf;
   const draw=()=>{
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    let alive=false;
+    ctx.clearRect(0,0,canvas.width,canvas.height); let alive=false;
     particles.forEach(p=>{
-      p.x+=p.vx; p.y+=p.vy; p.vy+=0.1; p.angle+=p.spin; p.life-=0.012;
-      if(p.life>0){ alive=true; ctx.save(); ctx.globalAlpha=p.life;
-        ctx.translate(p.x,p.y); ctx.rotate(p.angle);
-        ctx.fillStyle=p.color; ctx.fillRect(-p.size/2,-p.size/2,p.size,p.size); ctx.restore(); }
+      p.x+=p.vx; p.y+=p.vy; p.vy+=0.09; p.angle+=p.spin; p.life-=0.011;
+      if(p.life>0){alive=true;ctx.save();ctx.globalAlpha=p.life;ctx.translate(p.x,p.y);ctx.rotate(p.angle);ctx.fillStyle=p.color;ctx.fillRect(-p.size/2,-p.size/2,p.size,p.size);ctx.restore();}
     });
-    if(alive) raf=requestAnimationFrame(draw);
-    else ctx.clearRect(0,0,canvas.width,canvas.height);
+    if(alive)raf=requestAnimationFrame(draw); else ctx.clearRect(0,0,canvas.width,canvas.height);
   };
   draw();
   return()=>cancelAnimationFrame(raf);
 }
 
-/* ═══════════════ CINEMATIC INTRO ═══════════════ */
+/* ═══════════ SUB-COMPONENTS ═══════════ */
+
 function CinematicIntro({onDone}){
   const[phase,setPhase]=useState(0);
   useEffect(()=>{
@@ -159,7 +156,6 @@ function CinematicIntro({onDone}){
   );
 }
 
-/* ═══════════════ MATRIX RAIN ═══════════════ */
 function MatrixRain({active}){
   const ref=useRef(null); const raf=useRef(null);
   useEffect(()=>{
@@ -170,11 +166,11 @@ function MatrixRain({active}){
     const resize=()=>{W=c.width=window.innerWidth;H=c.height=window.innerHeight;};
     window.addEventListener("resize",resize);
     const draw=()=>{
-      ctx.fillStyle="rgba(0,0,0,.04)"; ctx.fillRect(0,0,W,H);
+      ctx.fillStyle="rgba(0,0,0,.04)";ctx.fillRect(0,0,W,H);
       drops.forEach((y,i)=>{
         const ch=CODE_CHARS[Math.floor(Math.random()*CODE_CHARS.length)];
         ctx.fillStyle=Math.random()>.97?"#ffffff":"rgba(255,230,0,.45)";
-        ctx.font=`${fs}px monospace`; ctx.fillText(ch,i*fs,y*fs);
+        ctx.font=`${fs}px monospace`;ctx.fillText(ch,i*fs,y*fs);
         if(y*fs>H&&Math.random()>.975)drops[i]=0; drops[i]++;
       });
       raf.current=requestAnimationFrame(draw);
@@ -185,7 +181,6 @@ function MatrixRain({active}){
   return<canvas ref={ref} style={{position:"fixed",inset:0,zIndex:0,pointerEvents:"none",opacity:.2}}/>;
 }
 
-/* ═══════════════ PARTICLES ═══════════════ */
 function ParticleBg(){
   const ref=useRef(null); const raf=useRef(null);
   useEffect(()=>{
@@ -197,8 +192,8 @@ function ParticleBg(){
     const draw=()=>{
       ctx.clearRect(0,0,W,H);
       pts.forEach(p=>{
-        p.x+=p.vx; p.y+=p.vy;
-        if(p.x<0||p.x>W)p.vx*=-1; if(p.y<0||p.y>H)p.vy*=-1;
+        p.x+=p.vx;p.y+=p.vy;
+        if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1;
         ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle="rgba(255,230,0,.45)";ctx.fill();
       });
       for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){
@@ -214,8 +209,7 @@ function ParticleBg(){
   return<canvas ref={ref} style={{position:"absolute",inset:0,width:"100%",height:"100%",pointerEvents:"none"}}/>;
 }
 
-/* ═══════════════ TYPEWRITER ═══════════════ */
-function Typewriter({text,speed=40,delay=0,style={}}){
+function Typewriter({text,speed=40,delay=0}){
   const[s,setS]=useState(""); const[go,setGo]=useState(false);
   const[r,v]=useInView(.2);
   useEffect(()=>{if(v&&!go)setTimeout(()=>setGo(true),delay*1000);},[v]);
@@ -224,17 +218,15 @@ function Typewriter({text,speed=40,delay=0,style={}}){
     const t=setInterval(()=>{setS(text.slice(0,++i));if(i>=text.length)clearInterval(t);},speed);
     return()=>clearInterval(t);
   },[go,text,speed]);
-  return<span ref={r} style={style}>{s}<span style={{animation:"blink .7s infinite",opacity:s.length<text.length?1:0}}>▌</span></span>;
+  return<span ref={r}>{s}<span style={{animation:"blink .7s infinite",opacity:s.length<text.length?1:0}}>▌</span></span>;
 }
 
-/* ═══════════════ FADEIN ═══════════════ */
 function FadeIn({children,delay=0,from="bottom"}){
   const[r,v]=useInView();
   const tr={bottom:"translateY(26px)",left:"translateX(-26px)",right:"translateX(26px)",scale:"scale(.95)"};
   return<div ref={r} style={{opacity:v?1:0,transform:v?"none":tr[from]||tr.bottom,transition:`opacity .65s ease ${delay}s,transform .65s ease ${delay}s`}}>{children}</div>;
 }
 
-/* ═══════════════ CUSTOM CURSOR ═══════════════ */
 function CustomCursor(){
   const dr=useRef(null),rr=useRef(null),m=useRef({x:-200,y:-200}),rp=useRef({x:-200,y:-200}),raf=useRef(null);
   const[hov,setHov]=useState(false),[clk,setClk]=useState(false);
@@ -245,7 +237,7 @@ function CustomCursor(){
     window.addEventListener("mousemove",mv);window.addEventListener("mousemove",hv);
     window.addEventListener("mousedown",dw);window.addEventListener("mouseup",up);
     const tick=()=>{
-      rp.current.x+=(m.current.x-rp.current.x)*.11; rp.current.y+=(m.current.y-rp.current.y)*.11;
+      rp.current.x+=(m.current.x-rp.current.x)*.11;rp.current.y+=(m.current.y-rp.current.y)*.11;
       if(dr.current){dr.current.style.left=`${m.current.x}px`;dr.current.style.top=`${m.current.y}px`;}
       if(rr.current){rr.current.style.left=`${rp.current.x}px`;rr.current.style.top=`${rp.current.y}px`;}
       raf.current=requestAnimationFrame(tick);
@@ -259,7 +251,6 @@ function CustomCursor(){
   </>);
 }
 
-/* ═══════════════ GLITCH TEXT ═══════════════ */
 function GlitchText({text,style={}}){
   const[g,setG]=useState(false);
   useEffect(()=>{const i=setInterval(()=>{setG(true);setTimeout(()=>setG(false),160);},3000+Math.random()*2000);return()=>clearInterval(i);},[]);
@@ -271,7 +262,6 @@ function GlitchText({text,style={}}){
   );
 }
 
-/* ═══════════════ TERMINAL CARD ═══════════════ */
 function TerminalCard({lines=[],style={}}){
   const[n,setN]=useState(0);
   const[r,v]=useInView(.15);
@@ -296,7 +286,6 @@ function TerminalCard({lines=[],style={}}){
   );
 }
 
-/* ═══════════════ SKILL BAR ═══════════════ */
 function SkillBar({label,pct,delay=0}){
   const[r,v]=useInView();
   return(
@@ -312,7 +301,6 @@ function SkillBar({label,pct,delay=0}){
   );
 }
 
-/* ═══════════════ COUNTER ═══════════════ */
 function Counter({to,suffix="",dur=1800}){
   const[val,setVal]=useState(0);const[r,v]=useInView();
   useEffect(()=>{
@@ -323,35 +311,29 @@ function Counter({to,suffix="",dur=1800}){
   return<span ref={r}>{val}{suffix}</span>;
 }
 
-/* ═══════════════ 3D TILT CARD ═══════════════ */
 function TiltCard({children,style={},className="",isMobile=false}){
   const ref=useRef(null);
   const onMove=useCallback(e=>{
     if(isMobile)return;
     const c=ref.current; if(!c)return;
     const{left,top,width,height}=c.getBoundingClientRect();
-    const x=((e.clientX-left)/width-.5)*18;
-    const y=-((e.clientY-top)/height-.5)*18;
+    const x=((e.clientX-left)/width-.5)*16;
+    const y=-((e.clientY-top)/height-.5)*16;
     c.style.transform=`perspective(800px) rotateX(${y}deg) rotateY(${x}deg) scale(1.02)`;
-    c.style.boxShadow=`${-x*.8}px ${y*.8}px 32px rgba(255,230,0,.12)`;
+    c.style.boxShadow=`${-x*.8}px ${y*.8}px 28px rgba(255,230,0,.1)`;
   },[isMobile]);
   const onLeave=()=>{
     const c=ref.current; if(!c)return;
     c.style.transform="perspective(800px) rotateX(0deg) rotateY(0deg) scale(1)";
     c.style.boxShadow="";
   };
-  return(
-    <div ref={ref} className={className} style={{transition:"transform .2s ease,box-shadow .2s ease",...style}} onMouseMove={onMove} onMouseLeave={onLeave}>
-      {children}
-    </div>
-  );
+  return<div ref={ref} className={className} style={{transition:"transform .2s ease,box-shadow .2s ease",...style}} onMouseMove={onMove} onMouseLeave={onLeave}>{children}</div>;
 }
 
-/* ═══════════════ COMMAND PALETTE ═══════════════ */
-function CommandPalette({open,onClose,onMatrix,onDownload}){
+function CommandPalette({open,onClose,onMatrix,onDownload,onChat}){
   const[q,setQ]=useState("");const[sel,setSel]=useState(0);const inp=useRef(null);
   const filtered=CMD_ITEMS.filter(i=>i.label.toLowerCase().includes(q.toLowerCase()));
-  useEffect(()=>{if(open){setQ("");setSel(0);setTimeout(()=>inp.current?.focus(),80);}}, [open]);
+  useEffect(()=>{if(open){setQ("");setSel(0);setTimeout(()=>inp.current?.focus(),80);}},[open]);
   useEffect(()=>{
     const fn=e=>{
       if(e.key==="ArrowDown"){e.preventDefault();setSel(s=>Math.min(s+1,filtered.length-1));}
@@ -366,6 +348,7 @@ function CommandPalette({open,onClose,onMatrix,onDownload}){
     if(item.action==="scroll")document.getElementById(item.id)?.scrollIntoView({behavior:"smooth"});
     if(item.action==="download")onDownload();
     if(item.action==="matrix")onMatrix();
+    if(item.action==="chat")onChat();
     if(item.action==="email")window.open("mailto:javadevdhinesh@gmail.com");
     if(item.action==="linkedin")window.open("https://linkedin.com/in/dhineshse","_blank");
     if(item.action==="github")window.open("https://github.com/Dhinesh-Se","_blank");
@@ -373,25 +356,20 @@ function CommandPalette({open,onClose,onMatrix,onDownload}){
   };
   if(!open)return null;
   return(
-    <div style={{position:"fixed",inset:0,zIndex:5000,display:"flex",alignItems:"flex-start",justifyContent:"center",paddingTop:"14vh",background:"rgba(0,0,0,.7)",backdropFilter:"blur(8px)"}} onClick={onClose}>
+    <div style={{position:"fixed",inset:0,zIndex:5000,display:"flex",alignItems:"flex-start",justifyContent:"center",paddingTop:"14vh",background:"rgba(0,0,0,.72)",backdropFilter:"blur(8px)"}} onClick={onClose}>
       <div style={{width:"min(600px,90vw)",background:"#0E0E18",border:`1px solid rgba(255,230,0,.3)`,borderRadius:10,overflow:"hidden",boxShadow:`0 24px 80px rgba(0,0,0,.6),0 0 0 1px rgba(255,230,0,.1)`}} onClick={e=>e.stopPropagation()}>
-        {/* Search input */}
         <div style={{display:"flex",alignItems:"center",gap:12,padding:"14px 18px",borderBottom:"1px solid rgba(255,255,255,.07)"}}>
           <span style={{color:"rgba(255,255,255,.3)",fontSize:16}}>⌘</span>
-          <input ref={inp} value={q} onChange={e=>{setQ(e.target.value);setSel(0);}}
-            placeholder="Type a command or search…"
-            style={{flex:1,background:"none",border:"none",outline:"none",fontFamily:"'DM Mono',monospace",fontSize:14,color:"#E8E8F0",caretColor:ACC}}/>
+          <input ref={inp} value={q} onChange={e=>{setQ(e.target.value);setSel(0);}} placeholder="Type a command or search…" style={{flex:1,background:"none",border:"none",outline:"none",fontFamily:"'DM Mono',monospace",fontSize:14,color:"#E8E8F0",caretColor:ACC}}/>
           <span style={{fontSize:10,color:"rgba(255,255,255,.2)",border:"1px solid rgba(255,255,255,.1)",padding:"2px 6px",borderRadius:3}}>ESC</span>
         </div>
-        {/* Items */}
         <div style={{maxHeight:360,overflowY:"auto"}}>
           {filtered.length===0&&<div style={{padding:"20px 18px",fontSize:12,color:"rgba(255,255,255,.3)",textAlign:"center"}}>No results for "{q}"</div>}
           {filtered.map((item,i)=>(
-            <div key={item.label} data-hover onClick={()=>run(item)}
-              style={{display:"flex",alignItems:"center",gap:12,padding:"11px 18px",cursor:"pointer",background:i===sel?"rgba(255,230,0,.08)":"transparent",borderLeft:i===sel?`2px solid ${ACC}`:"2px solid transparent",transition:"background .15s"}}>
+            <div key={item.label} data-hover onClick={()=>run(item)} style={{display:"flex",alignItems:"center",gap:12,padding:"11px 18px",cursor:"pointer",background:i===sel?"rgba(255,230,0,.08)":"transparent",borderLeft:i===sel?`2px solid ${ACC}`:"2px solid transparent",transition:"background .15s"}}>
               <span style={{fontSize:16,width:24,textAlign:"center"}}>{item.icon}</span>
               <span style={{fontFamily:"'DM Mono',monospace",fontSize:13,color:i===sel?"#E8E8F0":"rgba(255,255,255,.6)"}}>{item.label}</span>
-              {i===sel&&<span style={{marginLeft:"auto",fontSize:10,color:"rgba(255,230,0,.5)",border:`1px solid rgba(255,230,0,.2)`,padding:"2px 6px",borderRadius:3}}>↵ Enter</span>}
+              {i===sel&&<span style={{marginLeft:"auto",fontSize:10,color:"rgba(255,230,0,.5)",border:`1px solid rgba(255,230,0,.2)`,padding:"2px 6px",borderRadius:3}}>↵</span>}
             </div>
           ))}
         </div>
@@ -407,7 +385,6 @@ function CommandPalette({open,onClose,onMatrix,onDownload}){
   );
 }
 
-/* ═══════════════ KONAMI EASTER EGG ═══════════════ */
 function KonamiEaster({onClose}){
   return(
     <div style={{position:"fixed",inset:0,zIndex:6000,background:"rgba(0,0,0,.88)",display:"flex",alignItems:"center",justifyContent:"center",backdropFilter:"blur(6px)",animation:"fadeIn .4s ease"}} onClick={onClose}>
@@ -415,9 +392,7 @@ function KonamiEaster({onClose}){
         <div style={{fontSize:64,marginBottom:20,animation:"bounce 1s ease infinite"}}>🎮</div>
         <h2 style={{fontFamily:"'Bebas Neue',sans-serif",fontSize:"clamp(36px,7vw,64px)",color:ACC,marginBottom:12,letterSpacing:".05em"}}>CHEAT CODE ACTIVATED!</h2>
         <p style={{fontFamily:"'DM Mono',monospace",fontSize:14,color:"rgba(255,255,255,.6)",lineHeight:1.8,marginBottom:8}}>↑↑↓↓←→←→BA — The Konami Code!</p>
-        <p style={{fontFamily:"'DM Mono',monospace",fontSize:13,color:"rgba(255,255,255,.4)",lineHeight:1.8,marginBottom:24}}>
-          You just discovered the secret scene. Like a true developer and movie fan — you know the classics! 🎬
-        </p>
+        <p style={{fontFamily:"'DM Mono',monospace",fontSize:13,color:"rgba(255,255,255,.4)",lineHeight:1.8,marginBottom:24}}>You found the secret scene. Like a true developer & movie fan — you know the classics! 🎬</p>
         <div style={{display:"flex",gap:12,justifyContent:"center",flexWrap:"wrap"}}>
           {["🏗️ Java","⚡ Spring Boot","🎯 Angular","🐳 Docker","🎬 Hollywood"].map(s=>(
             <span key={s} style={{fontFamily:"'DM Mono',monospace",fontSize:11,padding:"4px 10px",border:`1px solid rgba(255,230,0,.3)`,borderRadius:3,color:ACC}}>{s}</span>
@@ -429,23 +404,11 @@ function KonamiEaster({onClose}){
   );
 }
 
-/* ═══════════════ GITHUB STATS ═══════════════ */
 function GitHubStats(){
-  const[data,setData]=useState(null),[err,setErr]=useState(false);
-  useEffect(()=>{
-    fetch("https://api.github.com/users/Dhinesh-Se")
-      .then(r=>r.json()).then(d=>setData(d)).catch(()=>setErr(true));
-  },[]);
+  const[data,setData]=useState(null);
+  useEffect(()=>{fetch("https://api.github.com/users/Dhinesh-Se").then(r=>r.json()).then(d=>setData(d)).catch(()=>{});},[]);
   const[r,v]=useInView(.2);
-  const stats=data?[
-    {label:"Public Repos", val:data.public_repos??0, icon:"📦"},
-    {label:"Followers",    val:data.followers??0,    icon:"👥"},
-    {label:"Following",    val:data.following??0,    icon:"🔗"},
-  ]:[
-    {label:"Public Repos", val:6,  icon:"📦"},
-    {label:"Followers",    val:12, icon:"👥"},
-    {label:"Following",    val:8,  icon:"🔗"},
-  ];
+  const stats=data?[{label:"Public Repos",val:data.public_repos??0,icon:"📦"},{label:"Followers",val:data.followers??0,icon:"👥"},{label:"Following",val:data.following??0,icon:"🔗"}]:[{label:"Public Repos",val:6,icon:"📦"},{label:"Followers",val:12,icon:"👥"},{label:"Following",val:8,icon:"🔗"}];
   return(
     <div ref={r} style={{background:"rgba(255,255,255,.025)",border:"1px solid rgba(255,255,255,.08)",borderRadius:6,padding:"22px 24px",opacity:v?1:0,transform:v?"translateY(0)":"translateY(20px)",transition:"opacity .6s ease,transform .6s ease"}}>
       <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:18}}>
@@ -453,7 +416,7 @@ function GitHubStats(){
         <span style={{fontFamily:"'Syne',sans-serif",fontWeight:700,fontSize:14,color:"#E8E8F0"}}>GitHub Stats</span>
         <span style={{marginLeft:"auto",fontSize:10,color:data?"#00C9A7":"rgba(255,255,255,.3)",fontFamily:"'DM Mono',monospace"}}>{data?"● LIVE":"● OFFLINE"}</span>
       </div>
-      <div style={{display:"flex",gap:16,flexWrap:"wrap"}}>
+      <div style={{display:"flex",gap:14,flexWrap:"wrap"}}>
         {stats.map(s=>(
           <div key={s.label} style={{flex:1,minWidth:80,textAlign:"center",background:"rgba(255,255,255,.03)",borderRadius:4,padding:"12px 8px",border:"1px solid rgba(255,255,255,.06)"}}>
             <div style={{fontSize:22,marginBottom:4}}>{s.icon}</div>
@@ -462,70 +425,53 @@ function GitHubStats(){
           </div>
         ))}
       </div>
-      {data&&data.bio&&<p style={{fontFamily:"'DM Mono',monospace",fontSize:11,color:"rgba(255,255,255,.35)",marginTop:14,lineHeight:1.6,borderTop:"1px solid rgba(255,255,255,.06)",paddingTop:12}}>{data.bio}</p>}
-      <a href="https://github.com/Dhinesh-Se" target="_blank" rel="noreferrer" data-hover
-        style={{display:"inline-flex",alignItems:"center",gap:6,marginTop:14,fontSize:11,color:ACC,fontFamily:"'DM Mono',monospace",textDecoration:"none",letterSpacing:".05em"}}>
-        View on GitHub ↗
-      </a>
+      {data?.bio&&<p style={{fontFamily:"'DM Mono',monospace",fontSize:11,color:"rgba(255,255,255,.35)",marginTop:14,lineHeight:1.6,borderTop:"1px solid rgba(255,255,255,.06)",paddingTop:12}}>{data.bio}</p>}
+      <a href="https://github.com/Dhinesh-Se" target="_blank" rel="noreferrer" data-hover style={{display:"inline-flex",alignItems:"center",gap:6,marginTop:14,fontSize:11,color:ACC,fontFamily:"'DM Mono',monospace",textDecoration:"none",letterSpacing:".05em"}}>View on GitHub ↗</a>
     </div>
   );
 }
 
-/* ═══════════════ SECTION NAV DOTS ═══════════════ */
 function SectionDots({active}){
-  const sections=NAV_LINKS.map(l=>toSectionId(l));
+  const sections=NAV_LINKS.map(l=>toId(l));
   return(
-    <div style={{position:"fixed",right:20,top:"50%",transform:"translateY(-50%)",zIndex:300,display:"flex",flexDirection:"column",gap:10}}>
-      {sections.map(s=>(
-        <button key={s} data-hover onClick={()=>document.getElementById(s)?.scrollIntoView({behavior:"smooth"})}
-          title={s.charAt(0).toUpperCase()+s.slice(1)}
-          style={{width:active===s.charAt(0).toUpperCase()+s.slice(1)?10:6,height:active===s.charAt(0).toUpperCase()+s.slice(1)?10:6,borderRadius:"50%",
-            background:active===s.charAt(0).toUpperCase()+s.slice(1)?ACC:"rgba(255,255,255,.25)",border:"none",
-            transition:"all .3s",cursor:"pointer",padding:0,
-            boxShadow:active===s.charAt(0).toUpperCase()+s.slice(1)?`0 0 10px ${ACC}80`:"none"}}/>
-      ))}
+    <div style={{position:"fixed",right:18,top:"50%",transform:"translateY(-50%)",zIndex:300,display:"flex",flexDirection:"column",gap:10}}>
+      {sections.map(s=>{
+        const label=NAV_LINKS.find(l=>toId(l)===s)||s;
+        const isActive=active===label;
+        return(
+          <button key={s} data-hover onClick={()=>document.getElementById(s)?.scrollIntoView({behavior:"smooth"})} title={label}
+            style={{width:isActive?10:6,height:isActive?10:6,borderRadius:"50%",background:isActive?ACC:"rgba(255,255,255,.22)",border:"none",transition:"all .3s",cursor:"pointer",padding:0,boxShadow:isActive?`0 0 10px ${ACC}80`:"none"}}/>
+        );
+      })}
     </div>
   );
 }
 
-/* ═══════════════ PROGRESS BAR ═══════════════ */
 function ProgressBar({pct}){
   return(
-    <div style={{position:"fixed",top:0,left:0,right:0,height:3,zIndex:500,background:"rgba(255,255,255,.05)"}}>
+    <div style={{position:"fixed",top:0,left:0,right:0,height:3,zIndex:500,background:"rgba(255,255,255,.04)"}}>
       <div style={{height:"100%",background:`linear-gradient(90deg,${ACC},#00C9A7)`,width:`${pct}%`,transition:"width .1s",boxShadow:`0 0 8px ${ACC}80`}}/>
     </div>
   );
 }
 
-/* ═══════════════ ROCKET BTN ═══════════════ */
 function RocketBtn({show}){
   const[launched,setLaunched]=useState(false);
-  const launch=()=>{
-    setLaunched(true);
-    window.scrollTo({top:0,behavior:"smooth"});
-    setTimeout(()=>setLaunched(false),1000);
-  };
+  const launch=()=>{setLaunched(true);window.scrollTo({top:0,behavior:"smooth"});setTimeout(()=>setLaunched(false),1000);};
   return(
     <button data-hover onClick={launch}
-      style={{position:"fixed",bottom:28,right:28,zIndex:400,width:48,height:48,borderRadius:"50%",
-        background:ACC,border:"none",fontSize:20,cursor:"pointer",
-        opacity:show?1:0,transform:show?(launched?"translateY(-60px) scale(1.2)":"translateY(0)"):"translateY(20px)",
-        transition:"opacity .4s,transform .5s cubic-bezier(.34,1.56,.64,1)",
-        boxShadow:`0 4px 20px rgba(255,230,0,.4)`,display:"flex",alignItems:"center",justifyContent:"center"}}
-      title="Back to top">
-      🚀
-    </button>
+      style={{position:"fixed",bottom:28,right:28,zIndex:400,width:48,height:48,borderRadius:"50%",background:ACC,border:"none",fontSize:20,cursor:"pointer",opacity:show?1:0,transform:show?(launched?"translateY(-60px) scale(1.2)":"translateY(0)"):"translateY(20px)",transition:"opacity .4s,transform .5s cubic-bezier(.34,1.56,.64,1)",boxShadow:`0 4px 20px rgba(255,230,0,.4)`,display:"flex",alignItems:"center",justifyContent:"center"}} title="Back to top">🚀</button>
   );
 }
 
-/* ═══════════════ MAIN ═══════════════ */
+/* ═══════════ MAIN ═══════════ */
 export default function Portfolio(){
   const[intro,setIntro]=useState(true);
   const[active,setActive]=useState("About");
   const[scrolled,setScrolled]=useState(false);
   const[menuOpen,setMenuOpen]=useState(false);
   const[dlState,setDlState]=useState("idle");
-  const[matrixOn,setMatrixOn]=useState(()=>typeof window!=="undefined"&&window.innerWidth<768);
+  const[matrixOn,setMatrixOn]=useState(false);
   const[cmdOpen,setCmdOpen]=useState(false);
   const[konamiOn,setKonamiOn]=useState(false);
   const[showRocket,setShowRocket]=useState(false);
@@ -534,73 +480,49 @@ export default function Portfolio(){
   const[trailerOpen,setTrailerOpen]=useState(false);
   const[istTime,setIstTime]=useState("");
   const[decodedName,setDecodedName]=useState("01000100 01001000 01001001 01001110 01000101 01010011 01001000");
+  const[chatOpen,setChatOpen]=useState(false);
   const confettiRef=useRef(null);
   const konamiSeq=useRef([]);
   const isMobile=useIsMobile();
   const scrollPct=useScrollProgress();
 
-  // Scroll tracking
   useEffect(()=>{
     const f=()=>{
       const y=window.scrollY; setScrolled(y>40); setShowRocket(y>400);
-      // Active section tracking
-      const secs=NAV_LINKS.map(l=>({id:l,el:document.getElementById(toSectionId(l))}));
-      for(let i=secs.length-1;i>=0;i--){
-        const el=secs[i].el; if(el&&el.getBoundingClientRect().top<=120){setActive(secs[i].id);break;}
-      }
+      const secs=NAV_LINKS.map(l=>({id:l,el:document.getElementById(toId(l))}));
+      for(let i=secs.length-1;i>=0;i--){const el=secs[i].el;if(el&&el.getBoundingClientRect().top<=120){setActive(secs[i].id);break;}}
     };
     window.addEventListener("scroll",f); return()=>window.removeEventListener("scroll",f);
   },[]);
 
-  // Body overflow
   useEffect(()=>{document.body.style.overflow=menuOpen||intro?"hidden":"";return()=>{document.body.style.overflow="";};},[menuOpen,intro]);
 
-  // Cmd+K shortcut
   useEffect(()=>{
-    const f=e=>{
-      if((e.metaKey||e.ctrlKey)&&e.key==="k"){e.preventDefault();setCmdOpen(o=>!o);}
-    };
-    window.addEventListener("keydown",f); return()=>window.removeEventListener("keydown",f);
-  },[]);
-
-  // Konami code
-  useEffect(()=>{
-    const f=e=>{
-      konamiSeq.current=[...konamiSeq.current,e.key].slice(-KONAMI.length);
-      if(konamiSeq.current.join(",")===KONAMI.join(",")){setKonamiOn(true);konamiSeq.current=[];}
-    };
+    const f=e=>{if((e.metaKey||e.ctrlKey)&&e.key==="k"){e.preventDefault();setCmdOpen(o=>!o);}};
     window.addEventListener("keydown",f); return()=>window.removeEventListener("keydown",f);
   },[]);
 
   useEffect(()=>{
-    const tick=()=>{
-      const now=new Date();
-      setIstTime(now.toLocaleTimeString("en-IN",{timeZone:"Asia/Kolkata",hour12:true}));
-    };
-    tick();
-    const id=setInterval(tick,1000);
-    return()=>clearInterval(id);
+    const f=e=>{konamiSeq.current=[...konamiSeq.current,e.key].slice(-KONAMI.length);if(konamiSeq.current.join(",")===KONAMI.join(",")){setKonamiOn(true);konamiSeq.current=[];}};
+    window.addEventListener("keydown",f); return()=>window.removeEventListener("keydown",f);
   },[]);
 
   useEffect(()=>{
-    const encoded=["44","48","49","4E","45","53","48"," ","01000100","01001000","01001001","01001110","01000101","01010011","01001000"];
-    let i=0;
-    const id=setInterval(()=>{
-      setDecodedName(i%2===0?encoded.slice(0,7).join(" "):encoded.slice(8).join(" "));
-      i++;
-    },1800);
+    const tick=()=>setIstTime(new Date().toLocaleTimeString("en-IN",{timeZone:"Asia/Kolkata",hour12:true}));
+    tick(); const id=setInterval(tick,1000); return()=>clearInterval(id);
+  },[]);
+
+  useEffect(()=>{
+    const states=["44 48 49 4E 45 53 48","DHINESH","01000100 01001000...","DHINESH V"];
+    let i=0; const id=setInterval(()=>{setDecodedName(states[i%states.length]);i++;},2000);
     return()=>clearInterval(id);
   },[]);
 
-  const scrollTo=id=>{document.getElementById(toSectionId(id))?.scrollIntoView({behavior:"smooth"});setActive(id);setMenuOpen(false);};
+  const scrollTo=id=>{document.getElementById(toId(id))?.scrollIntoView({behavior:"smooth"});setActive(id);setMenuOpen(false);};
 
   const handleDl=()=>{
     setDlState("loading");
-    setTimeout(()=>{
-      triggerDownload(); setDlState("done");
-      // Confetti!
-      fireConfetti(confettiRef);
-    },600);
+    setTimeout(()=>{triggerDownload();setDlState("done");fireConfetti(confettiRef);},600);
     setTimeout(()=>setDlState("idle"),2600);
   };
 
@@ -612,20 +534,22 @@ export default function Portfolio(){
     </button>
   );
 
+  const bgColor = genre==="Thriller"?"#07070B":genre==="Action"?"#0D0808":"#080810";
+
   return(
-    <div style={{fontFamily:"'DM Mono',monospace",background:genre==="Thriller"?"#07070B":genre==="Action"?"#0D0808":"#080810",color:"#E8E8F0",minHeight:"100vh",overflowX:"hidden",cursor:isMobile?"auto":"none",maxWidth:imaxMode?"1800px":"none",margin:"0 auto",transition:"background .4s"}}>
-      {/* Overlays */}
-      {imaxMode&&<><div style={{position:"fixed",top:0,left:0,right:0,height:"8vh",background:"#000",zIndex:350}}/><div style={{position:"fixed",bottom:0,left:0,right:0,height:"8vh",background:"#000",zIndex:350}}/></>}
+    <div style={{fontFamily:"'DM Mono',monospace",background:bgColor,color:"#E8E8F0",minHeight:"100vh",overflowX:"hidden",cursor:isMobile?"auto":"none",transition:"background .4s"}}>
+      {imaxMode&&<><div style={{position:"fixed",top:0,left:0,right:0,height:"8vh",background:"#000",zIndex:350,pointerEvents:"none"}}/><div style={{position:"fixed",bottom:0,left:0,right:0,height:"8vh",background:"#000",zIndex:350,pointerEvents:"none"}}/></>}
+
       {intro&&<CinematicIntro onDone={()=>setIntro(false)}/>}
       {!isMobile&&<CustomCursor/>}
       {matrixOn&&<MatrixRain active={matrixOn}/>}
       {konamiOn&&<KonamiEaster onClose={()=>setKonamiOn(false)}/>}
-      <CommandPalette open={cmdOpen} onClose={()=>setCmdOpen(false)} onMatrix={()=>setMatrixOn(o=>!o)} onDownload={handleDl}/>
+      <CommandPalette open={cmdOpen} onClose={()=>setCmdOpen(false)} onMatrix={()=>setMatrixOn(o=>!o)} onDownload={handleDl} onChat={()=>setChatOpen(true)}/>
 
-      {/* Fixed UI */}
       <ProgressBar pct={scrollPct}/>
       {!isMobile&&<SectionDots active={active}/>}
       <RocketBtn show={showRocket}/>
+      <AiChat externalOpen={chatOpen} onExternalClose={()=>setChatOpen(false)}/>
       <canvas ref={confettiRef} style={{position:"fixed",inset:0,pointerEvents:"none",zIndex:4000}}/>
 
       <style>{`
@@ -633,12 +557,9 @@ export default function Portfolio(){
         *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
         html{scroll-behavior:smooth;}
         ${!isMobile?"*{cursor:none!important;}":""}
-        body{background:#080810;}
-        ::-webkit-scrollbar{width:4px;}
-        ::-webkit-scrollbar-track{background:#080810;}
-        ::-webkit-scrollbar-thumb{background:${ACC};border-radius:2px;}
-        .syne{font-family:'Syne',sans-serif;}
-        .bebas{font-family:'Bebas Neue',sans-serif;}
+        ::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:${bgColor};}::-webkit-scrollbar-thumb{background:${ACC};border-radius:2px;}
+        ::selection{background:rgba(255,230,0,.2);color:#fff;}
+        .syne{font-family:'Syne',sans-serif;}.bebas{font-family:'Bebas Neue',sans-serif;}
         .nav-link{position:relative;font-size:12px;letter-spacing:.1em;color:#888;text-transform:uppercase;transition:color .2s;white-space:nowrap;}
         .nav-link:hover,.nav-link.active{color:${ACC};}
         .nav-link::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:1px;background:${ACC};transition:width .3s;}
@@ -653,6 +574,7 @@ export default function Portfolio(){
         .btn-primary:hover{background:transparent;color:${ACC};}
         .btn-outline{background:transparent;color:#E8E8F0;border-color:rgba(255,255,255,.12);}
         .btn-outline:hover{border-color:${ACC};color:${ACC};}
+        .film-strip{position:relative;overflow:hidden;}
         .film-strip::before,.film-strip::after{content:'';position:absolute;top:0;bottom:0;width:26px;background:repeating-linear-gradient(to bottom,#000 0,#000 8px,transparent 8px,transparent 20px);z-index:2;pointer-events:none;}
         .film-strip::before{left:0;}.film-strip::after{right:0;}
         .glow-border{box-shadow:0 0 0 1px rgba(255,230,0,.15);}
@@ -662,7 +584,7 @@ export default function Portfolio(){
         .bar{display:block;width:24px;height:2px;background:#E8E8F0;border-radius:2px;transition:all .3s;}
         .reel-divider{display:flex;align-items:center;gap:12px;margin:0 0 40px;}
         .reel-divider::before,.reel-divider::after{content:'';flex:1;height:1px;background:linear-gradient(to right,transparent,rgba(255,230,0,.22),transparent);}
-        .skill-pill{padding:5px 12px;border:1px solid rgba(255,255,255,.1);border-radius:3px;font-size:11px;color:#aaa;background:rgba(255,255,255,.025);transition:all .2s;}
+        .skill-pill{padding:5px 12px;border:1px solid rgba(255,255,255,.1);border-radius:3px;font-size:11px;color:#aaa;background:rgba(255,255,255,.025);transition:all .2s;white-space:nowrap;}
         .skill-pill:hover{border-color:${ACC};color:${ACC};background:rgba(255,230,0,.05);transform:translateY(-1px);}
         @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
         @keyframes spin{to{transform:rotate(360deg)}}
@@ -671,28 +593,14 @@ export default function Portfolio(){
         @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
         @keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
         @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-        @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
         .pulse{animation:pulse 2s infinite;}
         .float{animation:float 4s ease-in-out infinite;}
         @media(max-width:768px){.hide-mobile{display:none!important;}.btn{padding:10px 16px;font-size:11px;}}
         @media(min-width:769px){.hide-desktop{display:none!important;}}
+        @media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important;}}
       `}</style>
 
-      <TopNavigation
-        scrolled={scrolled}
-        menuOpen={menuOpen}
-        setMenuOpen={setMenuOpen}
-        active={active}
-        navLinks={NAV_LINKS}
-        scrollTo={scrollTo}
-        accentColor={ACC}
-        matrixOn={matrixOn}
-        onToggleMatrix={()=>setMatrixOn(o=>!o)}
-        onOpenCommand={()=>setCmdOpen(true)}
-        DlBtn={DlBtn}
-        quotes={MOVIE_QUOTES}
-        isMobile={isMobile}
-      />
+      <TopNavigation scrolled={scrolled} menuOpen={menuOpen} setMenuOpen={setMenuOpen} active={active} navLinks={NAV_LINKS} scrollTo={scrollTo} accentColor={ACC} matrixOn={matrixOn} onToggleMatrix={()=>setMatrixOn(o=>!o)} onOpenCommand={()=>setCmdOpen(true)} DlBtn={DlBtn} quotes={MOVIE_QUOTES} isMobile={isMobile}/>
 
       {/* ── HERO ── */}
       <section id="about" className="dot-grid scanlines" style={{minHeight:"100vh",display:"flex",alignItems:"center",padding:"100px clamp(20px,7vw,120px) 72px",position:"relative",overflow:"hidden"}}>
@@ -713,7 +621,7 @@ export default function Portfolio(){
           <div style={{display:"flex",alignItems:"center",gap:14,marginBottom:20,flexWrap:"wrap"}}>
             <div style={{width:36,height:2,background:ACC,flexShrink:0}}/>
             <p style={{fontSize:"clamp(12px,1.8vw,15px)",color:"#888",letterSpacing:".08em",textTransform:"uppercase"}}>
-              Senior Software Engineer <span style={{color:ACC}}>@</span> Ernst & Young
+              Software Engineer <span style={{color:ACC}}>@</span> Ernst & Young
             </p>
           </div>
           <p style={{fontSize:"clamp(13px,1.5vw,15px)",color:"#888",maxWidth:580,lineHeight:1.9,marginBottom:36,fontWeight:300,minHeight:48}}>
@@ -724,13 +632,12 @@ export default function Portfolio(){
             <button data-hover className="btn btn-outline" onClick={()=>scrollTo("Contact")}>Get In Touch</button>
             <DlBtn cls="btn btn-outline"/>
           </div>
-          {/* Cmd K hint */}
-          <div style={{marginBottom:44,fontSize:11,color:"rgba(255,255,255,.25)",fontFamily:"'DM Mono',monospace",display:"flex",alignItems:"center",gap:6}}>
+          <div style={{marginBottom:44,fontSize:11,color:"rgba(255,255,255,.22)",fontFamily:"'DM Mono',monospace",display:"flex",alignItems:"center",gap:6,flexWrap:"wrap"}}>
             <span>Press</span>
-            <span style={{border:"1px solid rgba(255,255,255,.15)",borderRadius:3,padding:"1px 6px",color:"rgba(255,255,255,.4)"}}>⌘K</span>
-            <span>or</span>
-            <span style={{border:"1px solid rgba(255,255,255,.15)",borderRadius:3,padding:"1px 6px",color:"rgba(255,255,255,.4)"}}>Ctrl+K</span>
-            <span>to open command palette</span>
+            <kbd style={{border:"1px solid rgba(255,255,255,.15)",borderRadius:3,padding:"1px 6px",color:"rgba(255,255,255,.4)",fontFamily:"monospace"}}>⌘K</kbd>
+            <span>for command palette ·</span>
+            <kbd style={{border:"1px solid rgba(255,255,255,.15)",borderRadius:3,padding:"1px 6px",color:"rgba(255,255,255,.4)",fontFamily:"monospace"}}>🤖</kbd>
+            <span>to chat with my AI</span>
           </div>
           <div style={{display:"flex",gap:"clamp(20px,5vw,48px)",flexWrap:"wrap"}}>
             {[[3,"+","Years Exp."],[3,"","Platforms Built"],[30,"%","Faster Claims"],[30,"d","WHI Delivery"]].map(([n,s,l])=>(
@@ -824,9 +731,7 @@ export default function Portfolio(){
           {PROJECTS.map((p,i)=>(
             <FadeIn key={p.name} delay={i*.1}>
               <TiltCard isMobile={isMobile} className="card film-strip glow-border" style={{padding:isMobile?"22px 34px":"28px 46px",position:"relative",overflow:"hidden"}}>
-                <div style={{position:"absolute",top:0,right:0,background:ACC,color:"#080810",fontSize:9,fontWeight:700,letterSpacing:".12em",padding:"4px 12px",fontFamily:"'DM Mono',monospace",zIndex:3}}>
-                  {p.genre}
-                </div>
+                <div style={{position:"absolute",top:0,right:0,background:ACC,color:"#080810",fontSize:9,fontWeight:700,letterSpacing:".12em",padding:"4px 12px",fontFamily:"'DM Mono',monospace",zIndex:3}}>{p.genre}</div>
                 <div style={{display:"flex",alignItems:"flex-start",gap:14,marginBottom:14,flexWrap:"wrap",paddingTop:8}}>
                   <span style={{fontSize:28,lineHeight:1,flexShrink:0}}>{p.icon}</span>
                   <div style={{flex:1,minWidth:0}}>
@@ -882,70 +787,110 @@ export default function Portfolio(){
               <span className="tag">Java Programming – Beginner to Master</span>
             </div>
           </FadeIn>
-          <FadeIn from="right">
-            <GitHubStats/>
-          </FadeIn>
+          <FadeIn from="right"><GitHubStats/></FadeIn>
         </div>
       </section>
 
       {/* ── CINEMA LAB ── */}
-      <section id="cinema-lab" style={{padding:"80px clamp(20px,7vw,120px)",background:"rgba(255,255,255,.015)"}}>
+      <section id="cinema-lab" style={{padding:"80px clamp(20px,7vw,120px)"}}>
         <FadeIn>
           <div className="reel-divider"><span className="section-label">Cinematic Innovation</span></div>
           <h2 className="section-h" style={{marginBottom:18}}>Portfolio <span style={{color:ACC}}>Cinema Lab</span></h2>
-          <p style={{color:"#888",fontSize:13,lineHeight:1.8,maxWidth:760,marginBottom:24}}>A roadmap + prototype zone for the next-gen features you requested.</p>
+          <p style={{color:"#888",fontSize:13,lineHeight:1.8,maxWidth:600,marginBottom:28}}>Interactive playground — switch genres, go IMAX, watch the career trailer, or decode my name.</p>
         </FadeIn>
-        <div style={{display:"flex",gap:10,flexWrap:"wrap",marginBottom:20}}>
-          {["Thriller","Sci-Fi","Action"].map(g=><button key={g} className="btn btn-outline" data-hover onClick={()=>setGenre(g)} style={{padding:"7px 12px",fontSize:10,borderColor:genre===g?ACC:"rgba(255,255,255,.2)",color:genre===g?ACC:"#aaa"}}>{g}</button>)}
-          <button className="btn btn-primary" data-hover onClick={()=>setTrailerOpen(true)} style={{padding:"7px 12px",fontSize:10}}>▶ Watch Trailer</button>
-          <button className="btn btn-outline" data-hover onClick={()=>setImaxMode(v=>!v)} style={{padding:"7px 12px",fontSize:10}}>{imaxMode?"Disable":"Enable"} IMAX Mode</button>
+        <div style={{display:"flex",gap:10,flexWrap:"wrap",marginBottom:24}}>
+          {["Thriller","Sci-Fi","Action"].map(g=>(
+            <button key={g} className="btn btn-outline" data-hover onClick={()=>setGenre(g)} style={{padding:"7px 14px",fontSize:11,borderColor:genre===g?ACC:"rgba(255,255,255,.2)",color:genre===g?ACC:"#aaa"}}>
+              {genre===g?"✓ ":""}{g} Mode
+            </button>
+          ))}
+          <button className="btn btn-primary" data-hover onClick={()=>setTrailerOpen(true)} style={{padding:"7px 14px",fontSize:11}}>▶ Watch Trailer</button>
+          <button className="btn btn-outline" data-hover onClick={()=>setImaxMode(v=>!v)} style={{padding:"7px 14px",fontSize:11,borderColor:imaxMode?ACC:"rgba(255,255,255,.2)",color:imaxMode?ACC:"#aaa"}}>
+            {imaxMode?"✓ IMAX ON":"IMAX Mode"}
+          </button>
         </div>
-        <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"1fr 1fr",gap:16,marginBottom:18}}>
-          <div className="card" style={{padding:16}}>
-            <div className="section-label" style={{marginBottom:8}}>Live Clock • Coimbatore (IST)</div>
-            <div className="syne" style={{fontSize:30,color:ACC}}>{istTime}</div>
-            <div style={{fontSize:11,color:"#666"}}>Asia/Kolkata - recruiter-friendly timezone reference</div>
-          </div>
-          <div className="card" style={{padding:16}}>
-            <div className="section-label" style={{marginBottom:8}}>Binary/Hex Decoder</div>
-            <div style={{fontFamily:"'DM Mono',monospace",fontSize:12,color:"#9f9f9f",marginBottom:8,wordBreak:"break-word"}}>{decodedName}</div>
-            <div style={{fontSize:14,color:ACC}}>→ DHINESH</div>
-          </div>
+        <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"1fr 1fr",gap:16}}>
+          <TiltCard isMobile={isMobile} className="card" style={{padding:20}}>
+            <div className="section-label" style={{marginBottom:8}}>🕐 Live Clock · Coimbatore (IST)</div>
+            <div className="syne" style={{fontSize:32,color:ACC,marginBottom:4}}>{istTime}</div>
+            <div style={{fontSize:11,color:"#555"}}>Asia/Kolkata — recruiter timezone reference</div>
+          </TiltCard>
+          <TiltCard isMobile={isMobile} className="card" style={{padding:20}}>
+            <div className="section-label" style={{marginBottom:8}}>🔢 Binary/Hex Decoder</div>
+            <div style={{fontFamily:"'DM Mono',monospace",fontSize:12,color:"#666",marginBottom:8,wordBreak:"break-word",transition:"all .4s"}}>{decodedName}</div>
+            <div style={{fontSize:16,color:ACC,fontFamily:"'Bebas Neue',sans-serif",letterSpacing:".08em"}}>→ DHINESH V</div>
+          </TiltCard>
         </div>
       </section>
 
+      {/* Career Trailer modal */}
       {trailerOpen&&(
         <div onClick={()=>setTrailerOpen(false)} style={{position:"fixed",inset:0,zIndex:1200,background:"rgba(0,0,0,.92)",display:"grid",placeItems:"center",padding:20}}>
-          <div className="card" style={{maxWidth:760,width:"100%",padding:24,borderColor:"rgba(255,230,0,.35)"}} onClick={e=>e.stopPropagation()}>
-            <div className="section-label" style={{marginBottom:10}}>Career Trailer</div>
-            <h3 className="syne" style={{fontSize:"clamp(22px,4vw,36px)",marginBottom:12}}>"In a world of enterprise software..."</h3>
-            <p style={{color:"#a3a3a3",lineHeight:1.8,fontSize:13}}>One developer built insurance platforms at scale, delivered a government-grade WHI rollout in 30 days, and keeps shipping secure fintech experiences across Dubai and India.</p>
-            <button className="btn btn-primary" style={{marginTop:18}} onClick={()=>setTrailerOpen(false)}>Close Trailer</button>
+          <div className="card" style={{maxWidth:720,width:"100%",padding:isMobile?"24px 20px":"32px 36px",borderColor:"rgba(255,230,0,.35)",position:"relative"}} onClick={e=>e.stopPropagation()}>
+            <div style={{position:"absolute",top:0,left:0,right:0,height:3,background:`linear-gradient(90deg,${ACC},#00C9A7)`}}/>
+            <div className="section-label" style={{marginBottom:12}}>🎬 Career Trailer — Now Playing</div>
+            <h3 className="bebas" style={{fontSize:"clamp(24px,5vw,42px)",color:"#E8E8F0",marginBottom:6,letterSpacing:".04em",lineHeight:1.1}}>
+              "In a world of enterprise software..."
+            </h3>
+            <p style={{color:"#888",lineHeight:1.85,fontSize:13,marginBottom:16}}>
+              <span style={{color:ACC}}>One developer</span> built insurance platforms at scale, delivered a government-grade WHI rollout in <span style={{color:ACC}}>30 days</span>, and keeps shipping secure fintech experiences across Dubai and India. Now at <span style={{color:ACC}}>Ernst & Young</span>, the next chapter begins.
+            </p>
+            <p style={{color:"#555",fontSize:12,fontStyle:"italic",marginBottom:20}}>"Every passing minute is another chance to turn it all around." — Vanilla Sky</p>
+            <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
+              <button className="btn btn-primary" onClick={()=>setTrailerOpen(false)}>Close Trailer ✕</button>
+              <button className="btn btn-outline" onClick={()=>{setTrailerOpen(false);scrollTo("Contact");}}>Get In Touch →</button>
+            </div>
           </div>
         </div>
       )}
 
       {/* ── CONTACT ── */}
-      <section id="contact" style={{padding:"80px clamp(20px,7vw,120px)",textAlign:"center",position:"relative",overflow:"hidden"}}>
+      <section id="contact" style={{padding:"80px clamp(20px,7vw,120px)",position:"relative",overflow:"hidden"}}>
         <div style={{position:"absolute",inset:0,background:"radial-gradient(ellipse at center bottom,rgba(255,230,0,.042) 0%,transparent 60%)",pointerEvents:"none"}}/>
         <FadeIn>
-          <div className="reel-divider" style={{justifyContent:"center"}}><span className="section-label">Let's Connect</span></div>
+          <div className="reel-divider"><span className="section-label">Let's Connect</span></div>
           <h2 className="section-h" style={{marginBottom:14,position:"relative",zIndex:1}}>Get In<br/><span style={{color:ACC}}>Touch</span></h2>
-          <p style={{color:"#888",fontSize:14,maxWidth:440,margin:"0 auto 40px",lineHeight:1.85,position:"relative",zIndex:1}}>
-            Open to new opportunities, collaborations, or just a good tech conversation. Let's build something great together.
+          <p style={{color:"#888",fontSize:14,maxWidth:500,lineHeight:1.85,marginBottom:40,position:"relative",zIndex:1}}>
+            Open to new opportunities, collaborations, or just a good tech conversation. Fill the form or use the buttons below.
           </p>
-          <div style={{display:"flex",justifyContent:"center",gap:10,flexWrap:"wrap",marginBottom:40,position:"relative",zIndex:1}}>
-            <a data-hover href="mailto:javadevdhinesh@gmail.com" className="btn btn-primary" style={{textDecoration:"none"}}>✉ Email Me</a>
-            <a data-hover href="https://linkedin.com/in/dhineshse" target="_blank" rel="noreferrer" className="btn btn-outline" style={{textDecoration:"none"}}>LinkedIn ↗</a>
-            <a data-hover href="https://github.com/Dhinesh-Se" target="_blank" rel="noreferrer" className="btn btn-outline" style={{textDecoration:"none"}}>GitHub ↗</a>
-            <DlBtn cls="btn btn-outline"/>
-          </div>
-          <div style={{display:"flex",justifyContent:"center",gap:isMobile?12:36,flexWrap:"wrap",flexDirection:isMobile?"column":"row",alignItems:"center",position:"relative",zIndex:1}}>
-            {[["📧","javadevdhinesh@gmail.com"],["📱","8754447528"],["📍","Coimbatore, India"]].map(([ic,v])=>(
-              <div key={v} style={{color:"#444",fontSize:12,display:"flex",alignItems:"center",gap:7}}><span>{ic}</span>{v}</div>
-            ))}
-          </div>
         </FadeIn>
+
+        <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"1fr 1fr",gap:32,position:"relative",zIndex:1}}>
+          {/* Contact form */}
+          <FadeIn from="left">
+            <div className="card" style={{padding:isMobile?"22px 18px":"28px 28px"}}>
+              <div className="section-label" style={{marginBottom:16}}>📬 Send a Message</div>
+              <ContactForm/>
+            </div>
+          </FadeIn>
+
+          {/* Contact info + links */}
+          <FadeIn from="right">
+            <div style={{display:"flex",flexDirection:"column",gap:16}}>
+              <div className="card" style={{padding:"22px 24px"}}>
+                <div className="section-label" style={{marginBottom:14}}>Direct Links</div>
+                <div style={{display:"flex",flexDirection:"column",gap:10}}>
+                  {[["📧","Email","mailto:javadevdhinesh@gmail.com","javadevdhinesh@gmail.com"],["💼","LinkedIn","https://linkedin.com/in/dhineshse","linkedin.com/in/dhineshse"],["🐙","GitHub","https://github.com/Dhinesh-Se","github.com/Dhinesh-Se"],["📱","Phone","tel:+918754447528","8754447528"],["📍","Location",null,"Coimbatore, India"]].map(([ic,label,href,display])=>(
+                    <div key={label} style={{display:"flex",alignItems:"center",gap:12,padding:"8px 0",borderBottom:"1px solid rgba(255,255,255,.04)"}}>
+                      <span style={{fontSize:16,width:22,textAlign:"center"}}>{ic}</span>
+                      <div>
+                        <div style={{fontSize:9,color:"#555",letterSpacing:".1em",textTransform:"uppercase",marginBottom:2}}>{label}</div>
+                        {href ? <a data-hover href={href} target={href.startsWith("http")?"_blank":undefined} rel="noreferrer" style={{fontSize:12,color:ACC,fontFamily:"'DM Mono',monospace",textDecoration:"none"}}>{display}</a>
+                               : <span style={{fontSize:12,color:"#888",fontFamily:"'DM Mono',monospace"}}>{display}</span>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
+                <a data-hover href="mailto:javadevdhinesh@gmail.com" className="btn btn-primary" style={{textDecoration:"none",flex:1,justifyContent:"center"}}>✉ Email</a>
+                <a data-hover href="https://linkedin.com/in/dhineshse" target="_blank" rel="noreferrer" className="btn btn-outline" style={{textDecoration:"none",flex:1,justifyContent:"center"}}>LinkedIn ↗</a>
+              </div>
+              <DlBtn cls="btn btn-outline" style={{width:"100%",justifyContent:"center"}}/>
+            </div>
+          </FadeIn>
+        </div>
       </section>
 
       {/* ── FOOTER ── */}
@@ -953,7 +898,7 @@ export default function Portfolio(){
         <span className="syne" style={{fontWeight:800,color:ACC,fontSize:19}}>DV.</span>
         <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:4}}>
           <span style={{color:"#444",fontSize:11}}>© 2026 Dhinesh V · Full Stack Software Engineer @ EY</span>
-          <span style={{fontSize:10,color:"rgba(255,255,255,.15)"}}>🎬 A portfolio directed with passion · Try ↑↑↓↓←→←→BA 🎮</span>
+          <span style={{fontSize:10,color:"rgba(255,255,255,.12)"}}>🎬 A portfolio directed with passion · Try ↑↑↓↓←→←→BA 🎮</span>
         </div>
         <DlBtn cls="btn btn-outline" style={{padding:"6px 14px",fontSize:10}}/>
       </footer>
