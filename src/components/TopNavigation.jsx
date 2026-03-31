@@ -10,6 +10,8 @@ export default function TopNavigation({
   accentColor,
   matrixOn,
   onToggleMatrix,
+  neoMode,
+  onToggleNeo,
   onOpenCommand,
   DlBtn,
   quotes,
@@ -96,6 +98,22 @@ export default function TopNavigation({
           >
             {matrixOn ? "◼ MATRIX" : "◻ MATRIX"}
           </button>
+          <button
+            data-hover
+            onClick={onToggleNeo}
+            style={{
+              background: neoMode ? accentColor : "transparent",
+              border: "2px solid #111",
+              color: "#111",
+              padding: "5px 10px",
+              borderRadius: 0,
+              fontSize: 11,
+              fontFamily: "'DM Mono',monospace",
+              fontWeight: 700,
+            }}
+          >
+            {neoMode ? "NEO ON" : "NEO OFF"}
+          </button>
           <DownloadButton style={{ padding: "7px 14px", fontSize: 11 }} />
         </div>
 
@@ -129,6 +147,22 @@ export default function TopNavigation({
             }}
           >
             ⌬
+          </button>
+          <button
+            data-hover
+            onClick={onToggleNeo}
+            style={{
+              background: neoMode ? accentColor : "rgba(255,255,255,.04)",
+              border: "2px solid #111",
+              padding: "5px 8px",
+              borderRadius: 0,
+              fontSize: 10,
+              color: "#111",
+              fontFamily: "'DM Mono',monospace",
+              fontWeight: 700,
+            }}
+          >
+            NEO
           </button>
           <button
             data-hover
