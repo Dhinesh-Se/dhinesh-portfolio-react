@@ -431,19 +431,59 @@ function GitHubStats(){
   );
 }
 
-function SectionDots({active}){
+function SectionDots({active,neoMode}){
   const sections=NAV_LINKS.map(l=>toId(l));
   return(
-    <div style={{position:"fixed",right:18,top:"50%",transform:"translateY(-50%)",zIndex:300,display:"flex",flexDirection:"column",gap:10}}>
+    <div style={{position:"fixed",right:18,top:"50%",transform:"translateY(-50%)",zIndex:300,display:"flex",flexDirection:"column",gap:neoMode?8:10}}>
       {sections.map(s=>{
         const label=NAV_LINKS.find(l=>toId(l)===s)||s;
         const isActive=active===label;
         return(
           <button key={s} data-hover onClick={()=>document.getElementById(s)?.scrollIntoView({behavior:"smooth"})} title={label}
-            style={{width:isActive?10:6,height:isActive?10:6,borderRadius:"50%",background:isActive?ACC:"rgba(255,255,255,.22)",border:"none",transition:"all .3s",cursor:"pointer",padding:0,boxShadow:isActive?`0 0 10px ${ACC}80`:"none"}}/>
+            style={neoMode
+              ? {
+                  minWidth: isActive ? 108 : 84,
+                  height: isActive ? 34 : 28,
+                  borderRadius: 0,
+                  background: isActive ? "#fff" : "#FFD43B",
+                  border: "3px solid #111",
+                  transition: "all .3s",
+                  cursor: "pointer",
+                  padding: "0 10px",
+                  boxShadow: "4px 4px 0 #111",
+                  color: "#111",
+                  fontSize: 10,
+                  fontWeight: 700,
+                  letterSpacing: ".08em",
+                  textTransform: "uppercase",
+                  textAlign: "left",
+                  animation: isActive ? "sidebarJolt .45s ease" : "none",
+                }
+              : {width:isActive?10:6,height:isActive?10:6,borderRadius:"50%",background:isActive?ACC:"rgba(255,255,255,.22)",border:"none",transition:"all .3s",cursor:"pointer",padding:0,boxShadow:isActive?`0 0 10px ${ACC}80`:"none"}}
+          >
+            {neoMode ? label : null}
+          </button>
         );
       })}
     </div>
+  );
+}
+
+function NeoSidebar({show,onCopyEmail,onDownload}){
+  if(!show) return null;
+  return(
+    <aside style={{position:"fixed",left:18,top:"50%",transform:"translateY(-50%)",zIndex:320,display:"flex",flexDirection:"column",gap:10}}>
+      {[
+        {label:"Email",bg:"#FF6B6B",onClick:onCopyEmail},
+        {label:"Resume",bg:"#FFE45E",onClick:onDownload},
+        {label:"LinkedIn",bg:"#7EE787",onClick:()=>window.open("https://linkedin.com/in/dhineshse","_blank","noopener,noreferrer")},
+        {label:"GitHub",bg:"#00F0FF",onClick:()=>window.open("https://github.com/Dhinesh-Se","_blank","noopener,noreferrer")},
+      ].map((item,index)=>(
+        <button key={item.label} data-hover onClick={item.onClick} style={{height:36,padding:"0 12px",border:"3px solid #111",borderRadius:0,background:item.bg,color:"#111",fontWeight:800,letterSpacing:".08em",fontSize:10,boxShadow:"5px 5px 0 #111",animation:`neoPulse 2.4s ease-in-out ${index*0.14}s infinite`,textTransform:"uppercase"}}>
+          {item.label}
+        </button>
+      ))}
+    </aside>
   );
 }
 
@@ -561,7 +601,8 @@ export default function Portfolio(){
       <CommandPalette open={cmdOpen} onClose={()=>setCmdOpen(false)} onMatrix={()=>setMatrixOn(o=>!o)} onDownload={handleDl} onChat={()=>setChatOpen(true)}/>
 
       <ProgressBar pct={scrollPct}/>
-      {!isMobile&&<SectionDots active={active}/>}
+      {!isMobile&&<SectionDots active={active} neoMode={neoMode}/>}
+      {!isMobile&&<NeoSidebar show={neoMode} onCopyEmail={handleCopyEmail} onDownload={handleDl}/>}
       <RocketBtn show={showRocket}/>
       <AiChat externalOpen={chatOpen} onExternalClose={()=>setChatOpen(false)}/>
       <canvas ref={confettiRef} style={{position:"fixed",inset:0,pointerEvents:"none",zIndex:4000}}/>
@@ -607,6 +648,8 @@ export default function Portfolio(){
         @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
         @keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
         @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+        @keyframes neoPulse{0%,100%{transform:translateX(0)}50%{transform:translateX(6px)}}
+        @keyframes sidebarJolt{0%{transform:translateX(0)}40%{transform:translateX(-5px)}100%{transform:translateX(0)}}
         .pulse{animation:pulse 2s infinite;}
         .float{animation:float 4s ease-in-out infinite;}
         .neo-mode .card,.neo-mode .glow-border,.neo-mode .film-strip{background:#fff!important;border:3px solid #111!important;border-radius:0!important;box-shadow:8px 8px 0 #111!important;}
