@@ -431,19 +431,59 @@ function GitHubStats(){
   );
 }
 
-function SectionDots({active}){
+function SectionDots({active,neoMode}){
   const sections=NAV_LINKS.map(l=>toId(l));
   return(
-    <div style={{position:"fixed",right:18,top:"50%",transform:"translateY(-50%)",zIndex:300,display:"flex",flexDirection:"column",gap:10}}>
+    <div style={{position:"fixed",right:18,top:"50%",transform:"translateY(-50%)",zIndex:300,display:"flex",flexDirection:"column",gap:neoMode?8:10}}>
       {sections.map(s=>{
         const label=NAV_LINKS.find(l=>toId(l)===s)||s;
         const isActive=active===label;
         return(
           <button key={s} data-hover onClick={()=>document.getElementById(s)?.scrollIntoView({behavior:"smooth"})} title={label}
-            style={{width:isActive?10:6,height:isActive?10:6,borderRadius:"50%",background:isActive?ACC:"rgba(255,255,255,.22)",border:"none",transition:"all .3s",cursor:"pointer",padding:0,boxShadow:isActive?`0 0 10px ${ACC}80`:"none"}}/>
+            style={neoMode
+              ? {
+                  minWidth: isActive ? 108 : 84,
+                  height: isActive ? 34 : 28,
+                  borderRadius: 0,
+                  background: isActive ? "#fff" : "#FFD43B",
+                  border: "3px solid #111",
+                  transition: "all .3s",
+                  cursor: "pointer",
+                  padding: "0 10px",
+                  boxShadow: "4px 4px 0 #111",
+                  color: "#111",
+                  fontSize: 10,
+                  fontWeight: 700,
+                  letterSpacing: ".08em",
+                  textTransform: "uppercase",
+                  textAlign: "left",
+                  animation: isActive ? "sidebarJolt .45s ease" : "none",
+                }
+              : {width:isActive?10:6,height:isActive?10:6,borderRadius:"50%",background:isActive?ACC:"rgba(255,255,255,.22)",border:"none",transition:"all .3s",cursor:"pointer",padding:0,boxShadow:isActive?`0 0 10px ${ACC}80`:"none"}}
+          >
+            {neoMode ? label : null}
+          </button>
         );
       })}
     </div>
+  );
+}
+
+function NeoSidebar({show,onCopyEmail,onDownload}){
+  if(!show) return null;
+  return(
+    <aside style={{position:"fixed",left:18,top:"50%",transform:"translateY(-50%)",zIndex:320,display:"flex",flexDirection:"column",gap:10}}>
+      {[
+        {label:"Email",bg:"#FF6B6B",onClick:onCopyEmail},
+        {label:"Resume",bg:"#FFE45E",onClick:onDownload},
+        {label:"LinkedIn",bg:"#7EE787",onClick:()=>window.open("https://linkedin.com/in/dhineshse","_blank","noopener,noreferrer")},
+        {label:"GitHub",bg:"#00F0FF",onClick:()=>window.open("https://github.com/Dhinesh-Se","_blank","noopener,noreferrer")},
+      ].map((item,index)=>(
+        <button key={item.label} data-hover onClick={item.onClick} style={{height:36,padding:"0 12px",border:"3px solid #111",borderRadius:0,background:item.bg,color:"#111",fontWeight:800,letterSpacing:".08em",fontSize:10,boxShadow:"5px 5px 0 #111",animation:`neoPulse 2.4s ease-in-out ${index*0.14}s infinite`,textTransform:"uppercase"}}>
+          {item.label}
+        </button>
+      ))}
+    </aside>
   );
 }
 
@@ -467,6 +507,7 @@ function RocketBtn({show}){
 /* ═══════════ MAIN ═══════════ */
 export default function Portfolio(){
   const[intro,setIntro]=useState(true);
+  const[neoMode,setNeoMode]=useState(true);
   const[active,setActive]=useState("About");
   const[scrolled,setScrolled]=useState(false);
   const[menuOpen,setMenuOpen]=useState(false);
@@ -481,6 +522,7 @@ export default function Portfolio(){
   const[istTime,setIstTime]=useState("");
   const[decodedName,setDecodedName]=useState("01000100 01001000 01001001 01001110 01000101 01010011 01001000");
   const[chatOpen,setChatOpen]=useState(false);
+  const[copied,setCopied]=useState(false);
   const confettiRef=useRef(null);
   const konamiSeq=useRef([]);
   const isMobile=useIsMobile();
@@ -526,6 +568,16 @@ export default function Portfolio(){
     setTimeout(()=>setDlState("idle"),2600);
   };
 
+  const handleCopyEmail=async()=>{
+    try{
+      await navigator.clipboard.writeText("javadevdhinesh@gmail.com");
+      setCopied(true);
+      setTimeout(()=>setCopied(false),1800);
+    }catch{
+      window.open("mailto:javadevdhinesh@gmail.com");
+    }
+  };
+
   const DlBtn=({cls="btn btn-primary",style={}})=>(
     <button data-hover className={cls} onClick={handleDl} style={{minWidth:148,justifyContent:"center",...style}}>
       {dlState==="idle"&&<><span>↓</span>Download CV</>}
@@ -534,10 +586,12 @@ export default function Portfolio(){
     </button>
   );
 
-  const bgColor = genre==="Thriller"?"#07070B":genre==="Action"?"#0D0808":"#080810";
+  const bgColor = neoMode
+    ? (genre==="Thriller"?"#1F36F4":genre==="Action"?"#FF5A36":"#FFE45E")
+    : (genre==="Thriller"?"#07070B":genre==="Action"?"#0D0808":"#080810");
 
   return(
-    <div style={{fontFamily:"'DM Mono',monospace",background:bgColor,color:"#E8E8F0",minHeight:"100vh",overflowX:"hidden",cursor:isMobile?"auto":"none",transition:"background .4s"}}>
+    <div className={neoMode?"neo-mode":""} style={{fontFamily:"'DM Mono',monospace",background:bgColor,color:neoMode?"#111":"#E8E8F0",minHeight:"100vh",overflowX:"hidden",cursor:isMobile?"auto":"none",transition:"background .4s"}}>
       {imaxMode&&<><div style={{position:"fixed",top:0,left:0,right:0,height:"8vh",background:"#000",zIndex:350,pointerEvents:"none"}}/><div style={{position:"fixed",bottom:0,left:0,right:0,height:"8vh",background:"#000",zIndex:350,pointerEvents:"none"}}/></>}
 
       {intro&&<CinematicIntro onDone={()=>setIntro(false)}/>}
@@ -547,7 +601,8 @@ export default function Portfolio(){
       <CommandPalette open={cmdOpen} onClose={()=>setCmdOpen(false)} onMatrix={()=>setMatrixOn(o=>!o)} onDownload={handleDl} onChat={()=>setChatOpen(true)}/>
 
       <ProgressBar pct={scrollPct}/>
-      {!isMobile&&<SectionDots active={active}/>}
+      {!isMobile&&<SectionDots active={active} neoMode={neoMode}/>}
+      {!isMobile&&<NeoSidebar show={neoMode} onCopyEmail={handleCopyEmail} onDownload={handleDl}/>}
       <RocketBtn show={showRocket}/>
       <AiChat externalOpen={chatOpen} onExternalClose={()=>setChatOpen(false)}/>
       <canvas ref={confettiRef} style={{position:"fixed",inset:0,pointerEvents:"none",zIndex:4000}}/>
@@ -560,7 +615,7 @@ export default function Portfolio(){
         ::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:${bgColor};}::-webkit-scrollbar-thumb{background:${ACC};border-radius:2px;}
         ::selection{background:rgba(255,230,0,.2);color:#fff;}
         .syne{font-family:'Syne',sans-serif;}.bebas{font-family:'Bebas Neue',sans-serif;}
-        .nav-link{position:relative;font-size:12px;letter-spacing:.1em;color:#888;text-transform:uppercase;transition:color .2s;white-space:nowrap;}
+        .nav-link{position:relative;font-size:12px;letter-spacing:.1em;color:${neoMode?"#222":"#888"};text-transform:uppercase;transition:color .2s;white-space:nowrap;}
         .nav-link:hover,.nav-link.active{color:${ACC};}
         .nav-link::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:1px;background:${ACC};transition:width .3s;}
         .nav-link:hover::after,.nav-link.active::after{width:100%;}
@@ -593,14 +648,25 @@ export default function Portfolio(){
         @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
         @keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
         @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+        @keyframes neoPulse{0%,100%{transform:translateX(0)}50%{transform:translateX(6px)}}
+        @keyframes sidebarJolt{0%{transform:translateX(0)}40%{transform:translateX(-5px)}100%{transform:translateX(0)}}
         .pulse{animation:pulse 2s infinite;}
         .float{animation:float 4s ease-in-out infinite;}
+        .neo-mode .card,.neo-mode .glow-border,.neo-mode .film-strip{background:#fff!important;border:3px solid #111!important;border-radius:0!important;box-shadow:8px 8px 0 #111!important;}
+        .neo-mode .tag,.neo-mode .skill-pill{background:#ffd400!important;color:#111!important;border:2px solid #111!important;border-radius:0!important;}
+        .neo-mode .btn{border-radius:0!important;border:3px solid #111!important;box-shadow:4px 4px 0 #111;}
+        .neo-mode .btn-primary{background:#00f0ff!important;color:#111!important;border-color:#111!important;}
+        .neo-mode .btn-outline{background:#fff!important;color:#111!important;border-color:#111!important;}
+        .neo-mode .section-label,.neo-mode .section-h,.neo-mode .syne,.neo-mode .bebas{color:#111!important;text-shadow:none!important;}
+        .neo-mode .dot-grid{background-image:none;}
+        .neo-mode .reel-divider::before,.neo-mode .reel-divider::after{background:#111;}
+        .neo-mode .scanlines::after{display:none;}
         @media(max-width:768px){.hide-mobile{display:none!important;}.btn{padding:10px 16px;font-size:11px;}}
         @media(min-width:769px){.hide-desktop{display:none!important;}}
         @media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important;}}
       `}</style>
 
-      <TopNavigation scrolled={scrolled} menuOpen={menuOpen} setMenuOpen={setMenuOpen} active={active} navLinks={NAV_LINKS} scrollTo={scrollTo} accentColor={ACC} matrixOn={matrixOn} onToggleMatrix={()=>setMatrixOn(o=>!o)} onOpenCommand={()=>setCmdOpen(true)} DlBtn={DlBtn} quotes={MOVIE_QUOTES} isMobile={isMobile}/>
+      <TopNavigation scrolled={scrolled} menuOpen={menuOpen} setMenuOpen={setMenuOpen} active={active} navLinks={NAV_LINKS} scrollTo={scrollTo} accentColor={ACC} matrixOn={matrixOn} onToggleMatrix={()=>setMatrixOn(o=>!o)} onOpenCommand={()=>setCmdOpen(true)} onToggleNeo={()=>setNeoMode(v=>!v)} neoMode={neoMode} DlBtn={DlBtn} quotes={MOVIE_QUOTES} isMobile={isMobile}/>
 
       {/* ── HERO ── */}
       <section id="about" className="dot-grid scanlines" style={{minHeight:"100vh",display:"flex",alignItems:"center",padding:"100px clamp(20px,7vw,120px) 72px",position:"relative",overflow:"hidden"}}>
@@ -630,6 +696,7 @@ export default function Portfolio(){
           <div style={{display:"flex",gap:10,flexWrap:"wrap",marginBottom:20}}>
             <button data-hover className="btn btn-primary" onClick={()=>scrollTo("Projects")}>▶ View Projects</button>
             <button data-hover className="btn btn-outline" onClick={()=>scrollTo("Contact")}>Get In Touch</button>
+            <button data-hover className="btn btn-outline" onClick={handleCopyEmail}>{copied?"✓ Email Copied":"Copy Email"}</button>
             <DlBtn cls="btn btn-outline"/>
           </div>
           <div style={{marginBottom:44,fontSize:11,color:"rgba(255,255,255,.22)",fontFamily:"'DM Mono',monospace",display:"flex",alignItems:"center",gap:6,flexWrap:"wrap"}}>
