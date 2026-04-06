@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 
-const ACC = "#FFE600";
+const ACC = "var(--accent-cyan)";
 
 const SYSTEM_PROMPT = `You are Dhinesh V's portfolio assistant. You answer questions about Dhinesh concisely and professionally. Here is everything about him:
 
