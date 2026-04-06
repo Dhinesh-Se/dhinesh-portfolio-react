@@ -133,7 +133,7 @@ export default function TopNavigation({
           <button
             data-hover
             onClick={() => setMenuOpen((open) => !open)}
-            style={{ background: "none", border: "none", padding: 6, display: "flex", flexDirection: "column", gap: 5, zIndex: 201 }}
+            style={{ background: "none", border: "none", color: "white", padding: 6, display: "flex", flexDirection: "column", gap: 5, zIndex: 201 }}
             aria-label="Menu"
           >
             <span className="bar" style={{ transform: menuOpen ? "rotate(45deg) translate(5px,5px)" : "none" }} />
@@ -150,51 +150,58 @@ export default function TopNavigation({
       )}
 
       {menuOpen && (
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            zIndex: 199,
-            background: "#09090F",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "flex-start",
-            padding: "80px clamp(28px,8vw,60px) 40px",
-            animation: "slideDown .3s ease",
-          }}
-        >
-          <div style={{ marginBottom: 20 }}>
-            <MovieTicker quotes={quotes} accentColor={accentColor} />
+        <>
+          <div 
+            onClick={() => setMenuOpen(false)}
+            style={{
+              position: "fixed", inset: 0, zIndex: 195,
+              background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)",
+              animation: "fadeIn 0.3s ease"
+            }} 
+          />
+          <div
+            style={{
+              position: "fixed", top: 0, right: 0, bottom: 0,
+              width: "280px", maxWidth: "85vw", zIndex: 199,
+              background: "rgba(5, 5, 8, 0.95)", backdropFilter: "blur(20px)",
+              borderLeft: `1px solid ${accentColor}40`,
+              display: "flex", flexDirection: "column",
+              justifyContent: "flex-start", alignItems: "flex-start",
+              padding: "80px 30px 40px",
+              boxShadow: "-10px 0 30px rgba(0,0,0,0.8)",
+              animation: "slideInRight .3s ease",
+            }}
+          >
+            <nav style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 36, width: "100%" }}>
+              {navLinks.map((link) => (
+                <span
+                  key={link}
+                  data-hover
+                  onClick={() => {
+                    scrollTo(link);
+                    setMenuOpen(false);
+                  }}
+                  style={{
+                    fontFamily: "'Syne',sans-serif", fontWeight: 700,
+                    fontSize: "24px", letterSpacing: "1px",
+                    color: active === link ? accentColor : "#888",
+                    textTransform: "uppercase", transition: "color .2s",
+                    display: "block", padding: "8px 0",
+                    borderBottom: "1px solid rgba(255,255,255,0.05)",
+                  }}
+                >
+                  <span style={{ fontSize: "14px", color: accentColor, marginRight: 12 }}>{active === link ? "■" : "◻"}</span>
+                  {link}
+                </span>
+              ))}
+            </nav>
+            <DownloadButton cls="btn-cyber" style={{ width: "100%", justifyContent: "center", marginBottom: 24 }} />
+            
+            <div style={{ marginTop: "auto", fontSize: 11, color: "rgba(255,255,255,.3)", fontFamily: "'DM Mono',monospace" }}>
+              Press ⌘K for command palette
+            </div>
           </div>
-          <nav style={{ display: "flex", flexDirection: "column", gap: 4, marginBottom: 36 }}>
-            {navLinks.map((link) => (
-              <span
-                key={link}
-                data-hover
-                onClick={() => scrollTo(link)}
-                style={{
-                  fontFamily: "'Syne',sans-serif",
-                  fontWeight: 700,
-                  fontSize: "clamp(28px,8vw,40px)",
-                  letterSpacing: "-.01em",
-                  color: active === link ? accentColor : "#555",
-                  textTransform: "uppercase",
-                  transition: "color .2s",
-                  display: "block",
-                  padding: "8px 0",
-                }}
-              >
-                <span style={{ fontSize: ".4em", color: accentColor, marginRight: 8 }}>▸</span>
-                {link}
-              </span>
-            ))}
-          </nav>
-          <DownloadButton cls="btn btn-primary" style={{ maxWidth: 260, width: "100%", justifyContent: "center" }} />
-          <div style={{ marginTop: 24, fontSize: 11, color: "rgba(255,255,255,.25)", fontFamily: "'DM Mono',monospace" }}>
-            Press ⌘K for command palette
-          </div>
-        </div>
+        </>
       )}
     </>
   );

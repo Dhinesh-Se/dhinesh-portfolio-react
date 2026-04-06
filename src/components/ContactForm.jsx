@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const ACC = "#FFE600";
+const ACC = "var(--accent-cyan)";
 
 // EmailJS config — replace these with your real IDs from emailjs.com (free)
 // Sign up at emailjs.com → Create Service (Gmail) → Create Template → Copy IDs
