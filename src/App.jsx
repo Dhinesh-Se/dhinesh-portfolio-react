@@ -48,6 +48,14 @@ const ACHIEVEMENTS = [
   { icon:"💳", title:"e-Wallet Innovation",   desc:"Integrated an innovative e-wallet system in WPP enabling seamless automatic premium collection." },
 ];
 
+const ANIME_AURAS = [
+  { series:"One Piece", role:"Captain's drive", icon:"☠️", color:"#38bdf8", line:"Adventure-first builder who keeps teams moving toward the next island.", motion:"wave" },
+  { series:"Attack on Titan", role:"Wall-breaker focus", icon:"🛡️", color:"#ff6b35", line:"Turns pressure and constraints into decisive delivery momentum.", motion:"slash" },
+  { series:"Bleach", role:"Soul-cut precision", icon:"⚔️", color:"#e879f9", line:"Clean architecture, sharp APIs, and fast debugging strikes.", motion:"blade" },
+  { series:"Death Note", role:"Strategic mind", icon:"📓", color:"#a3e635", line:"Plans flows, risks, and edge cases before production ever sees them.", motion:"ink" },
+  { series:"Demon Slayer", role:"Breathing rhythm", icon:"🔥", color:"#f43f5e", line:"Disciplined sprints, polished UI details, and resilient releases.", motion:"flame" },
+];
+
 const MOVIE_QUOTES = [
   { quote:"With great power comes great responsibility.", film:"Spider-Man" },
   { quote:"Why so serious?", film:"The Dark Knight" },
@@ -209,6 +217,31 @@ function ParticleBg(){
   return<canvas ref={ref} style={{position:"absolute",inset:0,width:"100%",height:"100%",pointerEvents:"none"}}/>;
 }
 
+function AnimeAuraShowcase({isMobile}){
+  return(
+    <div className="anime-stage" aria-label="Anime-inspired character animation showcase">
+      <div className="anime-orbit"/>
+      <div className="anime-avatar" data-hover>
+        <span className="anime-avatar-core">DV</span>
+        <span className="anime-aura-ring ring-one"/>
+        <span className="anime-aura-ring ring-two"/>
+      </div>
+      <div className="anime-cards" style={{gridTemplateColumns:isMobile?"1fr":"repeat(5, minmax(120px, 1fr))"}}>
+        {ANIME_AURAS.map((a,i)=>(
+          <div className={`anime-card motion-${a.motion}`} key={a.series} style={{"--aura":a.color,animationDelay:`${i*.12}s`}} data-hover>
+            <div className="anime-card-icon">{a.icon}</div>
+            <div>
+              <div className="anime-card-series">{a.series}</div>
+              <div className="anime-card-role">{a.role}</div>
+              <p>{a.line}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function Typewriter({text,speed=40,delay=0}){
   const[s,setS]=useState(""); const[go,setGo]=useState(false);
   const[r,v]=useInView(.2);
@@ -333,17 +366,7 @@ function TiltCard({children,style={},className="",isMobile=false}){
 function CommandPalette({open,onClose,onMatrix,onDownload,onChat}){
   const[q,setQ]=useState("");const[sel,setSel]=useState(0);const inp=useRef(null);
   const filtered=CMD_ITEMS.filter(i=>i.label.toLowerCase().includes(q.toLowerCase()));
-  useEffect(()=>{if(open){setQ("");setSel(0);setTimeout(()=>inp.current?.focus(),80);}},[open]);
-  useEffect(()=>{
-    const fn=e=>{
-      if(e.key==="ArrowDown"){e.preventDefault();setSel(s=>Math.min(s+1,filtered.length-1));}
-      if(e.key==="ArrowUp"){e.preventDefault();setSel(s=>Math.max(s-1,0));}
-      if(e.key==="Enter")run(filtered[sel]);
-      if(e.key==="Escape")onClose();
-    };
-    if(open)window.addEventListener("keydown",fn); return()=>window.removeEventListener("keydown",fn);
-  },[open,filtered,sel]);
-  const run=item=>{
+  const run=useCallback(item=>{
     if(!item)return;
     if(item.action==="scroll")document.getElementById(item.id)?.scrollIntoView({behavior:"smooth"});
     if(item.action==="download")onDownload();
@@ -353,7 +376,21 @@ function CommandPalette({open,onClose,onMatrix,onDownload,onChat}){
     if(item.action==="linkedin")window.open("https://linkedin.com/in/dhineshse","_blank");
     if(item.action==="github")window.open("https://github.com/Dhinesh-Se","_blank");
     onClose();
-  };
+  },[onChat,onClose,onDownload,onMatrix]);
+  useEffect(()=>{
+    if(!open)return;
+    const id=setTimeout(()=>{setQ("");setSel(0);inp.current?.focus();},80);
+    return()=>clearTimeout(id);
+  },[open]);
+  useEffect(()=>{
+    const fn=e=>{
+      if(e.key==="ArrowDown"){e.preventDefault();setSel(s=>Math.min(s+1,filtered.length-1));}
+      if(e.key==="ArrowUp"){e.preventDefault();setSel(s=>Math.max(s-1,0));}
+      if(e.key==="Enter")run(filtered[sel]);
+      if(e.key==="Escape")onClose();
+    };
+    if(open)window.addEventListener("keydown",fn); return()=>window.removeEventListener("keydown",fn);
+  },[open,filtered,sel,run,onClose]);
   if(!open)return null;
   return(
     <div style={{position:"fixed",inset:0,zIndex:5000,display:"flex",alignItems:"flex-start",justifyContent:"center",paddingTop:"14vh",background:"rgba(0,0,0,.72)",backdropFilter:"blur(8px)"}} onClick={onClose}>
@@ -586,6 +623,26 @@ export default function Portfolio(){
         .reel-divider::before,.reel-divider::after{content:'';flex:1;height:1px;background:linear-gradient(to right,transparent,rgba(255,230,0,.22),transparent);}
         .skill-pill{padding:5px 12px;border:1px solid rgba(255,255,255,.1);border-radius:3px;font-size:11px;color:#aaa;background:rgba(255,255,255,.025);transition:all .2s;white-space:nowrap;}
         .skill-pill:hover{border-color:${ACC};color:${ACC};background:rgba(255,230,0,.05);transform:translateY(-1px);}
+
+        .anime-stage{position:absolute;right:clamp(18px,6vw,100px);top:18%;width:min(42vw,560px);min-height:520px;pointer-events:none;z-index:1;opacity:.96;}
+        .anime-orbit{position:absolute;inset:18% 10%;border:1px solid rgba(255,230,0,.16);border-radius:50%;background:radial-gradient(circle,rgba(255,230,0,.08),transparent 58%);filter:blur(.2px);animation:orbitPulse 5s ease-in-out infinite;}
+        .anime-avatar{position:absolute;top:28%;left:50%;transform:translateX(-50%);width:156px;height:156px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,rgba(255,230,0,.22),rgba(56,189,248,.12),rgba(244,63,94,.16));border:1px solid rgba(255,255,255,.18);box-shadow:0 0 80px rgba(255,230,0,.18),inset 0 0 28px rgba(255,255,255,.08);animation:heroAura 4s ease-in-out infinite;pointer-events:auto;}
+        .anime-avatar-core{font-family:'Syne',sans-serif;font-weight:800;font-size:42px;color:#080810;background:${ACC};width:88px;height:88px;border-radius:50%;display:grid;place-items:center;box-shadow:0 0 32px rgba(255,230,0,.42);}
+        .anime-aura-ring{position:absolute;inset:-18px;border-radius:50%;border:1px dashed rgba(255,230,0,.32);animation:spin 12s linear infinite;}
+        .anime-aura-ring.ring-two{inset:-38px;border-color:rgba(56,189,248,.24);animation-duration:18s;animation-direction:reverse;}
+        .anime-cards{position:absolute;left:0;right:0;bottom:0;display:grid;gap:10px;pointer-events:auto;}
+        .anime-card{position:relative;overflow:hidden;min-height:158px;padding:14px 12px;border-radius:14px;background:linear-gradient(180deg,rgba(255,255,255,.075),rgba(255,255,255,.025));border:1px solid color-mix(in srgb,var(--aura) 45%,transparent);box-shadow:0 16px 44px color-mix(in srgb,var(--aura) 13%,transparent);animation:cardFloat 4.8s ease-in-out infinite;transition:transform .25s,border-color .25s,box-shadow .25s;}
+        .anime-card:hover{transform:translateY(-8px) scale(1.025);border-color:var(--aura);box-shadow:0 24px 60px color-mix(in srgb,var(--aura) 24%,transparent);}
+        .anime-card::before{content:'';position:absolute;inset:-60% -40%;background:linear-gradient(115deg,transparent 42%,color-mix(in srgb,var(--aura) 34%,transparent) 50%,transparent 58%);transform:translateX(-45%) rotate(8deg);animation:animeShine 3.8s ease-in-out infinite;}
+        .anime-card-icon{font-size:28px;margin-bottom:10px;filter:drop-shadow(0 0 12px var(--aura));}
+        .anime-card-series{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:.06em;color:#fff;line-height:1;}
+        .anime-card-role{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--aura);margin:5px 0 8px;}
+        .anime-card p{font-size:10px;line-height:1.55;color:rgba(255,255,255,.58);}
+        .motion-wave{clip-path:polygon(0 0,100% 6%,100% 100%,0 94%)}.motion-slash{clip-path:polygon(8% 0,100% 0,92% 100%,0 100%)}.motion-blade{clip-path:polygon(0 0,94% 0,100% 100%,6% 100%)}
+        @keyframes heroAura{0%,100%{transform:translateX(-50%) translateY(0) scale(1)}50%{transform:translateX(-50%) translateY(-14px) scale(1.04)}}
+        @keyframes orbitPulse{0%,100%{transform:scale(.96) rotate(0deg);opacity:.48}50%{transform:scale(1.08) rotate(6deg);opacity:.9}}
+        @keyframes cardFloat{0%,100%{translate:0 0}50%{translate:0 -10px}}
+        @keyframes animeShine{0%,55%{transform:translateX(-70%) rotate(8deg)}100%{transform:translateX(90%) rotate(8deg)}}
         @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
         @keyframes spin{to{transform:rotate(360deg)}}
         @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
@@ -595,7 +652,7 @@ export default function Portfolio(){
         @keyframes fadeIn{from{opacity:0}to{opacity:1}}
         .pulse{animation:pulse 2s infinite;}
         .float{animation:float 4s ease-in-out infinite;}
-        @media(max-width:768px){.hide-mobile{display:none!important;}.btn{padding:10px 16px;font-size:11px;}}
+        @media(max-width:768px){.hide-mobile{display:none!important;}.btn{padding:10px 16px;font-size:11px;}.anime-stage{position:relative;right:auto;top:auto;width:100%;min-height:780px;margin-top:34px}.anime-avatar{top:4%;}.anime-cards{top:250px;bottom:auto;}}
         @media(min-width:769px){.hide-desktop{display:none!important;}}
         @media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important;}}
       `}</style>
@@ -605,6 +662,7 @@ export default function Portfolio(){
       {/* ── HERO ── */}
       <section id="about" className="dot-grid scanlines" style={{minHeight:"100vh",display:"flex",alignItems:"center",padding:"100px clamp(20px,7vw,120px) 72px",position:"relative",overflow:"hidden"}}>
         <ParticleBg/>
+        <AnimeAuraShowcase isMobile={isMobile}/>
         <div className="float" style={{position:"absolute",top:"-20%",left:"28%",width:"40vw",height:"80vh",background:"radial-gradient(ellipse at center,rgba(255,230,0,.042) 0%,transparent 65%)",pointerEvents:"none",zIndex:1}}/>
         <div style={{maxWidth:980,width:"100%",position:"relative",zIndex:2}}>
           <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:12,marginBottom:28}}>
@@ -624,9 +682,12 @@ export default function Portfolio(){
               Software Engineer <span style={{color:ACC}}>@</span> Ernst & Young
             </p>
           </div>
-          <p style={{fontSize:"clamp(13px,1.5vw,15px)",color:"#888",maxWidth:580,lineHeight:1.9,marginBottom:36,fontWeight:300,minHeight:48}}>
+          <p style={{fontSize:"clamp(13px,1.5vw,15px)",color:"#888",maxWidth:580,lineHeight:1.9,marginBottom:20,fontWeight:300,minHeight:48}}>
             <Typewriter text="3+ years building enterprise-grade platforms in insurance & fintech. Expert in Java · Spring Boot · Angular — from microservices to secure payment systems." delay={.2}/>
           </p>
+          <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:32,maxWidth:620}}>
+            {ANIME_AURAS.map(a=><span key={a.series} className="tag" style={{borderColor:a.color,color:a.color,background:`${a.color}12`}}>{a.icon} {a.series} energy</span>)}
+          </div>
           <div style={{display:"flex",gap:10,flexWrap:"wrap",marginBottom:20}}>
             <button data-hover className="btn btn-primary" onClick={()=>scrollTo("Projects")}>▶ View Projects</button>
             <button data-hover className="btn btn-outline" onClick={()=>scrollTo("Contact")}>Get In Touch</button>
@@ -780,7 +841,7 @@ export default function Portfolio(){
         <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"1fr 1fr",gap:20}}>
           <FadeIn from="left">
             <div className="card" style={{padding:isMobile?"20px 18px":"24px 28px",height:"100%"}}>
-              <div className="section-label" style={{marginBottom:7}}>Education</div>
+              <div className="section-label" style={{marginBottom:7}}>Education · Demon-slayer discipline</div>
               <h3 className="syne" style={{fontWeight:700,fontSize:"clamp(15px,2.5vw,19px)",color:"#E8E8F0",marginBottom:4}}>B.Tech – Information Technology</h3>
               <p style={{color:"#888",fontSize:13,marginBottom:16}}>Coimbatore Institute of Engineering and Technology</p>
               <div style={{color:ACC,fontSize:13,marginBottom:10}}>2018 – 2022</div>
@@ -796,7 +857,7 @@ export default function Portfolio(){
         <FadeIn>
           <div className="reel-divider"><span className="section-label">Cinematic Innovation</span></div>
           <h2 className="section-h" style={{marginBottom:18}}>Portfolio <span style={{color:ACC}}>Cinema Lab</span></h2>
-          <p style={{color:"#888",fontSize:13,lineHeight:1.8,maxWidth:600,marginBottom:28}}>Interactive playground — switch genres, go IMAX, watch the career trailer, or decode my name.</p>
+          <p style={{color:"#888",fontSize:13,lineHeight:1.8,maxWidth:700,marginBottom:28}}>Interactive playground — switch genres, go IMAX, watch the career trailer, decode my name, and see how One Piece adventure, Attack on Titan intensity, Bleach precision, Death Note strategy, and Demon Slayer discipline shape the UI motion language.</p>
         </FadeIn>
         <div style={{display:"flex",gap:10,flexWrap:"wrap",marginBottom:24}}>
           {["Thriller","Sci-Fi","Action"].map(g=>(
