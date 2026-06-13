@@ -48,12 +48,12 @@ const ACHIEVEMENTS = [
   { icon:"💳", title:"e-Wallet Innovation",   desc:"Integrated an innovative e-wallet system in WPP enabling seamless automatic premium collection." },
 ];
 
-const ANIME_AURAS = [
-  { series:"One Piece", role:"Captain's drive", icon:"☠️", color:"#38bdf8", line:"Adventure-first builder who keeps teams moving toward the next island.", motion:"wave" },
-  { series:"Attack on Titan", role:"Wall-breaker focus", icon:"🛡️", color:"#ff6b35", line:"Turns pressure and constraints into decisive delivery momentum.", motion:"slash" },
-  { series:"Bleach", role:"Soul-cut precision", icon:"⚔️", color:"#e879f9", line:"Clean architecture, sharp APIs, and fast debugging strikes.", motion:"blade" },
-  { series:"Death Note", role:"Strategic mind", icon:"📓", color:"#a3e635", line:"Plans flows, risks, and edge cases before production ever sees them.", motion:"ink" },
-  { series:"Demon Slayer", role:"Breathing rhythm", icon:"🔥", color:"#f43f5e", line:"Disciplined sprints, polished UI details, and resilient releases.", motion:"flame" },
+const CHARACTER_AURAS = [
+  { name:"Explorer", role:"Adventure mindset", icon:"🧭", color:"#38bdf8", line:"Curious full-stack builder who turns ideas into shipped product journeys.", motion:"wave", pose:"cape" },
+  { name:"Guardian", role:"Pressure-proof delivery", icon:"🛡️", color:"#ff6b35", line:"Breaks blockers, protects quality, and keeps releases moving under deadlines.", motion:"slash", pose:"armor" },
+  { name:"Bladesmith", role:"Precision engineering", icon:"⚔️", color:"#e879f9", line:"Cuts complexity with clean APIs, sharp UI states, and readable architecture.", motion:"blade", pose:"sword" },
+  { name:"Strategist", role:"Planning intelligence", icon:"♟️", color:"#a3e635", line:"Maps flows, risks, data paths, and edge cases before code reaches users.", motion:"ink", pose:"notebook" },
+  { name:"Flame Coder", role:"Focused craft", icon:"🔥", color:"#f43f5e", line:"Polishes interactions with sprint rhythm, discipline, and cinematic detail.", motion:"flame", pose:"flame" },
 ];
 
 const MOVIE_QUOTES = [
@@ -153,6 +153,7 @@ function CinematicIntro({onDone}){
       <div style={{position:"absolute",inset:0,backgroundImage:"repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(255,255,255,.012) 2px,rgba(255,255,255,.012) 4px)",pointerEvents:"none"}}/>
       <div style={{position:"absolute",top:0,left:0,right:0,height:"12%",background:"#000",zIndex:2}}/>
       <div style={{position:"absolute",bottom:0,left:0,right:0,height:"12%",background:"#000",zIndex:2}}/>
+      <CharacterIntroCast/>
       <div style={{textAlign:"center",zIndex:3}}>
         <p style={{fontFamily:"'DM Mono',monospace",fontSize:"clamp(10px,2vw,13px)",letterSpacing:".5em",color:"rgba(255,230,0,.7)",textTransform:"uppercase",marginBottom:24,opacity:phase>=1?1:0,transition:"opacity .8s ease"}}>A DHINESH V PRODUCTION</p>
         <h1 style={{fontFamily:"'Syne',sans-serif",fontWeight:800,fontSize:"clamp(48px,10vw,100px)",color:"#fff",letterSpacing:"-.02em",lineHeight:.88,opacity:phase>=2?1:0,transform:phase>=2?"scale(1)":"scale(1.1)",transition:"opacity .9s ease,transform .9s ease",textShadow:"0 0 80px rgba(255,230,0,.45)"}}>
@@ -217,21 +218,44 @@ function ParticleBg(){
   return<canvas ref={ref} style={{position:"absolute",inset:0,width:"100%",height:"100%",pointerEvents:"none"}}/>;
 }
 
-function AnimeAuraShowcase({isMobile}){
+function CharacterFigure({a,i=0,compact=false}){
   return(
-    <div className="anime-stage" aria-label="Anime-inspired character animation showcase">
+    <div className={`character-figure pose-${a.pose} ${compact?"compact":""}`} style={{"--aura":a.color,animationDelay:`${i*.16}s`}}>
+      <span className="character-glow"/>
+      <span className="character-head"/>
+      <span className="character-body"/>
+      <span className="character-coat"/>
+      <span className="character-weapon"/>
+      <span className="character-spark one"/>
+      <span className="character-spark two"/>
+    </div>
+  );
+}
+
+function CharacterIntroCast(){
+  return(
+    <div className="intro-cast" aria-hidden="true">
+      {CHARACTER_AURAS.map((a,i)=><CharacterFigure key={a.name} a={a} i={i} compact/>)}
+    </div>
+  );
+}
+
+function LivingCharacterShowcase({isMobile}){
+  return(
+    <div className="anime-stage" aria-label="Animated developer character showcase">
       <div className="anime-orbit"/>
       <div className="anime-avatar" data-hover>
+        <CharacterFigure a={CHARACTER_AURAS[4]} compact/>
         <span className="anime-avatar-core">DV</span>
         <span className="anime-aura-ring ring-one"/>
         <span className="anime-aura-ring ring-two"/>
       </div>
       <div className="anime-cards" style={{gridTemplateColumns:isMobile?"1fr":"repeat(5, minmax(120px, 1fr))"}}>
-        {ANIME_AURAS.map((a,i)=>(
-          <div className={`anime-card motion-${a.motion}`} key={a.series} style={{"--aura":a.color,animationDelay:`${i*.12}s`}} data-hover>
-            <div className="anime-card-icon">{a.icon}</div>
+        {CHARACTER_AURAS.map((a,i)=>(
+          <div className={`anime-card motion-${a.motion}`} key={a.name} style={{"--aura":a.color,animationDelay:`${i*.12}s`}} data-hover>
+            <CharacterFigure a={a} i={i} compact/>
             <div>
-              <div className="anime-card-series">{a.series}</div>
+              <div className="anime-card-series">{a.name}</div>
               <div className="anime-card-role">{a.role}</div>
               <p>{a.line}</p>
             </div>
@@ -627,6 +651,17 @@ export default function Portfolio(){
         .anime-stage{position:absolute;right:clamp(18px,6vw,100px);top:18%;width:min(42vw,560px);min-height:520px;pointer-events:none;z-index:1;opacity:.96;}
         .anime-orbit{position:absolute;inset:18% 10%;border:1px solid rgba(255,230,0,.16);border-radius:50%;background:radial-gradient(circle,rgba(255,230,0,.08),transparent 58%);filter:blur(.2px);animation:orbitPulse 5s ease-in-out infinite;}
         .anime-avatar{position:absolute;top:28%;left:50%;transform:translateX(-50%);width:156px;height:156px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,rgba(255,230,0,.22),rgba(56,189,248,.12),rgba(244,63,94,.16));border:1px solid rgba(255,255,255,.18);box-shadow:0 0 80px rgba(255,230,0,.18),inset 0 0 28px rgba(255,255,255,.08);animation:heroAura 4s ease-in-out infinite;pointer-events:auto;}
+        .intro-cast{position:absolute;inset:auto 5vw 10vh;display:flex;justify-content:center;gap:clamp(14px,4vw,54px);z-index:2;opacity:.92;}
+        .character-figure{position:relative;width:86px;height:128px;display:inline-block;filter:drop-shadow(0 18px 28px color-mix(in srgb,var(--aura) 30%,transparent));animation:characterFloat 3.8s ease-in-out infinite;}
+        .character-figure.compact{width:54px;height:82px;margin:0 auto 8px;}
+        .character-glow{position:absolute;inset:18% -18% 0;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--aura) 34%,transparent),transparent 66%);filter:blur(8px);animation:auraBreath 2.8s ease-in-out infinite;}
+        .character-head{position:absolute;top:4%;left:50%;width:28%;height:20%;transform:translateX(-50%);border-radius:50% 50% 44% 44%;background:linear-gradient(145deg,#fff,var(--aura));box-shadow:0 0 20px color-mix(in srgb,var(--aura) 55%,transparent);}
+        .character-body{position:absolute;top:24%;left:50%;width:34%;height:46%;transform:translateX(-50%);border-radius:40% 40% 24% 24%;background:linear-gradient(180deg,#14141f,#050509);border:1px solid color-mix(in srgb,var(--aura) 52%,transparent);}
+        .character-coat{position:absolute;top:30%;left:25%;width:50%;height:56%;clip-path:polygon(20% 0,80% 0,100% 100%,50% 78%,0 100%);background:linear-gradient(180deg,color-mix(in srgb,var(--aura) 58%,#111 42%),rgba(0,0,0,.9));opacity:.88;animation:coatWave 2.2s ease-in-out infinite;}
+        .character-weapon{position:absolute;top:24%;right:18%;width:5%;height:58%;border-radius:6px;background:linear-gradient(to bottom,#fff,var(--aura),transparent);transform:rotate(28deg);box-shadow:0 0 18px var(--aura);}
+        .character-spark{position:absolute;width:7px;height:7px;border-radius:50%;background:var(--aura);box-shadow:0 0 16px var(--aura);animation:sparkFly 2.4s ease-in-out infinite;}
+        .character-spark.one{top:16%;left:15%;}.character-spark.two{right:9%;bottom:25%;animation-delay:.7s;}
+        .pose-cape .character-coat{clip-path:polygon(8% 0,82% 8%,100% 100%,42% 88%,0 100%)}.pose-armor .character-body{width:44%;border-radius:16%}.pose-sword .character-weapon{height:72%;right:8%;}.pose-notebook .character-weapon{width:18%;height:28%;right:12%;top:38%;transform:rotate(-8deg);border-radius:3px}.pose-flame .character-coat{filter:saturate(1.4);}
         .anime-avatar-core{font-family:'Syne',sans-serif;font-weight:800;font-size:42px;color:#080810;background:${ACC};width:88px;height:88px;border-radius:50%;display:grid;place-items:center;box-shadow:0 0 32px rgba(255,230,0,.42);}
         .anime-aura-ring{position:absolute;inset:-18px;border-radius:50%;border:1px dashed rgba(255,230,0,.32);animation:spin 12s linear infinite;}
         .anime-aura-ring.ring-two{inset:-38px;border-color:rgba(56,189,248,.24);animation-duration:18s;animation-direction:reverse;}
@@ -639,6 +674,10 @@ export default function Portfolio(){
         .anime-card-role{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--aura);margin:5px 0 8px;}
         .anime-card p{font-size:10px;line-height:1.55;color:rgba(255,255,255,.58);}
         .motion-wave{clip-path:polygon(0 0,100% 6%,100% 100%,0 94%)}.motion-slash{clip-path:polygon(8% 0,100% 0,92% 100%,0 100%)}.motion-blade{clip-path:polygon(0 0,94% 0,100% 100%,6% 100%)}
+        @keyframes characterFloat{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-14px) rotate(1deg)}}
+        @keyframes auraBreath{0%,100%{opacity:.54;transform:scale(.92)}50%{opacity:1;transform:scale(1.12)}}
+        @keyframes coatWave{0%,100%{transform:skewX(-3deg)}50%{transform:skewX(4deg)}}
+        @keyframes sparkFly{0%,100%{opacity:.35;transform:translate(0,0) scale(.8)}50%{opacity:1;transform:translate(10px,-18px) scale(1.2)}}
         @keyframes heroAura{0%,100%{transform:translateX(-50%) translateY(0) scale(1)}50%{transform:translateX(-50%) translateY(-14px) scale(1.04)}}
         @keyframes orbitPulse{0%,100%{transform:scale(.96) rotate(0deg);opacity:.48}50%{transform:scale(1.08) rotate(6deg);opacity:.9}}
         @keyframes cardFloat{0%,100%{translate:0 0}50%{translate:0 -10px}}
@@ -662,7 +701,7 @@ export default function Portfolio(){
       {/* ── HERO ── */}
       <section id="about" className="dot-grid scanlines" style={{minHeight:"100vh",display:"flex",alignItems:"center",padding:"100px clamp(20px,7vw,120px) 72px",position:"relative",overflow:"hidden"}}>
         <ParticleBg/>
-        <AnimeAuraShowcase isMobile={isMobile}/>
+        <LivingCharacterShowcase isMobile={isMobile}/>
         <div className="float" style={{position:"absolute",top:"-20%",left:"28%",width:"40vw",height:"80vh",background:"radial-gradient(ellipse at center,rgba(255,230,0,.042) 0%,transparent 65%)",pointerEvents:"none",zIndex:1}}/>
         <div style={{maxWidth:980,width:"100%",position:"relative",zIndex:2}}>
           <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:12,marginBottom:28}}>
@@ -686,7 +725,7 @@ export default function Portfolio(){
             <Typewriter text="3+ years building enterprise-grade platforms in insurance & fintech. Expert in Java · Spring Boot · Angular — from microservices to secure payment systems." delay={.2}/>
           </p>
           <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:32,maxWidth:620}}>
-            {ANIME_AURAS.map(a=><span key={a.series} className="tag" style={{borderColor:a.color,color:a.color,background:`${a.color}12`}}>{a.icon} {a.series} energy</span>)}
+            {CHARACTER_AURAS.map(a=><span key={a.name} className="tag" style={{borderColor:a.color,color:a.color,background:`${a.color}12`}}>{a.icon} {a.role}</span>)}
           </div>
           <div style={{display:"flex",gap:10,flexWrap:"wrap",marginBottom:20}}>
             <button data-hover className="btn btn-primary" onClick={()=>scrollTo("Projects")}>▶ View Projects</button>
@@ -841,7 +880,7 @@ export default function Portfolio(){
         <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"1fr 1fr",gap:20}}>
           <FadeIn from="left">
             <div className="card" style={{padding:isMobile?"20px 18px":"24px 28px",height:"100%"}}>
-              <div className="section-label" style={{marginBottom:7}}>Education · Demon-slayer discipline</div>
+              <div className="section-label" style={{marginBottom:7}}>Education · disciplined craft</div>
               <h3 className="syne" style={{fontWeight:700,fontSize:"clamp(15px,2.5vw,19px)",color:"#E8E8F0",marginBottom:4}}>B.Tech – Information Technology</h3>
               <p style={{color:"#888",fontSize:13,marginBottom:16}}>Coimbatore Institute of Engineering and Technology</p>
               <div style={{color:ACC,fontSize:13,marginBottom:10}}>2018 – 2022</div>
@@ -857,7 +896,7 @@ export default function Portfolio(){
         <FadeIn>
           <div className="reel-divider"><span className="section-label">Cinematic Innovation</span></div>
           <h2 className="section-h" style={{marginBottom:18}}>Portfolio <span style={{color:ACC}}>Cinema Lab</span></h2>
-          <p style={{color:"#888",fontSize:13,lineHeight:1.8,maxWidth:700,marginBottom:28}}>Interactive playground — switch genres, go IMAX, watch the career trailer, decode my name, and see how One Piece adventure, Attack on Titan intensity, Bleach precision, Death Note strategy, and Demon Slayer discipline shape the UI motion language.</p>
+          <p style={{color:"#888",fontSize:13,lineHeight:1.8,maxWidth:700,marginBottom:28}}>Interactive playground — switch genres, go IMAX, watch the career trailer, decode my name, and feel the mix of cinema, anime-style energy, full-stack craft, UI/UX polish, and developer storytelling.</p>
         </FadeIn>
         <div style={{display:"flex",gap:10,flexWrap:"wrap",marginBottom:24}}>
           {["Thriller","Sci-Fi","Action"].map(g=>(
