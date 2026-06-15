@@ -14,6 +14,8 @@ export default function TopNavigation({
   DlBtn,
   quotes,
   isMobile,
+  bankaiOn,
+  onToggleBankai,
 }) {
   const DownloadButton = DlBtn;
 
@@ -96,6 +98,27 @@ export default function TopNavigation({
           >
             {matrixOn ? "◼ MATRIX" : "◻ MATRIX"}
           </button>
+          <button
+            data-hover
+            onClick={onToggleBankai}
+            style={{
+              background: bankaiOn ? "rgba(255,61,0,0.18)" : "transparent",
+              border: `1px solid ${bankaiOn ? "#FF3D00" : "rgba(255,255,255,.12)"}`,
+              color: bankaiOn ? "#FF3D00" : "#888",
+              padding: "5px 10px",
+              borderRadius: 3,
+              fontSize: 11,
+              fontFamily: "'DM Mono',monospace",
+              display: "flex",
+              alignItems: "center",
+              gap: 4,
+              transition: "all .3s",
+              boxShadow: bankaiOn ? "0 0 10px rgba(255,61,0,0.25)" : "none",
+            }}
+            title="Toggle Bankai Mode (Bleach Easter Egg)"
+          >
+            ❂ {bankaiOn ? "BANKAI ON" : "BANKAI"}
+          </button>
           <DownloadButton style={{ padding: "7px 14px", fontSize: 11 }} />
         </div>
 
@@ -129,6 +152,23 @@ export default function TopNavigation({
             }}
           >
             ⌬
+          </button>
+          <button
+            data-hover
+            onClick={onToggleBankai}
+            style={{
+              background: bankaiOn ? "rgba(255,61,0,0.18)" : "rgba(255,255,255,.04)",
+              border: `1px solid ${bankaiOn ? "#FF3D00" : "rgba(255,255,255,.12)"}`,
+              color: bankaiOn ? "#FF3D00" : "rgba(255,255,255,.6)",
+              padding: "5px 8px",
+              borderRadius: 4,
+              fontSize: 12,
+              fontFamily: "'DM Mono',monospace",
+              transition: "all 0.3s",
+            }}
+            title="Toggle Bankai Mode"
+          >
+            ❂
           </button>
           <button
             data-hover
