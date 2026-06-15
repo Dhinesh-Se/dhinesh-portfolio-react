@@ -258,6 +258,207 @@ class AnimeSoundSynth {
     beat(now, 1.0);
     beat(now + 0.16, 0.7);
   }
+
+  /* ── Quick sword unsheathe "shing!" for button/link clicks ── */
+  playSwordUnsheathe() {
+    this.init();
+    const { ctx } = this;
+    const now = ctx.currentTime;
+
+    // Metallic ring
+    const osc = ctx.createOscillator();
+    osc.type = "triangle";
+    osc.frequency.setValueAtTime(3200, now);
+    osc.frequency.exponentialRampToValueAtTime(1800, now + 0.12);
+
+    const oscGain = ctx.createGain();
+    oscGain.gain.setValueAtTime(0, now);
+    oscGain.gain.linearRampToValueAtTime(0.18, now + 0.01);
+    oscGain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+
+    // Tiny noise whoosh
+    const bufSize = ctx.sampleRate * 0.1;
+    const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < bufSize; i++) d[i] = Math.random() * 2 - 1;
+    const noise = ctx.createBufferSource();
+    noise.buffer = buf;
+
+    const nf = ctx.createBiquadFilter();
+    nf.type = "highpass";
+    nf.frequency.setValueAtTime(4000, now);
+
+    const ng = ctx.createGain();
+    ng.gain.setValueAtTime(0, now);
+    ng.gain.linearRampToValueAtTime(0.12, now + 0.01);
+    ng.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+
+    osc.connect(oscGain); oscGain.connect(ctx.destination);
+    noise.connect(nf); nf.connect(ng); ng.connect(ctx.destination);
+
+    osc.start(now); osc.stop(now + 0.15);
+    noise.start(now); noise.stop(now + 0.1);
+  }
+
+  /* ── Zenitsu-style thunder crack for navigation ── */
+  playZenitsuThunder() {
+    this.init();
+    const { ctx } = this;
+    const now = ctx.currentTime;
+
+    // Sharp electric crack
+    const crackSize = ctx.sampleRate * 0.08;
+    const crackBuf = ctx.createBuffer(1, crackSize, ctx.sampleRate);
+    const cd = crackBuf.getChannelData(0);
+    for (let i = 0; i < crackSize; i++) cd[i] = Math.random() * 2 - 1;
+    const crack = ctx.createBufferSource();
+    crack.buffer = crackBuf;
+
+    const cf = ctx.createBiquadFilter();
+    cf.type = "bandpass";
+    cf.frequency.setValueAtTime(6000, now);
+    cf.Q.setValueAtTime(2, now);
+
+    const cg = ctx.createGain();
+    cg.gain.setValueAtTime(0.3, now);
+    cg.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+
+    // Buzzing electric resonance
+    const buzz = ctx.createOscillator();
+    buzz.type = "sawtooth";
+    buzz.frequency.setValueAtTime(220, now);
+    buzz.frequency.exponentialRampToValueAtTime(80, now + 0.25);
+
+    const bf = ctx.createBiquadFilter();
+    bf.type = "lowpass";
+    bf.frequency.setValueAtTime(800, now);
+    bf.frequency.exponentialRampToValueAtTime(200, now + 0.25);
+
+    const bg = ctx.createGain();
+    bg.gain.setValueAtTime(0, now);
+    bg.gain.linearRampToValueAtTime(0.2, now + 0.01);
+    bg.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+
+    crack.connect(cf); cf.connect(cg); cg.connect(ctx.destination);
+    buzz.connect(bf); bf.connect(bg); bg.connect(ctx.destination);
+
+    crack.start(now); crack.stop(now + 0.08);
+    buzz.start(now); buzz.stop(now + 0.3);
+  }
+
+  /* ── Subtle energy whoosh for scroll transitions ── */
+  playEnergyWhoosh() {
+    this.init();
+    const { ctx } = this;
+    const now = ctx.currentTime;
+
+    const bufSize = ctx.sampleRate * 0.2;
+    const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < bufSize; i++) d[i] = Math.random() * 2 - 1;
+    const noise = ctx.createBufferSource();
+    noise.buffer = buf;
+
+    const f = ctx.createBiquadFilter();
+    f.type = "bandpass";
+    f.frequency.setValueAtTime(200, now);
+    f.frequency.exponentialRampToValueAtTime(3000, now + 0.1);
+    f.frequency.exponentialRampToValueAtTime(200, now + 0.2);
+    f.Q.setValueAtTime(1.5, now);
+
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0, now);
+    g.gain.linearRampToValueAtTime(0.1, now + 0.04);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+
+    noise.connect(f); f.connect(g); g.connect(ctx.destination);
+    noise.start(now); noise.stop(now + 0.2);
+  }
+
+  /* ── Soft hover tick ── */
+  playHoverTick() {
+    this.init();
+    const { ctx } = this;
+    const now = ctx.currentTime;
+
+    const osc = ctx.createOscillator();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(2400, now);
+
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0, now);
+    g.gain.linearRampToValueAtTime(0.06, now + 0.005);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+
+    osc.connect(g); g.connect(ctx.destination);
+    osc.start(now); osc.stop(now + 0.06);
+  }
+
+  /* ── Portal opening reverse sweep for command palette ── */
+  playPortalOpen() {
+    this.init();
+    const { ctx } = this;
+    const now = ctx.currentTime;
+
+    const osc = ctx.createOscillator();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(120, now);
+    osc.frequency.exponentialRampToValueAtTime(1800, now + 0.25);
+
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0, now);
+    g.gain.linearRampToValueAtTime(0.15, now + 0.08);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+
+    const f = ctx.createBiquadFilter();
+    f.type = "lowpass";
+    f.frequency.setValueAtTime(400, now);
+    f.frequency.exponentialRampToValueAtTime(4000, now + 0.25);
+
+    osc.connect(f); f.connect(g); g.connect(ctx.destination);
+    osc.start(now); osc.stop(now + 0.3);
+  }
+
+  /* ── Shockwave impact for intro name reveal ── */
+  playShockwave() {
+    this.init();
+    const { ctx } = this;
+    const now = ctx.currentTime;
+
+    // Deep impact
+    const osc = ctx.createOscillator();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(200, now);
+    osc.frequency.exponentialRampToValueAtTime(25, now + 0.6);
+
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0, now);
+    g.gain.linearRampToValueAtTime(0.6, now + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.7);
+
+    // White noise burst
+    const bufSize = ctx.sampleRate * 0.15;
+    const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < bufSize; i++) d[i] = Math.random() * 2 - 1;
+    const noise = ctx.createBufferSource();
+    noise.buffer = buf;
+
+    const nf = ctx.createBiquadFilter();
+    nf.type = "lowpass";
+    nf.frequency.setValueAtTime(2000, now);
+    nf.frequency.exponentialRampToValueAtTime(100, now + 0.15);
+
+    const ng = ctx.createGain();
+    ng.gain.setValueAtTime(0.35, now);
+    ng.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+
+    osc.connect(g); g.connect(ctx.destination);
+    noise.connect(nf); nf.connect(ng); ng.connect(ctx.destination);
+
+    osc.start(now); osc.stop(now + 0.7);
+    noise.start(now); noise.stop(now + 0.15);
+  }
 }
 
 // Singleton synth instance
