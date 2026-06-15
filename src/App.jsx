@@ -1,13 +1,14 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import MovieTicker from "./components/MovieTicker";
+import AnimeDimension, { animeSynth } from "./components/AnimeDimension";
 import TopNavigation from "./components/TopNavigation";
 import AiChat from "./components/AiChat";
 import ContactForm from "./components/ContactForm";
 
 /* ═══════════ DATA ═══════════ */
-const NAV_LINKS = ["About","Skills","Experience","Projects","Achievements","Cinema Lab","Contact"];
+const NAV_LINKS = ["About","Skills","Experience","Projects","Achievements","Anime Dimension","Cinema Lab","Contact"];
 const toId = l => l.toLowerCase().replace(/\s+/g,"-");
-const ACC = "#FFE600";
+const ACC = "var(--accent-color)";
 
 const SKILLS = [
   { cat:"Frontend",       items:["Angular (v12+)","TypeScript","JavaScript ES6+","HTML5","CSS3","Bootstrap","AngularJS"] },
@@ -113,7 +114,7 @@ function fireConfetti(canvasRef){
   const particles=Array.from({length:140},()=>({
     x:Math.random()*canvas.width, y:-10-Math.random()*canvas.height*.4,
     vx:(Math.random()-0.5)*7, vy:Math.random()*5+2,
-    color:[ACC,"#00C9A7","#fff","#ff6b6b","#4ecdc4","#45b7d1"][Math.floor(Math.random()*6)],
+    color:["#FFE600","#00C9A7","#fff","#ff6b6b","#4ecdc4","#45b7d1"][Math.floor(Math.random()*6)],
     size:Math.random()*9+4, spin:Math.random()*0.25-0.125, angle:Math.random()*Math.PI*2, life:1,
   }));
   let raf;
@@ -156,7 +157,7 @@ function CinematicIntro({onDone}){
   );
 }
 
-function MatrixRain({active}){
+function MatrixRain({active, bankaiOn}){
   const ref=useRef(null); const raf=useRef(null);
   useEffect(()=>{
     if(!active)return;
@@ -169,7 +170,7 @@ function MatrixRain({active}){
       ctx.fillStyle="rgba(0,0,0,.04)";ctx.fillRect(0,0,W,H);
       drops.forEach((y,i)=>{
         const ch=CODE_CHARS[Math.floor(Math.random()*CODE_CHARS.length)];
-        ctx.fillStyle=Math.random()>.97?"#ffffff":"rgba(255,230,0,.45)";
+        ctx.fillStyle=Math.random()>.97?"#ffffff":bankaiOn?"rgba(255,61,0,.6)":"rgba(255,230,0,.45)";
         ctx.font=`${fs}px monospace`;ctx.fillText(ch,i*fs,y*fs);
         if(y*fs>H&&Math.random()>.975)drops[i]=0; drops[i]++;
       });
@@ -177,35 +178,72 @@ function MatrixRain({active}){
     };
     draw();
     return()=>{cancelAnimationFrame(raf.current);window.removeEventListener("resize",resize);};
-  },[active]);
-  return<canvas ref={ref} style={{position:"fixed",inset:0,zIndex:0,pointerEvents:"none",opacity:.2}}/>;
+  },[active, bankaiOn]);
+  return<canvas ref={ref} style={{position:"fixed",inset:0,zIndex:0,pointerEvents:"none",opacity:.25}}/>;
 }
 
-function ParticleBg(){
+function ParticleBg({animeTheme, bankaiOn}){
   const ref=useRef(null); const raf=useRef(null);
   useEffect(()=>{
     const c=ref.current; if(!c)return; const ctx=c.getContext("2d");
     let W,H;
     const resize=()=>{W=c.width=c.offsetWidth;H=c.height=c.offsetHeight;};
     resize();
-    const pts=Array.from({length:55},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,r:Math.random()*1.5+.5}));
+    const count = animeTheme === "eren" ? 85 : animeTheme === "luffy" ? 30 : 55;
+    const pts=Array.from({length:count},()=>({
+      x:Math.random()*W,
+      y:Math.random()*H,
+      vx:(Math.random()-.5)*(animeTheme === "eren" ? .5 : .3),
+      vy:(Math.random()-.5)*(animeTheme === "eren" ? -1.0 : .3),
+      r:animeTheme === "luffy" ? Math.random()*10+5 : Math.random()*1.5+.5
+    }));
     const draw=()=>{
       ctx.clearRect(0,0,W,H);
+      let particleColor = "rgba(255,230,0,.45)";
+      let lineColor = "rgba(255,230,0,";
+      if (bankaiOn) {
+        particleColor = "rgba(255,61,0,.6)";
+        lineColor = "rgba(255,61,0,";
+      } else if (animeTheme === "luffy") {
+        particleColor = "rgba(255, 230, 0, 0.25)";
+        lineColor = "rgba(255, 230, 0,";
+      } else if (animeTheme === "eren") {
+        particleColor = "rgba(255, 61, 0, 0.6)";
+        lineColor = "rgba(255, 61, 0,";
+      } else if (animeTheme === "tanjiro") {
+        particleColor = Math.random() > 0.5 ? "rgba(0, 229, 255, 0.6)" : "rgba(255, 109, 0, 0.6)";
+        lineColor = "rgba(0, 229, 255,";
+      }
       pts.forEach(p=>{
         p.x+=p.vx;p.y+=p.vy;
-        if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1;
-        ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle="rgba(255,230,0,.45)";ctx.fill();
+        if (animeTheme === "eren") {
+          if (p.y < 0) p.y = H;
+          if (p.x < 0 || p.x > W) p.vx *= -1;
+        } else {
+          if(p.x<0||p.x>W)p.vx*=-1;
+          if(p.y<0||p.y>H)p.vy*=-1;
+        }
+        ctx.beginPath();
+        ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+        ctx.fillStyle=particleColor;
+        ctx.fill();
       });
-      for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){
-        const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);
-        if(d<120){ctx.beginPath();ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);ctx.strokeStyle=`rgba(255,230,0,${(1-d/120)*.1})`;ctx.lineWidth=1;ctx.stroke();}
+      if (animeTheme !== "luffy") {
+        for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){
+          const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);
+          if(d<120){
+            ctx.beginPath();ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);
+            ctx.strokeStyle=`${lineColor}${(1-d/120)*.1})`;
+            ctx.lineWidth=1;ctx.stroke();
+          }
+        }
       }
       raf.current=requestAnimationFrame(draw);
     };
     draw();
     const ro=new ResizeObserver(resize);ro.observe(c);
     return()=>{cancelAnimationFrame(raf.current);ro.disconnect();};
-  },[]);
+  },[animeTheme, bankaiOn]);
   return<canvas ref={ref} style={{position:"absolute",inset:0,width:"100%",height:"100%",pointerEvents:"none"}}/>;
 }
 
@@ -464,10 +502,71 @@ function RocketBtn({show}){
   );
 }
 
+/* ═══════════ CHERRY BLOSSOMS ═══════════ */
+function CherryBlossoms() {
+  const canvasRef = useRef(null);
+  useEffect(() => {
+    const c = canvasRef.current; if (!c) return;
+    const ctx = c.getContext("2d");
+    let W = c.width = window.innerWidth;
+    let H = c.height = window.innerHeight;
+    const resize = () => { W = c.width = window.innerWidth; H = c.height = window.innerHeight; };
+    window.addEventListener("resize", resize);
+    const petals = Array.from({ length: 35 }, () => ({
+      x: Math.random() * W,
+      y: Math.random() * H - H,
+      r: Math.random() * 4 + 2,
+      d: Math.random() * 1.5 + 0.5,
+      speed: Math.random() * 1.2 + 0.6,
+      sway: Math.random() * 0.02,
+      angle: Math.random() * Math.PI,
+    }));
+    let raf;
+    const draw = () => {
+      ctx.clearRect(0, 0, W, H);
+      petals.forEach(p => {
+        p.y += p.speed;
+        p.x += Math.sin(p.angle) * 0.5;
+        p.angle += p.sway;
+        ctx.beginPath();
+        ctx.ellipse(p.x, p.y, p.r, p.r * 1.6, p.angle, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(255, 183, 197, 0.75)";
+        ctx.fill();
+        if (p.y > H) {
+          p.y = -20;
+          p.x = Math.random() * W;
+        }
+      });
+      raf = requestAnimationFrame(draw);
+    };
+    draw();
+    return () => { cancelAnimationFrame(raf); window.removeEventListener("resize", resize); };
+  }, []);
+  return <canvas ref={canvasRef} style={{ position: "fixed", inset: 0, zIndex: 1, pointerEvents: "none" }} />;
+}
+
 /* ═══════════ MAIN ═══════════ */
 export default function Portfolio(){
   const[intro,setIntro]=useState(true);
   const[active,setActive]=useState("About");
+  const[bankaiOn,setBankaiOn]=useState(false);
+  const[animeTheme,setAnimeTheme]=useState(null);
+  const[triggerShake,setTriggerShake]=useState(false);
+
+  const toggleBankai = () => {
+    const nextVal = !bankaiOn;
+    setBankaiOn(nextVal);
+    if (nextVal) {
+      animeSynth.playReiatsuCharge();
+      setTimeout(() => {
+        animeSynth.playThunderStrike();
+      }, 300);
+      setTriggerShake(true);
+      setTimeout(() => setTriggerShake(false), 650);
+    } else {
+      animeSynth.playGetsugaSlash();
+    }
+  };
   const[scrolled,setScrolled]=useState(false);
   const[menuOpen,setMenuOpen]=useState(false);
   const[dlState,setDlState]=useState("idle");
@@ -534,15 +633,27 @@ export default function Portfolio(){
     </button>
   );
 
-  const bgColor = genre==="Thriller"?"#07070B":genre==="Action"?"#0D0808":"#080810";
+  const activeAccent = bankaiOn ? "#FF3D00" : (animeTheme === "eren" ? "#FF3D00" : (animeTheme === "tanjiro" ? "#00E5FF" : "#FFE600"));
+  const activeBg = bankaiOn
+    ? "#050000"
+    : animeTheme === "luffy"
+    ? "#090803"
+    : animeTheme === "eren"
+    ? "#080404"
+    : animeTheme === "tanjiro"
+    ? "#03070A"
+    : (genre === "Thriller" ? "#07070B" : genre === "Action" ? "#0D0808" : "#080810");
+
+  const bgColor = activeBg;
 
   return(
-    <div style={{fontFamily:"'DM Mono',monospace",background:bgColor,color:"#E8E8F0",minHeight:"100vh",overflowX:"hidden",cursor:isMobile?"auto":"none",transition:"background .4s"}}>
+    <div className={triggerShake ? "screen-shake" : ""} style={{fontFamily:"'DM Mono',monospace",background:bgColor,color:"#E8E8F0",minHeight:"100vh",overflowX:"hidden",cursor:isMobile?"auto":"none",transition:"background .4s", "--accent-color": activeAccent, "--bg-color": activeBg}}>
+      {bankaiOn && <CherryBlossoms />}
       {imaxMode&&<><div style={{position:"fixed",top:0,left:0,right:0,height:"8vh",background:"#000",zIndex:350,pointerEvents:"none"}}/><div style={{position:"fixed",bottom:0,left:0,right:0,height:"8vh",background:"#000",zIndex:350,pointerEvents:"none"}}/></>}
 
       {intro&&<CinematicIntro onDone={()=>setIntro(false)}/>}
       {!isMobile&&<CustomCursor/>}
-      {matrixOn&&<MatrixRain active={matrixOn}/>}
+      {matrixOn&&<MatrixRain active={matrixOn} bankaiOn={bankaiOn}/>}
       {konamiOn&&<KonamiEaster onClose={()=>setKonamiOn(false)}/>}
       <CommandPalette open={cmdOpen} onClose={()=>setCmdOpen(false)} onMatrix={()=>setMatrixOn(o=>!o)} onDownload={handleDl} onChat={()=>setChatOpen(true)}/>
 
@@ -593,6 +704,14 @@ export default function Portfolio(){
         @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
         @keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
         @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+        @keyframes shake {
+          0%, 100% { transform: translate(0, 0); }
+          10%, 30%, 50%, 70%, 90% { transform: translate(-3px, 2px); }
+          20%, 40%, 60%, 80% { transform: translate(3px, -2px); }
+        }
+        .screen-shake {
+          animation: shake 0.6s ease;
+        }
         .pulse{animation:pulse 2s infinite;}
         .float{animation:float 4s ease-in-out infinite;}
         @media(max-width:768px){.hide-mobile{display:none!important;}.btn{padding:10px 16px;font-size:11px;}}
@@ -600,11 +719,11 @@ export default function Portfolio(){
         @media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important;}}
       `}</style>
 
-      <TopNavigation scrolled={scrolled} menuOpen={menuOpen} setMenuOpen={setMenuOpen} active={active} navLinks={NAV_LINKS} scrollTo={scrollTo} accentColor={ACC} matrixOn={matrixOn} onToggleMatrix={()=>setMatrixOn(o=>!o)} onOpenCommand={()=>setCmdOpen(true)} DlBtn={DlBtn} quotes={MOVIE_QUOTES} isMobile={isMobile}/>
+      <TopNavigation scrolled={scrolled} menuOpen={menuOpen} setMenuOpen={setMenuOpen} active={active} navLinks={NAV_LINKS} scrollTo={scrollTo} accentColor={ACC} matrixOn={matrixOn} onToggleMatrix={()=>setMatrixOn(o=>!o)} onOpenCommand={()=>setCmdOpen(true)} DlBtn={DlBtn} quotes={MOVIE_QUOTES} isMobile={isMobile} bankaiOn={bankaiOn} onToggleBankai={toggleBankai}/>
 
       {/* ── HERO ── */}
       <section id="about" className="dot-grid scanlines" style={{minHeight:"100vh",display:"flex",alignItems:"center",padding:"100px clamp(20px,7vw,120px) 72px",position:"relative",overflow:"hidden"}}>
-        <ParticleBg/>
+        <ParticleBg animeTheme={animeTheme} bankaiOn={bankaiOn}/>
         <div className="float" style={{position:"absolute",top:"-20%",left:"28%",width:"40vw",height:"80vh",background:"radial-gradient(ellipse at center,rgba(255,230,0,.042) 0%,transparent 65%)",pointerEvents:"none",zIndex:1}}/>
         <div style={{maxWidth:980,width:"100%",position:"relative",zIndex:2}}>
           <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:12,marginBottom:28}}>
@@ -790,6 +909,9 @@ export default function Portfolio(){
           <FadeIn from="right"><GitHubStats/></FadeIn>
         </div>
       </section>
+
+      {/* ── ANIME DIMENSION ── */}
+      <AnimeDimension onThemeChange={setAnimeTheme} isMobile={isMobile} />
 
       {/* ── CINEMA LAB ── */}
       <section id="cinema-lab" style={{padding:"80px clamp(20px,7vw,120px)"}}>
