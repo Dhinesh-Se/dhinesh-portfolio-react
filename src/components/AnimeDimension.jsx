@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 
 /* ═══════════ WEB AUDIO SOUND SYNTHESIZER ═══════════ */
 class AnimeSoundSynth {
@@ -532,8 +532,7 @@ const CHARACTERS = [
 
 export default function AnimeDimension({ onThemeChange, isMobile }) {
   const [activeChar, setActiveChar] = useState(null);
-  const [hoveredChar, setHoveredChar] = useState(null);
-  const [soundEnabled, setSoundEnabled] = useState(true);
+  const soundEnabled = false;
 
   // Music Player States
   const [currentTrackIdx, setCurrentTrackIdx] = useState(0);
@@ -552,168 +551,7 @@ export default function AnimeDimension({ onThemeChange, isMobile }) {
   const analyserRef = useRef(null);
   const sourceRef = useRef(null);
 
-  // Character Canvas Refs
-  const canvasRefs = {
-    luffy: useRef(null),
-    eren: useRef(null),
-    tanjiro: useRef(null),
-  };
-  const loops = useRef({ luffy: null, eren: null, tanjiro: null });
-
-  /* ═══════════ CANVAS ANIMATIONS FOR CHARACTER CARDS ═══════════ */
-  const startCanvasAnimation = (charId, canvas) => {
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    let W = (canvas.width = canvas.offsetWidth);
-    let H = (canvas.height = canvas.offsetHeight);
-
-    const resize = () => {
-      if (!canvas) return;
-      W = canvas.width = canvas.offsetWidth;
-      H = canvas.height = canvas.offsetHeight;
-    };
-
-    // Particles system
-    const particles = [];
-    const maxParticles = charId === "luffy" ? 22 : charId === "eren" ? 35 : 28;
-
-    const setupParticle = (init = false) => {
-      const p = {
-        x: Math.random() * W,
-        y: init ? Math.random() * H : H + 10,
-        r: Math.random() * 2.5 + 1.2,
-        vy: -(Math.random() * 1.5 + 0.6),
-        vx: (Math.random() - 0.5) * 0.8,
-        color: "",
-        alpha: Math.random() * 0.6 + 0.3,
-        life: Math.random() * 0.8 + 0.2,
-      };
-
-      if (charId === "luffy") {
-        // Gold clouds
-        p.color = `rgba(255, 230, 0, ${p.alpha})`;
-        p.r = Math.random() * 9 + 4; // bigger cloud puffs
-        p.vx = (Math.random() - 0.5) * 0.5;
-        p.vy = -(Math.random() * 0.8 + 0.3);
-      } else if (charId === "eren") {
-        // Red glowing embers & smoke
-        p.color = Math.random() > 0.4 ? `rgba(255, 61, 0, ${p.alpha})` : `rgba(74, 74, 80, ${p.alpha})`;
-        p.vy = -(Math.random() * 2.2 + 0.8);
-      } else {
-        // Tanjiro: Water drops & fire sparks mixed
-        if (Math.random() > 0.5) {
-          p.color = `rgba(0, 229, 255, ${p.alpha})`; // water blue
-          p.vy = -(Math.random() * 1.2 + 0.5);
-        } else {
-          p.color = `rgba(255, 109, 0, ${p.alpha})`; // Hinokami flame orange
-          p.vy = -(Math.random() * 2.0 + 0.8);
-        }
-      }
-      return p;
-    };
-
-    // Initialize particles
-    for (let i = 0; i < maxParticles; i++) {
-      particles.push(setupParticle(true));
-    }
-
-    // Lightning strike variables (for Luffy and Eren)
-    let lightningTimer = 0;
-    let lightningPoints = [];
-
-    const triggerLightning = () => {
-      lightningPoints = [];
-      let currentX = Math.random() * W;
-      let currentY = 0;
-      lightningPoints.push({ x: currentX, y: currentY });
-
-      while (currentY < H) {
-        currentX += (Math.random() - 0.5) * 38;
-        currentY += Math.random() * 28 + 12;
-        lightningPoints.push({ x: currentX, y: currentY });
-      }
-    };
-
-    const draw = () => {
-      if (!canvas || !ctx) return;
-      ctx.clearRect(0, 0, W, H);
-
-      // Draw Particles
-      particles.forEach((p, idx) => {
-        p.y += p.vy;
-        p.x += p.vx;
-        p.alpha -= 0.002;
-        if (charId === "luffy") {
-          // Cloud puff drawing
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-          ctx.fillStyle = p.color;
-          ctx.fill();
-        } else {
-          // Embers
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-          ctx.fillStyle = p.color;
-          ctx.shadowBlur = charId === "eren" ? 8 : 4;
-          ctx.shadowColor = p.color;
-          ctx.fill();
-          ctx.shadowBlur = 0; // reset
-        }
-
-        // Reset dead particles
-        if (p.y < -20 || p.alpha <= 0) {
-          particles[idx] = setupParticle();
-        }
-      });
-
-      // Special lightning effect for Luffy (purple/yellow) and Eren (red/orange)
-      if (charId === "luffy" || charId === "eren") {
-        lightningTimer++;
-        if (lightningTimer > 110 + Math.random() * 120) {
-          triggerLightning();
-          lightningTimer = 0;
-        }
-
-        if (lightningPoints.length > 0 && Math.random() > 0.4) {
-          ctx.beginPath();
-          ctx.moveTo(lightningPoints[0].x, lightningPoints[0].y);
-          for (let i = 1; i < lightningPoints.length; i++) {
-            ctx.lineTo(lightningPoints[i].x, lightningPoints[i].y);
-          }
-          ctx.strokeStyle = charId === "luffy" ? "rgba(186, 104, 200, 0.95)" : "rgba(255, 61, 0, 0.95)";
-          ctx.lineWidth = Math.random() * 2.5 + 1;
-          ctx.shadowBlur = 12;
-          ctx.shadowColor = charId === "luffy" ? "#e040fb" : "#ff3d00";
-          ctx.stroke();
-          ctx.shadowBlur = 0;
-
-          // Clear lightning after a frame or two
-          if (Math.random() > 0.7) {
-            lightningPoints = [];
-          }
-        }
-      }
-
-      loops.current[charId] = requestAnimationFrame(draw);
-    };
-
-    draw();
-    window.addEventListener("resize", resize);
-    return () => {
-      window.removeEventListener("resize", resize);
-      cancelAnimationFrame(loops.current[charId]);
-    };
-  };
-
-  const stopCanvasAnimation = (charId) => {
-    cancelAnimationFrame(loops.current[charId]);
-    loops.current[charId] = null;
-    const canvas = canvasRefs[charId].current;
-    if (canvas) {
-      const ctx = canvas.getContext("2d");
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-    }
-  };
+  /* Static character cards: image aura animations were removed for a calmer presentation. */
 
   /* ═══════════ MUSIC PLAYER ENGINE ═══════════ */
   const initializeAudioContext = () => {
@@ -792,7 +630,6 @@ export default function AnimeDimension({ onThemeChange, isMobile }) {
       }
     }, 50);
 
-    if (soundEnabled) synth.playGetsugaSlash();
   };
 
   // Update volume
@@ -886,25 +723,6 @@ export default function AnimeDimension({ onThemeChange, isMobile }) {
   }, [isPlaying, activeChar, audioError]);
 
   /* ═══════════ ACTION HANDLERS ═══════════ */
-  const handleCharHover = (charId) => {
-    setHoveredChar(charId);
-    const canvas = canvasRefs[charId].current;
-    startCanvasAnimation(charId, canvas);
-
-    if (soundEnabled) {
-      // Small tick or energy surge on hover
-      const target = CHARACTERS.find(c => c.id === charId);
-      if (target) {
-        target.sfx();
-      }
-    }
-  };
-
-  const handleCharLeave = (charId) => {
-    setHoveredChar(null);
-    stopCanvasAnimation(charId);
-  };
-
   const handleCharClick = (charId) => {
     let newChar = charId;
     if (activeChar === charId) {
@@ -982,26 +800,6 @@ export default function AnimeDimension({ onThemeChange, isMobile }) {
             </p>
           </div>
 
-          {/* SFX Audio Engine Toggle */}
-          <button
-            onClick={() => setSoundEnabled(prev => !prev)}
-            style={{
-              background: "rgba(255,255,255,.03)",
-              border: `1px solid ${soundEnabled ? "rgba(255,230,0,.25)" : "rgba(255,255,255,.1)"}`,
-              padding: "8px 14px",
-              borderRadius: 6,
-              color: soundEnabled ? "#FFE600" : "#666",
-              fontSize: 11,
-              fontFamily: "'DM Mono',monospace",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              transition: "all 0.3s",
-            }}
-          >
-            <span>{soundEnabled ? "🔊 SFX ACTIVE" : "🔇 SFX MUTED"}</span>
-          </button>
         </div>
 
         {/* ── MUSIC player & CHARACTER GRID WRAPPER ── */}
@@ -1023,12 +821,10 @@ export default function AnimeDimension({ onThemeChange, isMobile }) {
           >
             {CHARACTERS.map((char) => {
               const isActive = activeChar === char.id;
-              const isHovered = hoveredChar === char.id;
+              const isHovered = false;
               return (
                 <div
                   key={char.id}
-                  onMouseEnter={() => handleCharHover(char.id)}
-                  onMouseLeave={() => handleCharLeave(char.id)}
                   onClick={() => handleCharClick(char.id)}
                   style={{
                     position: "relative",
@@ -1038,12 +834,8 @@ export default function AnimeDimension({ onThemeChange, isMobile }) {
                     height: 380,
                     cursor: "pointer",
                     transition: "all 0.35s cubic-bezier(.25, .8, .25, 1)",
-                    transform: isActive ? "scale(1.03) translateY(-4px)" : isHovered ? "translateY(-4px)" : "none",
-                    boxShadow: isActive
-                      ? `0 10px 30px ${char.accent}20, 0 0 0 1px ${char.accent}40`
-                      : isHovered
-                      ? "0 8px 20px rgba(0,0,0,.4)"
-                      : "none",
+                    transform: "none",
+                    boxShadow: "none",
                     background: "#08080E",
                   }}
                 >
@@ -1055,24 +847,13 @@ export default function AnimeDimension({ onThemeChange, isMobile }) {
                       backgroundImage: `url(${char.img})`,
                       backgroundSize: "cover",
                       backgroundPosition: "center top",
-                      opacity: isActive ? 0.72 : isHovered ? 0.6 : 0.35,
-                      transition: "opacity 0.3s, transform 0.6s",
-                      transform: isHovered || isActive ? "scale(1.05)" : "scale(1)",
+                      opacity: isActive ? 0.64 : 0.42,
+                      transition: "opacity 0.3s",
+                      transform: "none",
                       filter: isActive ? "none" : "grayscale(30%)",
                     }}
                   />
 
-                  {/* Canvas for Hover Aura Animation */}
-                  <canvas
-                    ref={canvasRefs[char.id]}
-                    style={{
-                      position: "absolute",
-                      inset: 0,
-                      pointerEvents: "none",
-                      mixBlendMode: "screen",
-                      zIndex: 1,
-                    }}
-                  />
 
                   {/* Dark Vignette Overlay */}
                   <div
@@ -1091,7 +872,6 @@ export default function AnimeDimension({ onThemeChange, isMobile }) {
                         position: "absolute",
                         inset: 0,
                         border: `2px solid ${char.accent}`,
-                        boxShadow: `inset 0 0 20px ${char.accent}40`,
                         borderRadius: 8,
                         pointerEvents: "none",
                         zIndex: 4,
@@ -1165,21 +945,6 @@ export default function AnimeDimension({ onThemeChange, isMobile }) {
                       "{char.quote}"
                     </p>
 
-                    {/* Synthesize indicator */}
-                    {isHovered && (
-                      <div
-                        style={{
-                          marginTop: 10,
-                          fontSize: 8,
-                          color: char.accent,
-                          fontFamily: "monospace",
-                          letterSpacing: "0.1em",
-                          animation: "pulse 1.2s infinite",
-                        }}
-                      >
-                        ⚡ HARVESTING REIATSUI...
-                      </div>
-                    )}
                   </div>
                 </div>
               );
@@ -1254,7 +1019,6 @@ export default function AnimeDimension({ onThemeChange, isMobile }) {
                 style={{
                   fontFamily: "'DM Mono',monospace",
                   fontSize: 12,
-                  color: "#FFE600",
                   color: activeChar ? CHARACTERS.find(c => c.id === activeChar).accent : "#FFE600",
                   fontWeight: 500,
                   whiteSpace: "nowrap",
@@ -1450,4 +1214,3 @@ export default function AnimeDimension({ onThemeChange, isMobile }) {
   );
 }
 
-export { synth as animeSynth };
