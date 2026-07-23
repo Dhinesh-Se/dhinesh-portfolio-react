@@ -1,10 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import MovieTicker from "./components/MovieTicker";
-import AnimeDimension, { animeSynth } from "./components/AnimeDimension";
+import AnimeDimension from "./components/AnimeDimension";
 import TopNavigation from "./components/TopNavigation";
 import AiChat from "./components/AiChat";
 import ContactForm from "./components/ContactForm";
-import AnimeBackgroundVFX from "./components/AnimeBackgroundVFX";
 /* ═══════════ DATA ═══════════ */
 const NAV_LINKS = ["About","Skills","Experience","Projects","Achievements","Anime Dimension","Cinema Lab","Contact"];
 const toId = l => l.toLowerCase().replace(/\s+/g,"-");
@@ -131,268 +130,6 @@ function fireConfetti(canvasRef){
 }
 
 /* ═══════════ SUB-COMPONENTS ═══════════ */
-
-function AnimeCinematicIntro({onDone}){
-  const[phase,setPhase]=useState(0);
-  const canvasRef=useRef(null);
-  const rafRef=useRef(null);
-  const particlesRef=useRef([]);
-  const lightningRef=useRef([]);
-  const shockwaveRef=useRef(null);
-  const[quoteText,setQuoteText]=useState("");
-  const fullQuote="I'm gonna be the King of the Pirates!";
-
-  // Phase timeline
-  useEffect(()=>{
-    const t0=setTimeout(()=>setPhase(1),400);       // Quote typewriter
-    const t1=setTimeout(()=>setPhase(2),2800);       // Luffy VFX
-    const t2=setTimeout(()=>{
-      setPhase(3);                                    // Name reveal + shockwave
-      animeSynth.playShockwave();
-    },5800);
-    const t3=setTimeout(()=>setPhase(4),7200);       // Fade out
-    const t4=setTimeout(()=>onDone(),8200);           // Done
-    return()=>{clearTimeout(t0);clearTimeout(t1);clearTimeout(t2);clearTimeout(t3);clearTimeout(t4);};
-  },[]);
-
-  // Typewriter for quote
-  useEffect(()=>{
-    if(phase<1)return;
-    let i=0;
-    const iv=setInterval(()=>{
-      setQuoteText(fullQuote.slice(0,++i));
-      if(i>=fullQuote.length)clearInterval(iv);
-    },45);
-    return()=>clearInterval(iv);
-  },[phase]);
-
-  // Drums of Liberation heartbeat during phase 2
-  useEffect(()=>{
-    if(phase!==2)return;
-    animeSynth.playDrumsOfLiberation();
-    const iv=setInterval(()=>animeSynth.playDrumsOfLiberation(),800);
-    return()=>clearInterval(iv);
-  },[phase]);
-
-  // Canvas VFX animation
-  useEffect(()=>{
-    const c=canvasRef.current;if(!c)return;
-    const ctx=c.getContext("2d");
-    let W=c.width=window.innerWidth;
-    let H=c.height=window.innerHeight;
-    const resize=()=>{W=c.width=window.innerWidth;H=c.height=window.innerHeight;};
-    window.addEventListener("resize",resize);
-
-    // Steam particles generator
-    const spawnSteam=()=>{
-      for(let i=0;i<4;i++){
-        particlesRef.current.push({
-          x:W*0.3+Math.random()*W*0.4,
-          y:H+10,
-          vx:(Math.random()-0.5)*2,
-          vy:-(Math.random()*4+2),
-          r:Math.random()*20+8,
-          alpha:Math.random()*0.5+0.3,
-          isGold:Math.random()>0.4,
-          life:1,
-        });
-      }
-    };
-
-    // Lightning bolt generator
-    const spawnLightning=()=>{
-      const pts=[];
-      let cx=Math.random()*W;let cy=0;
-      pts.push({x:cx,y:cy});
-      const targetY=H*(0.4+Math.random()*0.4);
-      while(cy<targetY){
-        cx+=(Math.random()-0.5)*50;
-        cy+=Math.random()*35+10;
-        pts.push({x:cx,y:cy});
-      }
-      lightningRef.current.push({points:pts,life:1.0,decay:0.06});
-    };
-
-    let frame=0;
-    const draw=()=>{
-      ctx.clearRect(0,0,W,H);
-      frame++;
-
-      if(phase>=2){
-        // Spawn steam particles
-        if(frame%3===0)spawnSteam();
-        // Spawn lightning occasionally
-        if(frame%25===0)spawnLightning();
-
-        // Draw red/golden aura glow behind center
-        const auraRadius=Math.min(W,H)*0.35+Math.sin(frame*0.05)*20;
-        const aura=ctx.createRadialGradient(W/2,H*0.45,0,W/2,H*0.45,auraRadius);
-        aura.addColorStop(0,"rgba(255,80,20,0.15)");
-        aura.addColorStop(0.5,"rgba(255,180,0,0.06)");
-        aura.addColorStop(1,"rgba(255,50,10,0)");
-        ctx.fillStyle=aura;
-        ctx.fillRect(0,0,W,H);
-
-        // Draw steam particles
-        particlesRef.current.forEach((p,i)=>{
-          p.x+=p.vx;p.y+=p.vy;p.vy*=0.99;p.r*=1.005;p.life-=0.008;p.alpha*=0.985;
-          if(p.life<=0)return;
-          ctx.save();
-          ctx.globalAlpha=p.alpha*p.life;
-          const g=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r);
-          if(p.isGold){
-            g.addColorStop(0,"rgba(255,200,50,0.5)");
-            g.addColorStop(1,"rgba(255,100,20,0)");
-          }else{
-            g.addColorStop(0,"rgba(255,60,20,0.6)");
-            g.addColorStop(1,"rgba(200,20,5,0)");
-          }
-          ctx.fillStyle=g;
-          ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();
-          ctx.restore();
-        });
-        particlesRef.current=particlesRef.current.filter(p=>p.life>0);
-
-        // Draw lightning
-        lightningRef.current.forEach(bolt=>{
-          if(bolt.life<=0||bolt.points.length<2)return;
-          ctx.save();
-          ctx.globalAlpha=bolt.life*0.9;
-          ctx.strokeStyle="rgba(180,120,255,0.95)";
-          ctx.lineWidth=Math.random()*3+1.5;
-          ctx.shadowBlur=18;ctx.shadowColor="#ba68c8";
-          ctx.lineCap="round";
-          ctx.beginPath();
-          ctx.moveTo(bolt.points[0].x,bolt.points[0].y);
-          for(let i=1;i<bolt.points.length;i++){
-            ctx.lineTo(bolt.points[i].x+(Math.random()-0.5)*6,bolt.points[i].y);
-          }
-          ctx.stroke();
-          // White core
-          ctx.globalAlpha=bolt.life*0.4;ctx.strokeStyle="#fff";ctx.lineWidth=1;ctx.shadowBlur=6;ctx.shadowColor="#fff";
-          ctx.beginPath();ctx.moveTo(bolt.points[0].x,bolt.points[0].y);
-          for(let i=1;i<bolt.points.length;i++)ctx.lineTo(bolt.points[i].x,bolt.points[i].y);
-          ctx.stroke();
-          ctx.restore();
-          bolt.life-=bolt.decay;
-        });
-        lightningRef.current=lightningRef.current.filter(b=>b.life>0);
-      }
-
-      // Phase 3: Shockwave ring
-      if(phase>=3&&!shockwaveRef.current){
-        shockwaveRef.current={r:0,maxR:Math.max(W,H)*0.8,alpha:0.7,speed:18};
-      }
-      if(shockwaveRef.current){
-        const sw=shockwaveRef.current;
-        sw.r+=sw.speed;sw.alpha*=0.96;
-        if(sw.alpha>0.01){
-          ctx.save();
-          ctx.globalAlpha=sw.alpha;
-          ctx.strokeStyle="#FFE600";ctx.lineWidth=3;ctx.shadowBlur=20;ctx.shadowColor="#FFE600";
-          ctx.beginPath();ctx.arc(W/2,H*0.42,sw.r,0,Math.PI*2);ctx.stroke();
-          // Inner ring
-          ctx.strokeStyle="rgba(255,255,255,0.4)";ctx.lineWidth=1;
-          ctx.beginPath();ctx.arc(W/2,H*0.42,sw.r*0.85,0,Math.PI*2);ctx.stroke();
-          ctx.restore();
-        }
-      }
-
-      rafRef.current=requestAnimationFrame(draw);
-    };
-    draw();
-    return()=>{cancelAnimationFrame(rafRef.current);window.removeEventListener("resize",resize);};
-  },[phase]);
-
-  const introShake=phase===3?"screen-shake":"";
-  return(
-    <div className={introShake} style={{position:"fixed",inset:0,zIndex:9999,background:"#000",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",opacity:phase===4?0:1,transition:"opacity 1s ease",pointerEvents:phase===4?"none":"all"}}>
-      {/* Scan lines overlay */}
-      <div style={{position:"absolute",inset:0,backgroundImage:"repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(255,255,255,.012) 2px,rgba(255,255,255,.012) 4px)",pointerEvents:"none",zIndex:5}}/>
-      {/* Cinematic bars */}
-      <div style={{position:"absolute",top:0,left:0,right:0,height:"10%",background:"#000",zIndex:6}}/>
-      <div style={{position:"absolute",bottom:0,left:0,right:0,height:"10%",background:"#000",zIndex:6}}/>
-
-      {/* VFX Canvas */}
-      <canvas ref={canvasRef} style={{position:"absolute",inset:0,zIndex:1}}/>
-
-      {/* Luffy silhouette image (visible in phase 2+) */}
-      <div style={{
-        position:"absolute",top:"50%",left:"50%",
-        transform:`translate(-50%,-50%) scale(${phase>=2?1.05:0.9})`,
-        width:"100vw",height:"100vh",
-        backgroundImage:"url(/anime/luffy_landscape.png)",backgroundSize:"cover",backgroundPosition:"center",backgroundRepeat:"no-repeat",
-        opacity:phase>=2?(phase>=3?0.35:0.8):0,
-        transition:"opacity 1s ease,transform 1.2s cubic-bezier(.25,.8,.25,1)",
-        filter:phase>=3?"blur(4px)":"none",
-        zIndex:2,
-        mixBlendMode:"screen",
-      }}/>
-
-      {/* Content overlay */}
-      <div style={{textAlign:"center",zIndex:7,position:"relative",maxWidth:700,padding:"0 20px"}}>
-        {/* Phase 1: Luffy Quote */}
-        <p style={{
-          fontFamily:"'DM Mono',monospace",fontSize:"clamp(14px,2.5vw,20px)",
-          color:"#FFE600",fontStyle:"italic",lineHeight:1.7,letterSpacing:".03em",
-          opacity:phase>=1&&phase<3?1:0,
-          transform:phase>=1?"translateY(0)":"translateY(20px)",
-          transition:"opacity .8s ease,transform .8s ease",
-          textShadow:"0 0 40px rgba(255,230,0,.5),0 0 80px rgba(255,100,20,.3)",
-          minHeight:60,
-        }}>
-          "{quoteText}"
-          {quoteText.length<fullQuote.length&&<span style={{animation:"blink .7s infinite"}}>▌</span>}
-        </p>
-        <p style={{
-          fontFamily:"'DM Mono',monospace",fontSize:"clamp(9px,1.5vw,11px)",
-          color:"rgba(255,255,255,.35)",letterSpacing:".4em",textTransform:"uppercase",
-          marginTop:8,
-          opacity:phase>=1&&phase<3?1:0,transition:"opacity .6s ease .5s",
-        }}>— Monkey D. Luffy</p>
-
-        {/* Phase 2: Gear Second indicator */}
-        <div style={{
-          marginTop:30,
-          opacity:phase===2?1:0,
-          transition:"opacity .6s ease",
-        }}>
-          <span style={{
-            fontFamily:"'Bebas Neue',sans-serif",fontSize:"clamp(12px,2vw,16px)",
-            letterSpacing:".3em",color:"#FF3D00",
-            textShadow:"0 0 20px rgba(255,61,0,.8)",
-            animation:"pulse 1s infinite",
-          }}>⚡ GEAR SECOND — ACTIVATED ⚡</span>
-        </div>
-
-        {/* Phase 3: Name reveal */}
-        <div style={{
-          marginTop:phase>=3?0:40,
-          opacity:phase>=3?1:0,
-          transform:phase>=3?"scale(1) translateY(-30px)":"scale(1.3) translateY(30px)",
-          transition:"all .6s cubic-bezier(.25,.8,.25,1)",
-        }}>
-          <p style={{fontFamily:"'DM Mono',monospace",fontSize:"clamp(10px,2vw,13px)",letterSpacing:".5em",color:"rgba(255,230,0,.7)",textTransform:"uppercase",marginBottom:18}}>A DHINESH V PRODUCTION</p>
-          <h1 style={{fontFamily:"'Syne',sans-serif",fontWeight:800,fontSize:"clamp(52px,12vw,120px)",color:"#fff",letterSpacing:"-.02em",lineHeight:.85,textShadow:"0 0 60px rgba(255,230,0,.5),0 0 120px rgba(255,60,10,.3)"}}>
-            DHINESH<br/><span style={{color:"var(--accent-color)"}}>V.</span>
-          </h1>
-          <p style={{fontFamily:"'DM Mono',monospace",fontSize:"clamp(9px,1.5vw,11px)",letterSpacing:".3em",color:"rgba(255,255,255,.35)",textTransform:"uppercase",marginTop:16}}>FULL STACK SOFTWARE ENGINEER</p>
-        </div>
-      </div>
-
-      {/* Skip button */}
-      <button onClick={()=>onDone()} style={{
-        position:"absolute",bottom:"14%",right:"5%",zIndex:10,
-        background:"none",border:"1px solid rgba(255,255,255,.15)",borderRadius:4,
-        padding:"6px 16px",color:"rgba(255,255,255,.3)",fontSize:10,
-        fontFamily:"'DM Mono',monospace",letterSpacing:".1em",cursor:"pointer",
-        transition:"color .2s,border-color .2s",
-      }} onMouseEnter={e=>{e.target.style.color="#FFE600";e.target.style.borderColor="#FFE600";}} onMouseLeave={e=>{e.target.style.color="rgba(255,255,255,.3)";e.target.style.borderColor="rgba(255,255,255,.15)";}}>
-        SKIP ▶
-      </button>
-    </div>
-  );
-}
 
 function MatrixRain({active, bankaiOn}){
   const ref=useRef(null); const raf=useRef(null);
@@ -608,17 +345,8 @@ function TiltCard({children,style={},className="",isMobile=false}){
 function CommandPalette({open,onClose,onMatrix,onDownload,onChat}){
   const[q,setQ]=useState("");const[sel,setSel]=useState(0);const inp=useRef(null);
   const filtered=CMD_ITEMS.filter(i=>i.label.toLowerCase().includes(q.toLowerCase()));
-  useEffect(()=>{if(open){setQ("");setSel(0);setTimeout(()=>inp.current?.focus(),80);}},[open]);
-  useEffect(()=>{
-    const fn=e=>{
-      if(e.key==="ArrowDown"){e.preventDefault();setSel(s=>Math.min(s+1,filtered.length-1));}
-      if(e.key==="ArrowUp"){e.preventDefault();setSel(s=>Math.max(s-1,0));}
-      if(e.key==="Enter")run(filtered[sel]);
-      if(e.key==="Escape")onClose();
-    };
-    if(open)window.addEventListener("keydown",fn); return()=>window.removeEventListener("keydown",fn);
-  },[open,filtered,sel]);
-  const run=item=>{
+  useEffect(()=>{if(open){setTimeout(()=>{setQ("");setSel(0);inp.current?.focus();},80);}},[open]);
+  const run=useCallback(item=>{
     if(!item)return;
     if(item.action==="scroll")document.getElementById(item.id)?.scrollIntoView({behavior:"smooth"});
     if(item.action==="download")onDownload();
@@ -628,7 +356,16 @@ function CommandPalette({open,onClose,onMatrix,onDownload,onChat}){
     if(item.action==="linkedin")window.open("https://linkedin.com/in/dhineshse","_blank");
     if(item.action==="github")window.open("https://github.com/Dhinesh-Se","_blank");
     onClose();
-  };
+  },[onChat,onClose,onDownload,onMatrix]);
+  useEffect(()=>{
+    const fn=e=>{
+      if(e.key==="ArrowDown"){e.preventDefault();setSel(s=>Math.min(s+1,filtered.length-1));}
+      if(e.key==="ArrowUp"){e.preventDefault();setSel(s=>Math.max(s-1,0));}
+      if(e.key==="Enter")run(filtered[sel]);
+      if(e.key==="Escape")onClose();
+    };
+    if(open)window.addEventListener("keydown",fn); return()=>window.removeEventListener("keydown",fn);
+  },[open,filtered,sel,run,onClose]);
   if(!open)return null;
   return(
     <div style={{position:"fixed",inset:0,zIndex:5000,display:"flex",alignItems:"flex-start",justifyContent:"center",paddingTop:"14vh",background:"rgba(0,0,0,.72)",backdropFilter:"blur(8px)"}} onClick={onClose}>
@@ -784,7 +521,6 @@ function CherryBlossoms() {
 
 /* ═══════════ MAIN ═══════════ */
 export default function Portfolio(){
-  const[intro,setIntro]=useState(true);
   const[active,setActive]=useState("About");
   const[bankaiOn,setBankaiOn]=useState(false);
   const[animeTheme,setAnimeTheme]=useState(null);
@@ -800,8 +536,6 @@ export default function Portfolio(){
 
       setTriggerShake(true);
       setTimeout(() => setTriggerShake(false), 650);
-    } else {
-      animeSynth.playGetsugaSlash();
     }
   };
   const[scrolled,setScrolled]=useState(false);
@@ -822,16 +556,6 @@ export default function Portfolio(){
   const isMobile=useIsMobile();
   const scrollPct=useScrollProgress();
 
-  useEffect(() => {
-    const handleGlobalClick = (e) => {
-      const isClickable = e.target.closest("button, a, input, select, [data-hover], [role='button']");
-      if (isClickable) {
-        animeSynth.playSwordUnsheathe();
-      }
-    };
-    document.addEventListener("click", handleGlobalClick, { capture: true });
-    return () => document.removeEventListener("click", handleGlobalClick, { capture: true });
-  }, []);
   useEffect(()=>{
     const f=()=>{
       const y=window.scrollY; setScrolled(y>40); setShowRocket(y>400);
@@ -839,13 +563,7 @@ export default function Portfolio(){
       for(let i=secs.length-1;i>=0;i--){
         const el=secs[i].el;
         if(el&&el.getBoundingClientRect().top<=120){
-          setActive(prev => {
-            if(prev !== secs[i].id){
-              animeSynth.playEnergyWhoosh();
-              vfxRef.current?.triggerRandom();
-            }
-            return secs[i].id;
-          });
+          setActive(secs[i].id);
           break;
         }
       }
@@ -853,12 +571,10 @@ export default function Portfolio(){
     window.addEventListener("scroll",f); return()=>window.removeEventListener("scroll",f);
   },[]);
 
-  const vfxRef = useRef(null);
-
-  useEffect(()=>{document.body.style.overflow=menuOpen||intro?"hidden":"";return()=>{document.body.style.overflow="";};},[menuOpen,intro]);
+  useEffect(()=>{document.body.style.overflow=menuOpen?"hidden":"";return()=>{document.body.style.overflow="";};},[menuOpen]);
 
   useEffect(()=>{
-    const f=e=>{if((e.metaKey||e.ctrlKey)&&e.key==="k"){e.preventDefault();setCmdOpen(o=>{ if(!o) animeSynth.playPortalOpen(); return !o; });}};
+    const f=e=>{if((e.metaKey||e.ctrlKey)&&e.key==="k"){e.preventDefault();setCmdOpen(o=>!o);}};
     window.addEventListener("keydown",f); return()=>window.removeEventListener("keydown",f);
   },[]);
 
@@ -882,12 +598,9 @@ export default function Portfolio(){
     document.getElementById(toId(id))?.scrollIntoView({behavior:"smooth"});
     setActive(id);
     setMenuOpen(false);
-    animeSynth.playZenitsuThunder();
-    vfxRef.current?.triggerThunder();
   };
 
   const handleDl=()=>{
-    animeSynth.playEnergyWhoosh();
     setDlState("loading");
     setTimeout(()=>{triggerDownload();setDlState("done");fireConfetti(confettiRef);},600);
     setTimeout(()=>setDlState("idle"),2600);
@@ -919,8 +632,6 @@ export default function Portfolio(){
       {bankaiOn && <CherryBlossoms />}
       {imaxMode&&<><div style={{position:"fixed",top:0,left:0,right:0,height:"8vh",background:"#000",zIndex:350,pointerEvents:"none"}}/><div style={{position:"fixed",bottom:0,left:0,right:0,height:"8vh",background:"#000",zIndex:350,pointerEvents:"none"}}/></>}
 
-      <AnimeBackgroundVFX ref={vfxRef} active={!intro && !bankaiOn} />
-      {intro&&<AnimeCinematicIntro onDone={()=>setIntro(false)}/>}
       {!isMobile&&<CustomCursor/>}
       {matrixOn&&<MatrixRain active={matrixOn} bankaiOn={bankaiOn}/>}
       {konamiOn&&<KonamiEaster onClose={()=>setKonamiOn(false)}/>}
