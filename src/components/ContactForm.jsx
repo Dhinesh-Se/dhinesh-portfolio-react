@@ -2,12 +2,6 @@ import { useState } from "react";
 
 const ACC = "#FFE600";
 
-// EmailJS config — replace these with your real IDs from emailjs.com (free)
-// Sign up at emailjs.com → Create Service (Gmail) → Create Template → Copy IDs
-const EMAILJS_SERVICE_ID  = "YOUR_SERVICE_ID";   // e.g. "service_abc123"
-const EMAILJS_TEMPLATE_ID = "YOUR_TEMPLATE_ID";  // e.g. "template_xyz789"
-const EMAILJS_PUBLIC_KEY  = "YOUR_PUBLIC_KEY";   // e.g. "user_abcdefgh"
-
 export default function ContactForm() {
   const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
   const [status, setStatus] = useState("idle"); // idle | sending | success | error
@@ -30,22 +24,16 @@ export default function ContactForm() {
     setStatus("sending");
 
     try {
-      // Dynamic import of emailjs to keep bundle lean
-      const emailjs = await import("https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js");
-      await emailjs.default.send(
-        EMAILJS_SERVICE_ID,
-        EMAILJS_TEMPLATE_ID,
-        { from_name: form.name, from_email: form.email, subject: form.subject || "Portfolio Contact", message: form.message, to_name: "Dhinesh" },
-        EMAILJS_PUBLIC_KEY,
-      );
+      const res = await fetch("/__forms.html", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({ "form-name": "contact", ...form }).toString(),
+      });
+      if (!res.ok) throw new Error("form submission failed");
       setStatus("success");
       setForm({ name: "", email: "", subject: "", message: "" });
     } catch {
-      // Fallback: open mail client
-      const body = encodeURIComponent(`From: ${form.name} (${form.email})\n\n${form.message}`);
-      const subj = encodeURIComponent(form.subject || "Portfolio Contact");
-      window.open(`mailto:javadevdhinesh@gmail.com?subject=${subj}&body=${body}`);
-      setStatus("success");
+      setStatus("error");
     }
     setTimeout(() => setStatus("idle"), 5000);
   };
@@ -85,7 +73,11 @@ export default function ContactForm() {
   );
 
   return (
-    <form onSubmit={send} style={{ display: "flex", flexDirection: "column", gap: 14, textAlign: "left" }}>
+    <form name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field" onSubmit={send} style={{ display: "flex", flexDirection: "column", gap: 14, textAlign: "left" }}>
+      <input type="hidden" name="form-name" value="contact" />
+      <p style={{ position: "absolute", left: "-9999px" }} aria-hidden="true">
+        <label>Don't fill this out: <input tabIndex={-1} autoComplete="off" name="bot-field" /></label>
+      </p>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
         {field("name",    "Your Name *")}
         {field("email",   "Your Email *", "email")}
@@ -115,6 +107,11 @@ export default function ContactForm() {
       {status === "success" && (
         <p style={{ fontSize: 12, color: "#00C9A7", fontFamily: "'DM Mono',monospace" }}>
           ✓ Thanks! Dhinesh will get back to you soon. 🎬
+        </p>
+      )}
+      {status === "error" && (
+        <p style={{ fontSize: 12, color: "#ff6b6b", fontFamily: "'DM Mono',monospace" }}>
+          ⚠ Something went wrong. Please email <a href="mailto:javadevdhinesh@gmail.com" style={{ color: "#ff6b6b" }}>javadevdhinesh@gmail.com</a> directly.
         </p>
       )}
 
