@@ -2,40 +2,6 @@ import { useState, useRef, useEffect } from "react";
 
 const ACC = "#FFE600";
 
-const SYSTEM_PROMPT = `You are Dhinesh V's portfolio assistant. You answer questions about Dhinesh concisely and professionally. Here is everything about him:
-
-NAME: Dhinesh V
-EMAIL: javadevdhinesh@gmail.com | PHONE: 8754447528 | LOCATION: Coimbatore, India
-LINKEDIN: linkedin.com/in/dhineshse | GITHUB: github.com/Dhinesh-Se
-
-CURRENT ROLE: Software Engineer at Ernst & Young (EY) — Feb 2026 to Present
-PREVIOUS ROLE: Junior Associate / Full Stack Developer at KGISL Technologies — Dec 2022 to Jan 2026
-
-SKILLS:
-- Frontend: Angular (v12+), TypeScript, JavaScript ES6+, HTML5, CSS3, Bootstrap, AngularJS
-- Backend: Java, Spring Boot, Spring MVC, Spring Security, RESTful APIs, Microservices, SOAP
-- Database: MySQL, PostgreSQL, PL/SQL (Oracle), MongoDB, Spring Data JPA, Hibernate
-- DevOps: Docker, Kubernetes, Git/GitHub, Maven, Postman, Swagger/OpenAPI, JIRA
-- Payments: CyberSource, N-Genius, e-Wallet Integration, Installment Flows
-
-PROJECTS:
-1. Free Zone Portal (Dubai Insurance, Dec 2024–Jan 2026): Spring Boot, Angular, Microservices, Oracle. Policy issuance & claims, RBAC, tax-invoice generation.
-2. Worker Health Insurance — WHI (Dubai Insurance, Dec 2024–Jan 2026): Delivered in 30 days, MOHRE sync, installment payments, admin dashboard.
-3. Worker Protection Program — WPP (Dubai Insurance, Jan 2023–Dec 2024): ~30% faster premium processing, CyberSource/N-Genius payments, e-wallet integration.
-
-KEY ACHIEVEMENTS:
-- Delivered WHI platform in 30 days under government deadline
-- Group Claims workflow reduced settlement time by 30%
-- Introduced Bulk Policy Issuance
-- Innovative e-wallet system in WPP
-
-EDUCATION: B.Tech Information Technology, Coimbatore Institute of Engineering and Technology (2018–2022)
-CERTIFICATE: Learn Java Programming – Beginner to Master
-
-PERSONAL: Dhinesh is a huge Hollywood movie fan. Favourite genres include action, thriller and sci-fi. He loves the cinematic experience.
-
-Answer questions only about Dhinesh. Be friendly, concise (2-3 sentences max unless more detail is asked). If asked about something unrelated, politely redirect to portfolio topics.`;
-
 export default function AiChat({ externalOpen = false, onExternalClose = () => {} }) {
   const [open, setOpen] = useState(false);
   useEffect(() => { if (externalOpen) { setOpen(true); onExternalClose(); } }, [externalOpen]);
@@ -75,18 +41,14 @@ export default function AiChat({ externalOpen = false, onExternalClose = () => {
         .filter(m => m.role !== "assistant" || messages.indexOf(m) > 0) // skip greeting
         .map(m => ({ role: m.role, content: m.content }));
 
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
+      const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 1000,
-          system: SYSTEM_PROMPT,
-          messages: history,
-        }),
+        body: JSON.stringify({ messages: history }),
       });
+      if (!res.ok) throw new Error("chat request failed");
       const data = await res.json();
-      const reply = data.content?.map(b => b.text).join("") || "Sorry, I couldn't get a response right now.";
+      const reply = data.reply || "Sorry, I couldn't get a response right now.";
       setMessages(m => [...m, { role: "assistant", content: reply }]);
       if (!open) setUnread(u => u + 1);
     } catch {
