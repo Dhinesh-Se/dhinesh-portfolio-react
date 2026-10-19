@@ -668,6 +668,9 @@ export default function Portfolio(){
         .scanlines::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.12) 2px,rgba(0,0,0,.12) 4px);pointer-events:none;z-index:1;}
         .bar{display:block;width:24px;height:2px;background:#E8E8F0;border-radius:2px;transition:all .3s;}
         .reel-divider{display:flex;align-items:center;gap:12px;margin:0 0 40px;}
+        .ticket{position:relative;}
+        .ticket::before,.ticket::after{content:'';position:absolute;top:50%;width:16px;height:16px;border-radius:50%;background:var(--bg-color,#080810);transform:translateY(-50%);z-index:2;}
+        .ticket::before{left:-9px;}.ticket::after{right:-9px;}
         .reel-divider::before,.reel-divider::after{content:'';flex:1;height:1px;background:linear-gradient(to right,transparent,rgba(255,230,0,.22),transparent);}
         .skill-pill{padding:5px 12px;border:1px solid rgba(255,255,255,.1);border-radius:3px;font-size:11px;color:#aaa;background:rgba(255,255,255,.025);transition:all .2s;white-space:nowrap;}
         .skill-pill:hover{border-color:${ACC};color:${ACC};background:rgba(255,230,0,.05);transform:translateY(-1px);}
@@ -900,34 +903,66 @@ export default function Portfolio(){
       <AnimeDimension onThemeChange={setAnimeTheme} isMobile={isMobile} />
 
       {/* ── CINEMA LAB ── */}
-      <section id="cinema-lab" style={{padding:"80px clamp(20px,7vw,120px)"}}>
+      <section id="cinema-lab" style={{padding:"80px clamp(20px,7vw,120px)",position:"relative",overflow:"hidden"}}>
+        <div style={{position:"absolute",top:"-20%",left:"50%",transform:"translateX(-50%)",width:"70%",height:"90%",background:"radial-gradient(ellipse at center,rgba(255,230,0,.05) 0%,transparent 65%)",pointerEvents:"none"}}/>
         <FadeIn>
           <div className="reel-divider"><span className="section-label">Cinematic Innovation</span></div>
-          <h2 className="section-h" style={{marginBottom:18}}>Portfolio <span style={{color:ACC}}>Cinema Lab</span></h2>
-          <p style={{color:"#888",fontSize:13,lineHeight:1.8,maxWidth:600,marginBottom:28}}>Interactive playground — switch genres, go IMAX, watch the career trailer, or decode my name.</p>
         </FadeIn>
-        <div style={{display:"flex",gap:10,flexWrap:"wrap",marginBottom:24}}>
-          {["Thriller","Sci-Fi","Action"].map(g=>(
-            <button key={g} className="btn btn-outline" data-hover onClick={()=>setGenre(g)} style={{padding:"7px 14px",fontSize:11,borderColor:genre===g?ACC:"rgba(255,255,255,.2)",color:genre===g?ACC:"#aaa"}}>
-              {genre===g?"✓ ":""}{g} Mode
+
+        {/* Marquee board */}
+        <FadeIn>
+          <div className="glow-border" style={{border:"1px solid rgba(255,230,0,.22)",borderRadius:10,padding:isMobile?"24px 16px":"30px clamp(18px,4vw,44px)",background:"linear-gradient(180deg,rgba(255,230,0,.05) 0%,rgba(0,0,0,.3) 100%)",position:"relative",boxShadow:"0 24px 60px rgba(0,0,0,.4)",marginBottom:26}}>
+            <div style={{display:"flex",justifyContent:"space-between",marginBottom:16,padding:"0 6px"}}>
+              {Array.from({length:isMobile?8:14}).map((_,i)=>(<div key={i} style={{width:6,height:6,borderRadius:"50%",background:ACC,boxShadow:`0 0 10px ${ACC}`,animation:`pulse 1.7s ${i*0.14}s infinite`}}/>))}
+            </div>
+            <div className="bebas" style={{fontSize:"clamp(42px,7.5vw,92px)",letterSpacing:".07em",textAlign:"center",lineHeight:.95,color:"#E8E8F0"}}>
+              CINEMA <span style={{color:ACC,textShadow:`0 0 50px ${ACC}55`}}>LAB</span>
+            </div>
+            <div style={{textAlign:"center",fontSize:10,letterSpacing:".32em",color:"#777",textTransform:"uppercase",marginTop:10,fontFamily:"'DM Mono',monospace"}}>
+              Now Showing · Career Trailer Daily
+            </div>
+            <p style={{textAlign:"center",color:"#888",fontSize:12,margin:"14px auto 0",maxWidth:520,lineHeight:1.8}}>
+              An interactive playground for a cinema lover — switch genres, go IMAX, watch the trailer, decode the marquee.
+            </p>
+            <div style={{display:"flex",justifyContent:"space-between",marginTop:16,padding:"0 6px"}}>
+              {Array.from({length:isMobile?8:14}).map((_,i)=>(<div key={i} style={{width:6,height:6,borderRadius:"50%",background:ACC,boxShadow:`0 0 10px ${ACC}`,animation:`pulse 1.7s ${i*0.14}s infinite`}}/>))}
+            </div>
+          </div>
+        </FadeIn>
+
+        {/* Feature controls */}
+        <FadeIn delay={.1}>
+          <div style={{display:"flex",gap:10,flexWrap:"wrap",marginBottom:24,alignItems:"center"}}>
+            {[["Thriller","🎭"],["Sci-Fi","🛸"],["Action","💥"]].map(([g,ic])=>(
+              <button key={g} className="btn btn-outline" data-hover onClick={()=>setGenre(g)} style={{padding:"8px 16px",fontSize:11,borderRadius:100,borderColor:genre===g?ACC:"rgba(255,255,255,.16)",color:genre===g?ACC:"#999",background:genre===g?`${ACC}12`:"transparent"}}>
+                {ic} {genre===g?"✓ ":""}{g}
+              </button>
+            ))}
+            <button className="btn btn-outline" data-hover onClick={()=>setImaxMode(v=>!v)} style={{padding:"8px 16px",fontSize:11,borderRadius:100,borderColor:imaxMode?ACC:"rgba(255,255,255,.16)",color:imaxMode?ACC:"#999",background:imaxMode?`${ACC}12`:"transparent",letterSpacing:".12em"}}>
+              {imaxMode?"✓ IMAX ON":"IMAX MODE"}
             </button>
-          ))}
-          <button className="btn btn-primary" data-hover onClick={()=>setTrailerOpen(true)} style={{padding:"7px 14px",fontSize:11}}>▶ Watch Trailer</button>
-          <button className="btn btn-outline" data-hover onClick={()=>setImaxMode(v=>!v)} style={{padding:"7px 14px",fontSize:11,borderColor:imaxMode?ACC:"rgba(255,255,255,.2)",color:imaxMode?ACC:"#aaa"}}>
-            {imaxMode?"✓ IMAX ON":"IMAX Mode"}
-          </button>
-        </div>
-        <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"1fr 1fr",gap:16}}>
-          <TiltCard isMobile={isMobile} className="card" style={{padding:20}}>
-            <div className="section-label" style={{marginBottom:8}}>🕐 Live Clock · Coimbatore (IST)</div>
-            <div className="syne" style={{fontSize:32,color:ACC,marginBottom:4}}>{istTime}</div>
-            <div style={{fontSize:11,color:"#555"}}>Asia/Kolkata — recruiter timezone reference</div>
-          </TiltCard>
-          <TiltCard isMobile={isMobile} className="card" style={{padding:20}}>
-            <div className="section-label" style={{marginBottom:8}}>🔢 Binary/Hex Decoder</div>
-            <div style={{fontFamily:"'DM Mono',monospace",fontSize:12,color:"#666",marginBottom:8,wordBreak:"break-word",transition:"all .4s"}}>{decodedName}</div>
-            <div style={{fontSize:16,color:ACC,fontFamily:"'Bebas Neue',sans-serif",letterSpacing:".08em"}}>→ DHINESH V</div>
-          </TiltCard>
+            <button className="btn btn-primary" data-hover onClick={()=>setTrailerOpen(true)} style={{padding:"8px 18px",fontSize:11,borderRadius:100,marginLeft:isMobile?0:"auto"}}>
+              ▶ Watch the Career Trailer
+            </button>
+          </div>
+        </FadeIn>
+
+        {/* Ticket stubs */}
+        <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"1fr 1fr",gap:18}}>
+          <FadeIn from="left">
+            <div className="card ticket" style={{padding:"22px 24px",borderLeft:`3px dashed rgba(255,230,0,.35)`}}>
+              <div className="section-label" style={{marginBottom:8}}>🎟 Admit One · Coimbatore (IST)</div>
+              <div className="syne" style={{fontSize:34,color:ACC,marginBottom:4,textShadow:`0 0 30px ${ACC}44`}}>{istTime}</div>
+              <div style={{fontSize:11,color:"#555"}}>Local showtime — recruiter timezone reference</div>
+            </div>
+          </FadeIn>
+          <FadeIn from="right">
+            <div className="card ticket" style={{padding:"22px 24px",borderLeft:`3px dashed rgba(255,230,0,.35)`}}>
+              <div className="section-label" style={{marginBottom:8}}>🔐 Secret Reel · Decoder</div>
+              <div style={{fontFamily:"'DM Mono',monospace",fontSize:12,color:"#666",marginBottom:8,wordBreak:"break-word",transition:"all .4s"}}>{decodedName}</div>
+              <div style={{fontSize:18,color:ACC,fontFamily:"'Bebas Neue',sans-serif",letterSpacing:".1em"}}>→ DHINESH V</div>
+            </div>
+          </FadeIn>
         </div>
       </section>
 
