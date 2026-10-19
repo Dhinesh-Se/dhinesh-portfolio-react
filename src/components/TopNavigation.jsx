@@ -31,7 +31,7 @@ export default function TopNavigation({
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          padding: "16px clamp(20px,6vw,60px)",
+          padding: "16px clamp(16px,3vw,44px)",
           background: scrolled || menuOpen ? "rgba(8,8,16,.96)" : "transparent",
           backdropFilter: scrolled || menuOpen ? "blur(16px)" : "none",
           borderBottom: scrolled && !menuOpen ? "1px solid rgba(255,230,0,.08)" : "none",
@@ -50,7 +50,7 @@ export default function TopNavigation({
             DHINESH
           </div>
         </div>
-        <div className="hide-mobile" style={{ display: "flex", alignItems: "center", gap: 22 }}>
+        <div className="hide-mobile" style={{ display: "flex", alignItems: "center", gap: 13, justifyContent: "center", padding: "0 10px", whiteSpace: "nowrap" }}>
           {navLinks.map((link) => (
             <span
               key={link}
