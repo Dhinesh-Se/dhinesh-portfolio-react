@@ -317,7 +317,60 @@ function Counter({to,suffix="",dur=1800}){
   return<span ref={r}>{val}{suffix}</span>;
 }
 
-function TiltCard({children,style={},className="",isMobile=false}){
+
+/* ── 3D HERO SCENE: spinning tech cube + orbit rings + floating shards (pure CSS 3D, no deps) ── */
+const CUBE_FACES = [
+  ["Java 21",     "rotateY(0deg)"],
+  ["Spring Boot", "rotateY(90deg)"],
+  ["Kafka",       "rotateY(180deg)"],
+  ["Redis",       "rotateY(270deg)"],
+  ["Azure",       "rotateX(90deg)"],
+  ["React",       "rotateX(-90deg)"],
+];
+function HeroCube3D({isMobile}){
+  const sceneRef=useRef(null);
+  useEffect(()=>{
+    if(isMobile) return;
+    if(window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const onMove=e=>{
+      const sc=sceneRef.current; if(!sc) return;
+      const x=(e.clientX/window.innerWidth-.5)*16;
+      const y=-(e.clientY/window.innerHeight-.5)*12;
+      sc.style.transform=`rotateX(${y}deg) rotateY(${x}deg)`;
+    };
+    window.addEventListener("mousemove",onMove);
+    return()=>window.removeEventListener("mousemove",onMove);
+  },[isMobile]);
+  const size=isMobile?110:180, half=size/2;
+  const ringDots=(n,r)=>(Array.from({length:n}).map((_,i)=>{
+    const a=(360/n)*i;
+    return<span key={i} style={{position:"absolute",top:"50%",left:"50%",width:7,height:7,borderRadius:"50%",background:ACC,boxShadow:`0 0 10px ${ACC},0 0 22px ${ACC}66`,transform:`rotate(${a}deg) translateX(${r}px) rotate(${-a}deg) translate(-50%,-50%)`}}/>;
+  }));
+  return(
+    <div style={{perspective:1000,width:size*2.1,height:size*2.1,display:"flex",alignItems:"center",justifyContent:"center",position:"relative"}}>
+      <div ref={sceneRef} style={{transformStyle:"preserve-3d",transition:"transform .3s ease-out",width:size,height:size,position:"relative"}}>
+        {/* orbit rings */}
+        <div style={{position:"absolute",inset:-size*.32,border:"1px solid color-mix(in srgb,var(--accent-color) 28%,transparent)",borderRadius:"50%",transformStyle:"preserve-3d",animation:"orbitA 14s linear infinite"}}>{ringDots(2,size*.82)}</div>
+        <div style={{position:"absolute",inset:-size*.52,border:"1px dashed color-mix(in srgb,var(--accent-color) 16%,transparent)",borderRadius:"50%",transformStyle:"preserve-3d",animation:"orbitB 22s linear infinite"}}>{ringDots(3,size*1.02)}</div>
+        {/* floating shards */}
+        <div style={{position:"absolute",top:-size*.45,left:-size*.55,width:14,height:14,background:"color-mix(in srgb,var(--accent-color) 22%,transparent)",border:"1px solid color-mix(in srgb,var(--accent-color) 55%,transparent)",animation:"shardFloat 6s ease-in-out infinite",transform:"rotate(45deg)"}}/>
+        <div style={{position:"absolute",bottom:-size*.4,right:-size*.5,width:0,height:0,borderLeft:"9px solid transparent",borderRight:"9px solid transparent",borderBottom:"15px solid color-mix(in srgb,var(--accent-color) 45%,transparent)",animation:"shardFloat 7.5s .8s ease-in-out infinite"}}/>
+        <div style={{position:"absolute",top:size*.15,right:-size*.62,width:9,height:9,borderRadius:"50%",border:"2px solid color-mix(in srgb,var(--accent-color) 50%,transparent)",animation:"shardFloat 5.4s 1.6s ease-in-out infinite"}}/>
+        {/* the cube */}
+        <div style={{position:"absolute",inset:0,transformStyle:"preserve-3d",animation:"cubeSpin 16s linear infinite"}}>
+          {CUBE_FACES.map(([label,rot])=>(
+            <div key={label} style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center",background:"color-mix(in srgb,var(--bg-color,#080810) 72%,transparent)",border:"1px solid color-mix(in srgb,var(--accent-color) 55%,transparent)",boxShadow:"inset 0 0 26px color-mix(in srgb,var(--accent-color) 12%,transparent)",backdropFilter:"blur(2px)",transform:`${rot} translateZ(${half}px)`}}>
+              <span style={{fontFamily:"'DM Mono',monospace",fontSize:isMobile?11:14,letterSpacing:".12em",color:"#E8E8F0",textTransform:"uppercase",textShadow:"0 0 14px color-mix(in srgb,var(--accent-color) 70%,transparent)"}}>{label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div style={{position:"absolute",bottom:isMobile?-26:-34,left:"50%",transform:"translateX(-50%)",fontSize:9,letterSpacing:".3em",color:"rgba(255,255,255,.3)",textTransform:"uppercase",whiteSpace:"nowrap",fontFamily:"'DM Mono',monospace"}}>Core Stack · 3D</div>
+    </div>
+  );
+}
+
+function TiltCard({children,style={},className="",isMobile=false,pop3d=false}){
   const ref=useRef(null);
   const onMove=useCallback(e=>{
     if(isMobile)return;
@@ -333,7 +386,7 @@ function TiltCard({children,style={},className="",isMobile=false}){
     c.style.transform="perspective(800px) rotateX(0deg) rotateY(0deg) scale(1)";
     c.style.boxShadow="";
   };
-  return<div ref={ref} className={className} style={{transition:"transform .2s ease,box-shadow .2s ease",...style}} onMouseMove={onMove} onMouseLeave={onLeave}>{children}</div>;
+  return<div ref={ref} className={className+(pop3d?" card-3d":"")} style={{transition:"transform .2s ease,box-shadow .2s ease",...(pop3d?{transformStyle:"preserve-3d"}:{}),...style}} onMouseMove={onMove} onMouseLeave={onLeave}>{children}</div>;
 }
 
 function CommandPalette({open,onClose,onMatrix,onDownload,onChat}){
@@ -674,6 +727,14 @@ export default function Portfolio(){
         .reel-divider::before,.reel-divider::after{content:'';flex:1;height:1px;background:linear-gradient(to right,transparent,rgba(255,230,0,.22),transparent);}
         .skill-pill{padding:5px 12px;border:1px solid rgba(255,255,255,.1);border-radius:3px;font-size:11px;color:#aaa;background:rgba(255,255,255,.025);transition:all .2s;white-space:nowrap;}
         .skill-pill:hover{border-color:${ACC};color:${ACC};background:rgba(255,230,0,.05);transform:translateY(-1px);}
+        @keyframes cubeSpin{from{transform:rotateX(-16deg) rotateY(0deg)}to{transform:rotateX(-16deg) rotateY(360deg)}}
+        @keyframes orbitA{from{transform:rotateX(74deg) rotateZ(0deg)}to{transform:rotateX(74deg) rotateZ(360deg)}}
+        @keyframes orbitB{from{transform:rotateX(74deg) rotateZ(360deg)}to{transform:rotateX(74deg) rotateZ(0deg)}}
+        @keyframes shardFloat{0%,100%{transform:translateY(0) translateZ(0)}50%{transform:translateY(-14px) translateZ(30px)}}
+        .card-3d{perspective:900px;}
+        .card-3d .pop,.card-3d .pop-sm{transition:transform .35s ease;}
+        .card-3d:hover .pop{transform:translateZ(30px);}
+        .card-3d:hover .pop-sm{transform:translateZ(16px);}
         @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
         @keyframes spin{to{transform:rotate(360deg)}}
         @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
@@ -692,6 +753,8 @@ export default function Portfolio(){
         .pulse{animation:pulse 2s infinite;}
         .float{animation:float 4s ease-in-out infinite;}
         @media(max-width:768px){.hide-mobile{display:none!important;}.btn{padding:10px 16px;font-size:11px;}}
+        .hero-3d-desktop{display:none;}
+        @media(min-width:1200px){.hero-3d-desktop{display:block;position:absolute;right:clamp(24px,5vw,96px);top:50%;transform:translateY(-54%);z-index:1;}}
         @media(min-width:769px){.hide-desktop{display:none!important;}}
         @media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important;}}
       `}</style>
@@ -743,7 +806,9 @@ export default function Portfolio(){
               </div>
             ))}
           </div>
+          {isMobile&&<div style={{display:"flex",justifyContent:"center",marginTop:44,marginBottom:56}}><HeroCube3D isMobile={true}/></div>}
         </div>
+        <div className="hero-3d-desktop"><HeroCube3D isMobile={false}/></div>
         <div style={{position:"absolute",bottom:28,left:"50%",transform:"translateX(-50%)",display:"flex",flexDirection:"column",alignItems:"center",gap:6,zIndex:2}}>
           <span style={{fontSize:9,letterSpacing:".2em",color:"#444",textTransform:"uppercase"}}>scroll</span>
           <div style={{width:1,height:36,background:`linear-gradient(to bottom,${ACC},transparent)`,animation:"pulse 2s infinite"}}/>
@@ -835,16 +900,16 @@ export default function Portfolio(){
         <div style={{display:"flex",flexDirection:"column",gap:22}}>
           {PROJECTS.map((p,i)=>(
             <FadeIn key={p.name} delay={i*.1}>
-              <TiltCard isMobile={isMobile} className="card film-strip glow-border" style={{padding:isMobile?"22px 34px":"28px 46px",position:"relative",overflow:"hidden"}}>
+              <TiltCard isMobile={isMobile} pop3d className="card film-strip glow-border" style={{padding:isMobile?"22px 34px":"28px 46px",position:"relative",overflow:"hidden"}}>
                 <div style={{position:"absolute",top:0,right:0,background:ACC,color:"#080810",fontSize:9,fontWeight:700,letterSpacing:".12em",padding:"4px 12px",fontFamily:"'DM Mono',monospace",zIndex:3}}>{p.genre}</div>
-                <div style={{display:"flex",alignItems:"flex-start",gap:14,marginBottom:14,flexWrap:"wrap",paddingTop:8}}>
+                <div className="pop" style={{display:"flex",alignItems:"flex-start",gap:14,marginBottom:14,flexWrap:"wrap",paddingTop:8}}>
                   <span style={{fontSize:28,lineHeight:1,flexShrink:0}}>{p.icon}</span>
                   <div style={{flex:1,minWidth:0}}>
                     <h3 className="bebas" style={{fontSize:"clamp(22px,3.5vw,34px)",letterSpacing:".04em",color:"#E8E8F0",lineHeight:1}}>{p.name}</h3>
                     <div style={{color:"#8A8A9C",fontSize:11,marginTop:3}}>{p.client} · {p.period} · {p.rating}</div>
                   </div>
                 </div>
-                <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:14}}>
+                <div className="pop-sm" style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:14}}>
                   {p.tech.map(t=><span key={t} className="tag">{t}</span>)}
                 </div>
                 <ul style={{listStyle:"none",display:"grid",gridTemplateColumns:isMobile?"1fr":"repeat(2,1fr)",gap:"6px 20px"}}>
@@ -872,9 +937,9 @@ export default function Portfolio(){
         <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(min(100%,220px),1fr))",gap:16}}>
           {ACHIEVEMENTS.map((a,i)=>(
             <FadeIn key={a.title} delay={i*.08}>
-              <TiltCard isMobile={isMobile} className="card glow-border" style={{padding:"22px 22px",height:"100%",position:"relative",overflow:"hidden"}}>
+              <TiltCard isMobile={isMobile} pop3d className="card glow-border" style={{padding:"22px 22px",height:"100%",position:"relative",overflow:"hidden"}}>
                 <div style={{position:"absolute",top:-10,right:-8,fontSize:60,opacity:.04,pointerEvents:"none"}}>{a.icon}</div>
-                <div style={{fontSize:30,marginBottom:12}}>{a.icon}</div>
+                <div className="pop" style={{fontSize:30,marginBottom:12}}>{a.icon}</div>
                 <h3 className="syne" style={{fontWeight:700,fontSize:14,marginBottom:8,color:ACC}}>{a.title}</h3>
                 <p style={{color:"#888",fontSize:12,lineHeight:1.75}}>{a.desc}</p>
               </TiltCard>
