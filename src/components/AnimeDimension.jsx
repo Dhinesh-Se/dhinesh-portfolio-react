@@ -532,6 +532,7 @@ const CHARACTERS = [
 
 export default function AnimeDimension({ onThemeChange, isMobile }) {
   const [activeChar, setActiveChar] = useState(null);
+  const [previewChar, setPreviewChar] = useState(null);
   const soundEnabled = false;
 
   // Music Player States
@@ -742,467 +743,395 @@ export default function AnimeDimension({ onThemeChange, isMobile }) {
     }
   };
 
+  /* ═══════════ REDESIGNED RENDER ═══════════ */
+  const shown = CHARACTERS.find(c => c.id === (previewChar || activeChar)) || null;
+  const activeMeta = activeChar ? CHARACTERS.find(c => c.id === activeChar) : null;
+  const accent = activeMeta ? activeMeta.accent : "#FFE600";
+
   return (
     <section
       id="anime-dimension"
       style={{
         padding: "80px clamp(20px,7vw,120px)",
-        background: "rgba(0, 0, 0, 0.3)",
         position: "relative",
         overflow: "hidden",
-        borderTop: "1px solid rgba(255, 255, 255, 0.02)",
-        borderBottom: "1px solid rgba(255, 255, 255, 0.02)",
+        background: "linear-gradient(180deg, rgba(0,0,0,.42) 0%, rgba(0,0,0,.18) 50%, rgba(0,0,0,.42) 100%)",
+        borderTop: "1px solid rgba(255,255,255,.03)",
+        borderBottom: "1px solid rgba(255,255,255,.03)",
       }}
     >
-      {/* Background radial highlight */}
+      {/* Ambient aura follows the selected character */}
       <div
         style={{
           position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          width: "80%",
-          height: "80%",
-          background: `radial-gradient(circle, ${
-            activeChar ? CHARACTERS.find(c => c.id === activeChar).accent + "09" : "rgba(255, 230, 0, 0.03)"
-          } 0%, transparent 70%)`,
+          top: "-30%",
+          right: "-10%",
+          width: "70%",
+          height: "130%",
+          background: `radial-gradient(ellipse at center, ${accent}14 0%, transparent 62%)`,
           pointerEvents: "none",
+          transition: "background .6s ease",
           zIndex: 0,
         }}
       />
 
       <div style={{ position: "relative", zIndex: 1 }}>
         <div className="reel-divider">
-          <span className="section-label" style={{ color: activeChar ? CHARACTERS.find(c => c.id === activeChar).accent : "#FFE600" }}>
+          <span className="section-label" style={{ color: accent, transition: "color .4s" }}>
             ⚔️ Anime Dimension ⚔️
           </span>
         </div>
 
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "flex-end",
-            flexWrap: "wrap",
-            gap: 20,
-            marginBottom: 44,
-          }}
-        >
-          <div>
-            <h2 className="section-h">
-              Interactive<br />
-              <span style={{ color: activeChar ? CHARACTERS.find(c => c.id === activeChar).accent : "#FFE600", textShadow: `0 0 40px ${activeChar ? CHARACTERS.find(c => c.id === activeChar).accent + "33" : "rgba(255,230,0,.15)"}` }}>
-                Anime Laboratory
-              </span>
-            </h2>
-            <p style={{ color: "#888", fontSize: 13, marginTop: 8, maxWidth: 550, fontFamily: "monospace" }}>
-              Select a favorite character to undergo a **Dimensional Shift** and alter the energy grid. Hover to preview spiritual pressure!
-            </p>
-          </div>
-
+        <div style={{ marginBottom: 36 }}>
+          <h2 className="section-h">
+            Choose Your<br />
+            <span style={{ color: accent, textShadow: `0 0 40px ${accent}33`, transition: "color .4s" }}>
+              Fighter
+            </span>
+          </h2>
+          <p style={{ color: "#888", fontSize: 13, marginTop: 10, maxWidth: 560, lineHeight: 1.8 }}>
+            Three heroes, three frequencies. Pick one and the entire site shifts to their energy. Tap again to reset the dimension.
+          </p>
         </div>
 
-        {/* ── MUSIC player & CHARACTER GRID WRAPPER ── */}
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: isMobile ? "1fr" : "3fr 1.5fr",
-            gap: 24,
-            alignItems: "start",
+            gridTemplateColumns: isMobile ? "1fr" : "1.9fr 1fr",
+            gap: 20,
+            alignItems: "stretch",
           }}
         >
-          {/* 1. CHARACTER CARDS GRID */}
+          {/* ── CHARACTER STAGE ── */}
           <div
             style={{
-              display: "grid",
-              gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)",
-              gap: 16,
+              position: "relative",
+              borderRadius: 10,
+              overflow: "hidden",
+              minHeight: isMobile ? 380 : 460,
+              border: `1px solid ${shown ? shown.accent + "55" : "rgba(255,255,255,.08)"}`,
+              boxShadow: shown ? `0 24px 60px ${shown.accent}18, inset 0 0 0 1px rgba(0,0,0,.4)` : "0 24px 60px rgba(0,0,0,.4)",
+              background: "#07070D",
+              transition: "border-color .4s, box-shadow .4s",
             }}
           >
-            {CHARACTERS.map((char) => {
-              const isActive = activeChar === char.id;
-              const isHovered = false;
-              return (
+            {shown ? (
+              <>
+                {/* Stage image */}
                 <div
-                  key={char.id}
-                  onClick={() => handleCharClick(char.id)}
+                  key={shown.id}
                   style={{
-                    position: "relative",
-                    borderRadius: 8,
-                    overflow: "hidden",
-                    border: `1px solid ${isActive ? char.accent : isHovered ? "rgba(255,255,255,.2)" : "rgba(255,255,255,.06)"}`,
-                    height: 380,
-                    cursor: "pointer",
-                    transition: "all 0.35s cubic-bezier(.25, .8, .25, 1)",
-                    transform: "none",
-                    boxShadow: "none",
-                    background: "#08080E",
+                    position: "absolute",
+                    inset: 0,
+                    backgroundImage: `url(${shown.img})`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center top",
+                    opacity: 0.75,
+                    animation: "fadeIn .5s ease",
+                  }}
+                />
+                {/* Readability gradients */}
+                <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(7,7,13,.96) 8%, rgba(7,7,13,.35) 45%, rgba(7,7,13,.05) 75%)", zIndex: 1 }} />
+                <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to right, rgba(7,7,13,.55) 0%, transparent 45%)", zIndex: 1 }} />
+
+                {/* Status chip */}
+                <div
+                  style={{
+                    position: "absolute",
+                    top: 16,
+                    left: 16,
+                    zIndex: 2,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    background: "rgba(0,0,0,.55)",
+                    backdropFilter: "blur(6px)",
+                    border: `1px solid ${activeChar === shown.id ? shown.accent : "rgba(255,255,255,.18)"}`,
+                    borderRadius: 100,
+                    padding: "5px 14px",
                   }}
                 >
-                  {/* Card Background Character Image */}
-                  <div
-                    style={{
-                      position: "absolute",
-                      inset: 0,
-                      backgroundImage: `url(${char.img})`,
-                      backgroundSize: "cover",
-                      backgroundPosition: "center top",
-                      opacity: isActive ? 0.64 : 0.42,
-                      transition: "opacity 0.3s",
-                      transform: "none",
-                      filter: isActive ? "none" : "grayscale(30%)",
-                    }}
-                  />
-
-
-                  {/* Dark Vignette Overlay */}
-                  <div
-                    style={{
-                      position: "absolute",
-                      inset: 0,
-                      background: "linear-gradient(to top, rgba(8,8,14,0.92) 20%, rgba(8,8,14,0.4) 60%, transparent 100%)",
-                      zIndex: 2,
-                    }}
-                  />
-
-                  {/* Active Border Glow */}
-                  {isActive && (
-                    <div
-                      style={{
-                        position: "absolute",
-                        inset: 0,
-                        border: `2px solid ${char.accent}`,
-                        borderRadius: 8,
-                        pointerEvents: "none",
-                        zIndex: 4,
-                      }}
-                    />
-                  )}
-
-                  {/* Character Info Overlay */}
-                  <div
-                    style={{
-                      position: "absolute",
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      padding: 20,
-                      zIndex: 3,
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "flex-end",
-                    }}
-                  >
-                    <span
-                      style={{
-                        fontFamily: "'DM Mono',monospace",
-                        fontSize: 9,
-                        letterSpacing: "0.15em",
-                        color: char.accent,
-                        textTransform: "uppercase",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {char.anime}
-                    </span>
-                    <h3
-                      className="syne"
-                      style={{
-                        fontSize: 20,
-                        fontWeight: 800,
-                        color: "#FFF",
-                        marginTop: 4,
-                        marginBottom: 6,
-                      }}
-                    >
-                      {char.name}
-                    </h3>
-                    <div
-                      style={{
-                        fontSize: 10,
-                        color: "rgba(255,255,255,0.45)",
-                        marginBottom: 10,
-                        textTransform: "uppercase",
-                        letterSpacing: "0.08em",
-                        display: "flex",
-                        gap: 12,
-                      }}
-                    >
-                      <span>Form: <strong style={{ color: "#eee" }}>{char.form}</strong></span>
-                      <span>Ability: <strong style={{ color: "#eee" }}>{char.ability}</strong></span>
-                    </div>
-                    <p
-                      style={{
-                        fontSize: 11,
-                        lineHeight: 1.6,
-                        color: isActive || isHovered ? "rgba(255,255,255,.7)" : "rgba(255,255,255,.38)",
-                        fontStyle: "italic",
-                        borderTop: `1px solid ${isActive ? "rgba(255,255,255,.12)" : "rgba(255,255,255,.05)"}`,
-                        paddingTop: 10,
-                        transition: "color 0.3s",
-                      }}
-                    >
-                      "{char.quote}"
-                    </p>
-
-                  </div>
+                  <div style={{ width: 7, height: 7, borderRadius: "50%", background: activeChar === shown.id ? shown.accent : "#666", boxShadow: activeChar === shown.id ? `0 0 10px ${shown.accent}` : "none" }} />
+                  <span style={{ fontSize: 9, letterSpacing: ".18em", color: activeChar === shown.id ? shown.accent : "#999", textTransform: "uppercase", fontFamily: "'DM Mono',monospace" }}>
+                    {activeChar === shown.id ? "Dimension Active" : "Previewing"}
+                  </span>
                 </div>
-              );
-            })}
-          </div>
 
-          {/* 2. BLEACH BGM MUSIC CONSOLE */}
-          <div
-            style={{
-              background: "rgba(10,10,18,0.72)",
-              border: `1px solid ${activeChar ? CHARACTERS.find(c => c.id === activeChar).accent + "33" : "rgba(255,255,255,.07)"}`,
-              borderRadius: 8,
-              padding: 20,
-              boxShadow: "0 12px 32px rgba(0,0,0,.5)",
-              backdropFilter: "blur(12px)",
-              position: "relative",
-              overflow: "hidden",
-            }}
-          >
-            {/* Audio Node Element (Invisible) */}
-            <audio
-              ref={audioRef}
-              src={TRACKS[currentTrackIdx].url}
-              onTimeUpdate={onTimeUpdate}
-              onEnded={onTrackEnded}
-              preload="none"
-            />
-
-            {/* Header info */}
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
-              <div
-                style={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: "50%",
-                  border: `1.5px solid ${activeChar ? CHARACTERS.find(c => c.id === activeChar).accent : "#FFE600"}`,
-                  display: "grid",
-                  placeItems: "center",
-                  fontSize: 14,
-                  animation: isPlaying ? "spin 3.5s linear infinite" : "none",
-                  color: activeChar ? CHARACTERS.find(c => c.id === activeChar).accent : "#FFE600",
-                }}
-              >
-                ❂
-              </div>
-              <div>
-                <span style={{ fontSize: 9, color: "rgba(255,255,255,.3)", letterSpacing: "0.15em", textTransform: "uppercase" }}>
-                  Bleach Music Station
-                </span>
-                <h4 className="syne" style={{ fontSize: 13, color: "#fff", fontWeight: 700, marginTop: 2 }}>
-                  Reiatsu Audio Player
-                </h4>
-              </div>
-            </div>
-
-            {/* Visualizer Canvas */}
-            <canvas
-              ref={visualizerCanvasRef}
-              style={{
-                width: "100%",
-                height: 52,
-                background: "rgba(255,255,255,0.015)",
-                borderRadius: 4,
-                marginBottom: 16,
-                border: "1px solid rgba(255,255,255,.03)",
-              }}
-            />
-
-            {/* Track Metadata */}
-            <div style={{ textAlign: "center", margin: "14px 0" }}>
-              <div
-                style={{
-                  fontFamily: "'DM Mono',monospace",
-                  fontSize: 12,
-                  color: activeChar ? CHARACTERS.find(c => c.id === activeChar).accent : "#FFE600",
-                  fontWeight: 500,
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                }}
-              >
-                {TRACKS[currentTrackIdx].name}
-              </div>
-              <div style={{ fontSize: 10, color: "rgba(255,255,255,.45)", marginTop: 2 }}>
-                {TRACKS[currentTrackIdx].desc}
-              </div>
-            </div>
-
-            {/* Progress Bar */}
-            <div
-              style={{
-                height: 3,
-                background: "rgba(255,255,255,.05)",
-                borderRadius: 2,
-                position: "relative",
-                cursor: "pointer",
-                marginBottom: 18,
-              }}
-              onClick={(e) => {
-                const rect = e.currentTarget.getBoundingClientRect();
-                const pct = (e.clientX - rect.left) / rect.width;
-                if (audioRef.current && audioRef.current.duration) {
-                  audioRef.current.currentTime = pct * audioRef.current.duration;
-                  setTrackProgress(pct * 100);
-                }
-              }}
-            >
-              <div
-                style={{
-                  height: "100%",
-                  background: activeChar ? CHARACTERS.find(c => c.id === activeChar).accent : "#FFE600",
-                  width: `${trackProgress}%`,
-                  borderRadius: 2,
-                  position: "relative",
-                  boxShadow: `0 0 6px ${activeChar ? CHARACTERS.find(c => c.id === activeChar).accent : "#FFE600"}80`,
-                }}
-              />
-            </div>
-
-            {/* Controls */}
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                gap: 16,
-                marginBottom: 20,
-              }}
-            >
-              <button
-                className="btn btn-outline"
-                onClick={() => handleTrackChange(currentTrackIdx - 1)}
-                style={{
-                  padding: 8,
-                  width: 34,
-                  height: 34,
-                  borderRadius: "50%",
-                  display: "grid",
-                  placeItems: "center",
-                  fontSize: 12,
-                  borderColor: "rgba(255,255,255,.08)",
-                }}
-                title="Prev Track"
-              >
-                ◀
-              </button>
-
-              <button
-                onClick={handlePlayPause}
-                style={{
-                  background: activeChar ? CHARACTERS.find(c => c.id === activeChar).accent : "#FFE600",
-                  border: "none",
-                  color: "#09090F",
-                  padding: 10,
-                  width: 44,
-                  height: 44,
-                  borderRadius: "50%",
-                  display: "grid",
-                  placeItems: "center",
-                  fontSize: 16,
-                  cursor: "pointer",
-                  fontWeight: "bold",
-                  boxShadow: `0 4px 12px ${activeChar ? CHARACTERS.find(c => c.id === activeChar).accent + "40" : "rgba(255, 230, 0, 0.3)"}`,
-                }}
-                title={isPlaying ? "Pause BGM" : "Play BGM"}
-              >
-                {isPlaying ? "⏸" : "▶"}
-              </button>
-
-              <button
-                className="btn btn-outline"
-                onClick={() => handleTrackChange(currentTrackIdx + 1)}
-                style={{
-                  padding: 8,
-                  width: 34,
-                  height: 34,
-                  borderRadius: "50%",
-                  display: "grid",
-                  placeItems: "center",
-                  fontSize: 12,
-                  borderColor: "rgba(255,255,255,.08)",
-                }}
-                title="Next Track"
-              >
-                ▶
-              </button>
-            </div>
-
-            {/* Volume Control */}
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <span style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", width: 22 }}>VOL</span>
-              <input
-                type="range"
-                min="0"
-                max="1"
-                step="0.01"
-                value={volume}
-                onChange={(e) => setVolume(parseFloat(e.target.value))}
-                style={{
-                  flex: 1,
-                  height: 2,
-                  background: "rgba(255,255,255,.15)",
-                  accentColor: activeChar ? CHARACTERS.find(c => c.id === activeChar).accent : "#FFE600",
-                  cursor: "pointer",
-                }}
-              />
-              <span style={{ fontSize: 9, color: "rgba(255,255,255,0.4)", width: 26, textAlign: "right" }}>
-                {Math.round(volume * 100)}%
-              </span>
-            </div>
-
-            {/* Fallback Notice */}
-            {audioError && (
-              <div
-                style={{
-                  marginTop: 12,
-                  fontSize: 8,
-                  color: "#ff4444",
-                  fontFamily: "monospace",
-                  textAlign: "center",
-                  lineHeight: 1.4,
-                }}
-              >
-                ⚠️ Streaming limited by browser policies. Playing simulation visualizer!
+                {/* Big name + meta overlay */}
+                <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: isMobile ? 20 : 28, zIndex: 2 }}>
+                  <div style={{ fontSize: 10, letterSpacing: ".2em", color: shown.accent, textTransform: "uppercase", fontFamily: "'DM Mono',monospace", marginBottom: 6 }}>
+                    {shown.anime}
+                  </div>
+                  <div className="bebas" style={{ fontSize: isMobile ? 44 : "clamp(48px,6vw,84px)", lineHeight: .92, color: "#FFF", letterSpacing: ".02em", textShadow: "0 4px 30px rgba(0,0,0,.6)" }}>
+                    {shown.name}
+                  </div>
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap", margin: "12px 0" }}>
+                    <span style={{ fontSize: 9, letterSpacing: ".1em", padding: "4px 10px", border: `1px solid ${shown.accent}66`, borderRadius: 3, color: shown.accent, background: `${shown.accent}14`, textTransform: "uppercase" }}>
+                      {shown.form}
+                    </span>
+                    <span style={{ fontSize: 9, letterSpacing: ".1em", padding: "4px 10px", border: "1px solid rgba(255,255,255,.16)", borderRadius: 3, color: "#BBB", textTransform: "uppercase" }}>
+                      {shown.ability}
+                    </span>
+                  </div>
+                  <p style={{ fontSize: 12, lineHeight: 1.7, color: "rgba(255,255,255,.62)", fontStyle: "italic", maxWidth: 480, borderLeft: `2px solid ${shown.accent}`, paddingLeft: 12 }}>
+                    "{shown.quote}"
+                  </p>
+                </div>
+              </>
+            ) : (
+              /* Idle stage: invite a pick */
+              <div style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", background: "radial-gradient(ellipse at center, rgba(255,230,0,.05) 0%, transparent 60%)" }}>
+                <div style={{ textAlign: "center", padding: 20 }}>
+                  <div style={{ fontSize: 44, marginBottom: 14, animation: "float 4s ease-in-out infinite" }}>⚔️</div>
+                  <div className="bebas" style={{ fontSize: isMobile ? 34 : 46, color: "rgba(255,255,255,.85)", letterSpacing: ".04em" }}>No Fighter Selected</div>
+                  <p style={{ fontSize: 12, color: "#777", marginTop: 8, fontFamily: "'DM Mono',monospace" }}>Pick a character from the roster to shift the dimension.</p>
+                </div>
               </div>
             )}
           </div>
+
+          {/* ── ROSTER + MUSIC COLUMN ── */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+            {/* Roster tiles */}
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(3,1fr)" : "1fr", gap: 12 }}>
+              {CHARACTERS.map((char) => {
+                const isActive = activeChar === char.id;
+                return (
+                  <div
+                    key={char.id}
+                    data-hover
+                    onClick={() => handleCharClick(char.id)}
+                    onMouseEnter={() => setPreviewChar(char.id)}
+                    onMouseLeave={() => setPreviewChar(null)}
+                    style={{
+                      position: "relative",
+                      display: "flex",
+                      flexDirection: isMobile ? "column" : "row",
+                      alignItems: "center",
+                      gap: isMobile ? 8 : 14,
+                      padding: isMobile ? "12px 8px" : "12px 16px",
+                      borderRadius: 8,
+                      cursor: "pointer",
+                      background: isActive ? `${char.accent}12` : "rgba(255,255,255,.025)",
+                      border: `1px solid ${isActive ? char.accent : "rgba(255,255,255,.08)"}`,
+                      boxShadow: isActive ? `0 8px 24px ${char.accent}22` : "none",
+                      transition: "all .25s ease",
+                      textAlign: isMobile ? "center" : "left",
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: isMobile ? 52 : 58,
+                        height: isMobile ? 52 : 58,
+                        borderRadius: 6,
+                        backgroundImage: `url(${char.img})`,
+                        backgroundSize: "cover",
+                        backgroundPosition: "center top",
+                        flexShrink: 0,
+                        border: `1px solid ${isActive ? char.accent : "rgba(255,255,255,.12)"}`,
+                        filter: isActive ? "none" : "grayscale(45%)",
+                        transition: "filter .25s",
+                      }}
+                    />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 8, letterSpacing: ".16em", color: char.accent, textTransform: "uppercase", fontFamily: "'DM Mono',monospace" }}>
+                        {char.anime}
+                      </div>
+                      <div className="syne" style={{ fontSize: isMobile ? 11 : 14, fontWeight: 700, color: "#EEE", marginTop: 3, lineHeight: 1.2 }}>
+                        {char.name}
+                      </div>
+                    </div>
+                    {!isMobile && (
+                      <div
+                        style={{
+                          fontSize: 9,
+                          letterSpacing: ".1em",
+                          fontFamily: "'DM Mono',monospace",
+                          color: isActive ? char.accent : "rgba(255,255,255,.3)",
+                          border: `1px solid ${isActive ? char.accent : "rgba(255,255,255,.12)"}`,
+                          borderRadius: 3,
+                          padding: "3px 8px",
+                          textTransform: "uppercase",
+                          flexShrink: 0,
+                        }}
+                      >
+                        {isActive ? "Active" : "Select"}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* ── MUSIC CONSOLE (slim bar) ── */}
+            <div
+              style={{
+                background: "rgba(10,10,18,0.72)",
+                border: `1px solid ${accent}22`,
+                borderRadius: 8,
+                padding: "16px 18px",
+                backdropFilter: "blur(12px)",
+                position: "relative",
+                overflow: "hidden",
+                transition: "border-color .4s",
+              }}
+            >
+              <audio
+                ref={audioRef}
+                src={TRACKS[currentTrackIdx].url}
+                onTimeUpdate={onTimeUpdate}
+                onEnded={onTrackEnded}
+                preload="none"
+              />
+
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+                <div
+                  style={{
+                    width: 30,
+                    height: 30,
+                    borderRadius: "50%",
+                    border: `1.5px solid ${accent}`,
+                    display: "grid",
+                    placeItems: "center",
+                    fontSize: 13,
+                    animation: isPlaying ? "spin 3.5s linear infinite" : "none",
+                    color: accent,
+                    flexShrink: 0,
+                    transition: "color .4s, border-color .4s",
+                  }}
+                >
+                  ❂
+                </div>
+                <div style={{ minWidth: 0, flex: 1 }}>
+                  <div style={{ fontFamily: "'DM Mono',monospace", fontSize: 11, color: accent, fontWeight: 500, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", transition: "color .4s" }}>
+                    {TRACKS[currentTrackIdx].name}
+                  </div>
+                  <div style={{ fontSize: 9, color: "rgba(255,255,255,.4)", marginTop: 1 }}>
+                    Bleach Music Station · {TRACKS[currentTrackIdx].desc}
+                  </div>
+                </div>
+              </div>
+
+              <canvas
+                ref={visualizerCanvasRef}
+                style={{
+                  width: "100%",
+                  height: 40,
+                  background: "rgba(255,255,255,0.015)",
+                  borderRadius: 4,
+                  marginBottom: 12,
+                  border: "1px solid rgba(255,255,255,.03)",
+                }}
+              />
+
+              {/* Progress Bar */}
+              <div
+                style={{ height: 3, background: "rgba(255,255,255,.05)", borderRadius: 2, cursor: "pointer", marginBottom: 14 }}
+                onClick={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const pct = (e.clientX - rect.left) / rect.width;
+                  if (audioRef.current && audioRef.current.duration) {
+                    audioRef.current.currentTime = pct * audioRef.current.duration;
+                    setTrackProgress(pct * 100);
+                  }
+                }}
+              >
+                <div
+                  style={{
+                    height: "100%",
+                    background: accent,
+                    width: `${trackProgress}%`,
+                    borderRadius: 2,
+                    boxShadow: `0 0 6px ${accent}80`,
+                    transition: "background .4s",
+                  }}
+                />
+              </div>
+
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                  <button className="btn btn-outline" onClick={() => handleTrackChange(currentTrackIdx - 1)} style={{ padding: 6, width: 30, height: 30, borderRadius: "50%", display: "grid", placeItems: "center", fontSize: 11, borderColor: "rgba(255,255,255,.08)" }} title="Prev Track">◀</button>
+                  <button
+                    onClick={handlePlayPause}
+                    style={{
+                      background: accent,
+                      border: "none",
+                      color: "#09090F",
+                      width: 38,
+                      height: 38,
+                      borderRadius: "50%",
+                      display: "grid",
+                      placeItems: "center",
+                      fontSize: 14,
+                      cursor: "pointer",
+                      fontWeight: "bold",
+                      boxShadow: `0 4px 12px ${accent}40`,
+                      transition: "background .4s",
+                    }}
+                    title={isPlaying ? "Pause BGM" : "Play BGM"}
+                  >
+                    {isPlaying ? "⏸" : "▶"}
+                  </button>
+                  <button className="btn btn-outline" onClick={() => handleTrackChange(currentTrackIdx + 1)} style={{ padding: 6, width: 30, height: 30, borderRadius: "50%", display: "grid", placeItems: "center", fontSize: 11, borderColor: "rgba(255,255,255,.08)" }} title="Next Track">▶</button>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, flex: 1 }}>
+                  <span style={{ fontSize: 9, color: "rgba(255,255,255,0.3)" }}>VOL</span>
+                  <input
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.01"
+                    value={volume}
+                    onChange={(e) => setVolume(parseFloat(e.target.value))}
+                    style={{ flex: 1, height: 2, background: "rgba(255,255,255,.15)", accentColor: accent, cursor: "pointer" }}
+                  />
+                  <span style={{ fontSize: 9, color: "rgba(255,255,255,0.4)", width: 26, textAlign: "right" }}>
+                    {Math.round(volume * 100)}%
+                  </span>
+                </div>
+              </div>
+
+              {audioError && (
+                <div style={{ marginTop: 10, fontSize: 8, color: "#ff4444", fontFamily: "monospace", textAlign: "center", lineHeight: 1.4 }}>
+                  ⚠️ Streaming limited by browser policies. Playing simulation visualizer!
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
-        {/* Dynamic theme active notification */}
+        {/* Active-dimension notice */}
         {activeChar && (
           <div
             style={{
-              marginTop: 24,
+              marginTop: 20,
               padding: "10px 18px",
-              background: "rgba(255,255,255,0.02)",
-              border: `1px solid ${CHARACTERS.find(c => c.id === activeChar).accent}22`,
+              background: `${accent}0D`,
+              border: `1px solid ${accent}33`,
               borderRadius: 6,
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
+              gap: 12,
+              flexWrap: "wrap",
               animation: "slideDown 0.3s ease",
             }}
           >
             <span style={{ fontSize: 11, color: "rgba(255,255,255,.6)", fontFamily: "monospace" }}>
-              Spiritual frequency lock: <strong style={{ color: CHARACTERS.find(c => c.id === activeChar).accent }}>{CHARACTERS.find(c => c.id === activeChar).name}</strong> active.
+              Spiritual frequency lock: <strong style={{ color: accent }}>{activeMeta.name}</strong> active.
             </span>
             <button
               onClick={() => handleCharClick(activeChar)}
               style={{
                 background: "none",
-                border: `1px solid ${CHARACTERS.find(c => c.id === activeChar).accent}`,
-                padding: "3px 8px",
+                border: `1px solid ${accent}`,
+                padding: "4px 10px",
                 fontSize: 9,
-                color: CHARACTERS.find(c => c.id === activeChar).accent,
+                color: accent,
                 borderRadius: 4,
                 cursor: "pointer",
                 fontFamily: "monospace",
+                letterSpacing: ".08em",
               }}
             >
               RESET DIMENSION ✕
@@ -1213,4 +1142,3 @@ export default function AnimeDimension({ onThemeChange, isMobile }) {
     </section>
   );
 }
-

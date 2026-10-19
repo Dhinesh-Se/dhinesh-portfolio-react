@@ -6,7 +6,7 @@ import ArchitectureSection from "./components/ArchitectureSection";
 import AiChat from "./components/AiChat";
 import ContactForm from "./components/ContactForm";
 /* ═══════════ DATA ═══════════ */
-const NAV_LINKS = ["About","Skills","Experience","Projects","Architecture","Achievements","Anime Dimension","Cinema Lab","Contact"];
+const NAV_LINKS = ["About","Skills","Architecture","Experience","Projects","Achievements","Anime Dimension","Cinema Lab","Contact"];
 const toId = l => l.toLowerCase().replace(/\s+/g,"-");
 const ACC = "var(--accent-color)";
 
@@ -302,21 +302,6 @@ function TerminalCard({lines=[],style={}}){
           <div key={i} style={{color:l.startsWith("$")?ACC:l.startsWith("//")||l.startsWith("#")?"rgba(255,255,255,.28)":l.startsWith(">")?"#00C9A7":"rgba(255,255,255,.72)"}}>{l}</div>
         ))}
         {n<lines.length&&<span style={{color:ACC,animation:"blink .7s infinite"}}>▌</span>}
-      </div>
-    </div>
-  );
-}
-
-function SkillBar({label,pct,delay=0}){
-  const[r,v]=useInView();
-  return(
-    <div ref={r} style={{marginBottom:10}}>
-      <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}>
-        <span style={{fontSize:11,color:"rgba(255,255,255,.65)",fontFamily:"'DM Mono',monospace"}}>{label}</span>
-        <span style={{fontSize:10,color:ACC,fontFamily:"'DM Mono',monospace"}}>{pct}%</span>
-      </div>
-      <div style={{height:3,background:"rgba(255,255,255,.07)",borderRadius:2,overflow:"hidden"}}>
-        <div style={{height:"100%",background:`linear-gradient(90deg,${ACC},#00C9A7)`,borderRadius:2,width:v?`${pct}%`:"0%",transition:`width 1.1s ease ${delay}s`}}/>
       </div>
     </div>
   );
@@ -683,6 +668,9 @@ export default function Portfolio(){
         .scanlines::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.12) 2px,rgba(0,0,0,.12) 4px);pointer-events:none;z-index:1;}
         .bar{display:block;width:24px;height:2px;background:#E8E8F0;border-radius:2px;transition:all .3s;}
         .reel-divider{display:flex;align-items:center;gap:12px;margin:0 0 40px;}
+        .ticket{position:relative;}
+        .ticket::before,.ticket::after{content:'';position:absolute;top:50%;width:16px;height:16px;border-radius:50%;background:var(--bg-color,#080810);transform:translateY(-50%);z-index:2;}
+        .ticket::before{left:-9px;}.ticket::after{right:-9px;}
         .reel-divider::before,.reel-divider::after{content:'';flex:1;height:1px;background:linear-gradient(to right,transparent,rgba(255,230,0,.22),transparent);}
         .skill-pill{padding:5px 12px;border:1px solid rgba(255,255,255,.1);border-radius:3px;font-size:11px;color:#aaa;background:rgba(255,255,255,.025);transition:all .2s;white-space:nowrap;}
         .skill-pill:hover{border-color:${ACC};color:${ACC};background:rgba(255,230,0,.05);transform:translateY(-1px);}
@@ -729,11 +717,11 @@ export default function Portfolio(){
           <div style={{display:"flex",alignItems:"center",gap:14,marginBottom:20,flexWrap:"wrap"}}>
             <div style={{width:36,height:2,background:ACC,flexShrink:0}}/>
             <p style={{fontSize:"clamp(12px,1.8vw,15px)",color:"#888",letterSpacing:".08em",textTransform:"uppercase"}}>
-              Senior Software Engineer <span style={{color:ACC}}>@</span> Ernst & Young
+              Senior Software Engineer <span style={{color:ACC}}>@</span> Ernst & Young · Distributed Systems & Architecture
             </p>
           </div>
           <p style={{fontSize:"clamp(13px,1.5vw,15px)",color:"#888",maxWidth:580,lineHeight:1.9,marginBottom:36,fontWeight:300,minHeight:48}}>
-            <Typewriter text="Close to 4 years building scalable, event-driven microservices and distributed systems in Java 21 · Spring Boot · Angular, cloud-native on Azure with Docker and Kubernetes." delay={.2}/>
+            <Typewriter text="Close to 4 years designing event-driven microservices and distributed systems in Java 21 · Spring Boot · Angular, cloud-native on Azure. Contributed to the high-level architecture of a Pfizer pharma platform — 7 microservices, Kafka, Redis, OAuth 2.0 gateway." delay={.2}/>
           </p>
           <div style={{display:"flex",gap:10,flexWrap:"wrap",marginBottom:20}}>
             <button data-hover className="btn btn-primary" onClick={()=>scrollTo("Projects")}>▶ View Projects</button>
@@ -748,9 +736,9 @@ export default function Portfolio(){
             <span>to chat with my AI</span>
           </div>
           <div style={{display:"flex",gap:"clamp(20px,5vw,48px)",flexWrap:"wrap"}}>
-            {[[3,"+","Years Exp."],[7,"","Pfizer Microservices"],[30,"%","Faster Claims"],[1000,"","Policies per Batch"]].map(([n,s,l])=>(
+            {[[4,"","Years Experience","~"],[7,"","Pfizer Microservices",""],[30,"%","Faster Claims",""],[1000,"","Policies per Batch",""]].map(([n,s,l,pfx])=>(
               <div key={l}>
-                <div className="syne" style={{fontWeight:800,fontSize:"clamp(22px,3.5vw,40px)",color:ACC}}><Counter to={n} suffix={s} dur={1800}/></div>
+                <div className="syne" style={{fontWeight:800,fontSize:"clamp(22px,3.5vw,40px)",color:ACC}}>{pfx}<Counter to={n} suffix={s} dur={1800}/></div>
                 <div style={{fontSize:10,color:"#444",letterSpacing:".1em",textTransform:"uppercase",marginTop:2}}>{l}</div>
               </div>
             ))}
@@ -770,14 +758,21 @@ export default function Portfolio(){
         </FadeIn>
         <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"1fr 1fr",gap:20,marginBottom:24}}>
           <FadeIn from="left">
-            <TerminalCard lines={["$ whoami","// Dhinesh V — Full Stack Engineer","","$ cat stack.json","","> Frontend:  Angular, TypeScript, JS","> Backend:   Java, Spring Boot, APIs","> Database:  Oracle, MySQL, MongoDB","> DevOps:    Docker, Kubernetes, Git","> Payments:  CyberSource, N-Genius","","$ echo status","> Available & Building Great Things ✓"]} style={{height:"100%"}}/>
+            <TerminalCard lines={["$ whoami","// Dhinesh V — Senior Software Engineer","","$ cat stack.json","","> Backend:      Java 21, Spring Boot, REST APIs","> Architecture: Microservices, Kafka, Redis, API Design","> Frontend:     Angular 18, React, TypeScript","> Data:         PostgreSQL, Oracle, MySQL, MongoDB","> Cloud/DevOps: Azure, Docker, Kubernetes, CI/CD","> AI:           Azure AI Foundry, GitHub Copilot","","$ echo status","> Available & Building Great Things ✓"]} style={{height:"100%"}}/>
           </FadeIn>
           <FadeIn from="right">
             <div className="card" style={{padding:"22px 24px",height:"100%"}}>
-              <div style={{fontSize:10,letterSpacing:".16em",color:ACC,marginBottom:18,textTransform:"uppercase"}}>Proficiency Levels</div>
-              {[["Java / Spring Boot",95],["Angular / TypeScript",90],["REST APIs / Microservices",92],["Oracle / MySQL / MongoDB",85],["Docker / Kubernetes",78],["Payment Gateway Integration",88]].map(([k,v],i)=>(
-                <SkillBar key={k} label={k} pct={v} delay={i*.1}/>
+              <div style={{fontSize:10,letterSpacing:".16em",color:ACC,marginBottom:16,textTransform:"uppercase"}}>How I Think About Architecture</div>
+              {[["🏗️","Domains own their data","Each service owns its database, so teams deploy and scale independently."],["⚡","Events over tight coupling","Kafka domain events keep services asynchronous and resilient."],["🚀","Cache the read-heavy paths","Redis serves hot reference data; the database stays the source of truth."],["🔐","Security lives at the edge","OAuth 2.0 / RBAC at the API gateway, before any business service."]].map(([ic,h,d],i)=>(
+                <div key={h} style={{display:"flex",gap:12,alignItems:"flex-start",padding:"7px 0",borderBottom:i<3?"1px solid rgba(255,255,255,.05)":"none"}}>
+                  <span style={{fontSize:15,lineHeight:1.4}}>{ic}</span>
+                  <div>
+                    <div style={{fontSize:12,color:"#E8E8F0",fontWeight:500,marginBottom:2}}>{h}</div>
+                    <div style={{fontSize:11,color:"#777",lineHeight:1.6}}>{d}</div>
+                  </div>
+                </div>
               ))}
+              <button data-hover onClick={()=>document.getElementById("architecture")?.scrollIntoView({behavior:"smooth"})} className="btn btn-outline" style={{marginTop:14,fontSize:10,padding:"7px 12px",width:"100%",justifyContent:"center"}}>See it applied — Pfizer platform ↓</button>
             </div>
           </FadeIn>
         </div>
@@ -794,6 +789,8 @@ export default function Portfolio(){
           ))}
         </div>
       </section>
+
+      <ArchitectureSection ACC={ACC} FadeIn={FadeIn}/>
 
       {/* ── EXPERIENCE ── */}
       <section id="experience" style={{padding:"80px clamp(20px,7vw,120px)"}}>
@@ -866,8 +863,6 @@ export default function Portfolio(){
         </div>
       </section>
 
-      <ArchitectureSection ACC={ACC} FadeIn={FadeIn}/>
-
       {/* ── ACHIEVEMENTS ── */}
       <section id="achievements" style={{padding:"80px clamp(20px,7vw,120px)"}}>
         <FadeIn>
@@ -897,7 +892,7 @@ export default function Portfolio(){
               <h3 className="syne" style={{fontWeight:700,fontSize:"clamp(15px,2.5vw,19px)",color:"#E8E8F0",marginBottom:4}}>B.Tech – Information Technology</h3>
               <p style={{color:"#888",fontSize:13,marginBottom:16}}>Coimbatore Institute of Engineering and Technology</p>
               <div style={{color:ACC,fontSize:13,marginBottom:10}}>2018 – 2022</div>
-              <span className="tag">Java Programming – Beginner to Master</span>
+              <div style={{display:"flex",flexWrap:"wrap",gap:6}}><span className="tag">Microsoft Azure Fundamentals (AZ-900)</span><span className="tag">GitHub Copilot (GH-300)</span></div>
             </div>
           </FadeIn>
           <FadeIn from="right"><GitHubStats/></FadeIn>
@@ -908,34 +903,66 @@ export default function Portfolio(){
       <AnimeDimension onThemeChange={setAnimeTheme} isMobile={isMobile} />
 
       {/* ── CINEMA LAB ── */}
-      <section id="cinema-lab" style={{padding:"80px clamp(20px,7vw,120px)"}}>
+      <section id="cinema-lab" style={{padding:"80px clamp(20px,7vw,120px)",position:"relative",overflow:"hidden"}}>
+        <div style={{position:"absolute",top:"-20%",left:"50%",transform:"translateX(-50%)",width:"70%",height:"90%",background:"radial-gradient(ellipse at center,rgba(255,230,0,.05) 0%,transparent 65%)",pointerEvents:"none"}}/>
         <FadeIn>
           <div className="reel-divider"><span className="section-label">Cinematic Innovation</span></div>
-          <h2 className="section-h" style={{marginBottom:18}}>Portfolio <span style={{color:ACC}}>Cinema Lab</span></h2>
-          <p style={{color:"#888",fontSize:13,lineHeight:1.8,maxWidth:600,marginBottom:28}}>Interactive playground — switch genres, go IMAX, watch the career trailer, or decode my name.</p>
         </FadeIn>
-        <div style={{display:"flex",gap:10,flexWrap:"wrap",marginBottom:24}}>
-          {["Thriller","Sci-Fi","Action"].map(g=>(
-            <button key={g} className="btn btn-outline" data-hover onClick={()=>setGenre(g)} style={{padding:"7px 14px",fontSize:11,borderColor:genre===g?ACC:"rgba(255,255,255,.2)",color:genre===g?ACC:"#aaa"}}>
-              {genre===g?"✓ ":""}{g} Mode
+
+        {/* Marquee board */}
+        <FadeIn>
+          <div className="glow-border" style={{border:"1px solid rgba(255,230,0,.22)",borderRadius:10,padding:isMobile?"24px 16px":"30px clamp(18px,4vw,44px)",background:"linear-gradient(180deg,rgba(255,230,0,.05) 0%,rgba(0,0,0,.3) 100%)",position:"relative",boxShadow:"0 24px 60px rgba(0,0,0,.4)",marginBottom:26}}>
+            <div style={{display:"flex",justifyContent:"space-between",marginBottom:16,padding:"0 6px"}}>
+              {Array.from({length:isMobile?8:14}).map((_,i)=>(<div key={i} style={{width:6,height:6,borderRadius:"50%",background:ACC,boxShadow:`0 0 10px ${ACC}`,animation:`pulse 1.7s ${i*0.14}s infinite`}}/>))}
+            </div>
+            <div className="bebas" style={{fontSize:"clamp(42px,7.5vw,92px)",letterSpacing:".07em",textAlign:"center",lineHeight:.95,color:"#E8E8F0"}}>
+              CINEMA <span style={{color:ACC,textShadow:`0 0 50px ${ACC}55`}}>LAB</span>
+            </div>
+            <div style={{textAlign:"center",fontSize:10,letterSpacing:".32em",color:"#777",textTransform:"uppercase",marginTop:10,fontFamily:"'DM Mono',monospace"}}>
+              Now Showing · Career Trailer Daily
+            </div>
+            <p style={{textAlign:"center",color:"#888",fontSize:12,margin:"14px auto 0",maxWidth:520,lineHeight:1.8}}>
+              An interactive playground for a cinema lover — switch genres, go IMAX, watch the trailer, decode the marquee.
+            </p>
+            <div style={{display:"flex",justifyContent:"space-between",marginTop:16,padding:"0 6px"}}>
+              {Array.from({length:isMobile?8:14}).map((_,i)=>(<div key={i} style={{width:6,height:6,borderRadius:"50%",background:ACC,boxShadow:`0 0 10px ${ACC}`,animation:`pulse 1.7s ${i*0.14}s infinite`}}/>))}
+            </div>
+          </div>
+        </FadeIn>
+
+        {/* Feature controls */}
+        <FadeIn delay={.1}>
+          <div style={{display:"flex",gap:10,flexWrap:"wrap",marginBottom:24,alignItems:"center"}}>
+            {[["Thriller","🎭"],["Sci-Fi","🛸"],["Action","💥"]].map(([g,ic])=>(
+              <button key={g} className="btn btn-outline" data-hover onClick={()=>setGenre(g)} style={{padding:"8px 16px",fontSize:11,borderRadius:100,borderColor:genre===g?ACC:"rgba(255,255,255,.16)",color:genre===g?ACC:"#999",background:genre===g?`${ACC}12`:"transparent"}}>
+                {ic} {genre===g?"✓ ":""}{g}
+              </button>
+            ))}
+            <button className="btn btn-outline" data-hover onClick={()=>setImaxMode(v=>!v)} style={{padding:"8px 16px",fontSize:11,borderRadius:100,borderColor:imaxMode?ACC:"rgba(255,255,255,.16)",color:imaxMode?ACC:"#999",background:imaxMode?`${ACC}12`:"transparent",letterSpacing:".12em"}}>
+              {imaxMode?"✓ IMAX ON":"IMAX MODE"}
             </button>
-          ))}
-          <button className="btn btn-primary" data-hover onClick={()=>setTrailerOpen(true)} style={{padding:"7px 14px",fontSize:11}}>▶ Watch Trailer</button>
-          <button className="btn btn-outline" data-hover onClick={()=>setImaxMode(v=>!v)} style={{padding:"7px 14px",fontSize:11,borderColor:imaxMode?ACC:"rgba(255,255,255,.2)",color:imaxMode?ACC:"#aaa"}}>
-            {imaxMode?"✓ IMAX ON":"IMAX Mode"}
-          </button>
-        </div>
-        <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"1fr 1fr",gap:16}}>
-          <TiltCard isMobile={isMobile} className="card" style={{padding:20}}>
-            <div className="section-label" style={{marginBottom:8}}>🕐 Live Clock · Coimbatore (IST)</div>
-            <div className="syne" style={{fontSize:32,color:ACC,marginBottom:4}}>{istTime}</div>
-            <div style={{fontSize:11,color:"#555"}}>Asia/Kolkata — recruiter timezone reference</div>
-          </TiltCard>
-          <TiltCard isMobile={isMobile} className="card" style={{padding:20}}>
-            <div className="section-label" style={{marginBottom:8}}>🔢 Binary/Hex Decoder</div>
-            <div style={{fontFamily:"'DM Mono',monospace",fontSize:12,color:"#666",marginBottom:8,wordBreak:"break-word",transition:"all .4s"}}>{decodedName}</div>
-            <div style={{fontSize:16,color:ACC,fontFamily:"'Bebas Neue',sans-serif",letterSpacing:".08em"}}>→ DHINESH V</div>
-          </TiltCard>
+            <button className="btn btn-primary" data-hover onClick={()=>setTrailerOpen(true)} style={{padding:"8px 18px",fontSize:11,borderRadius:100,marginLeft:isMobile?0:"auto"}}>
+              ▶ Watch the Career Trailer
+            </button>
+          </div>
+        </FadeIn>
+
+        {/* Ticket stubs */}
+        <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"1fr 1fr",gap:18}}>
+          <FadeIn from="left">
+            <div className="card ticket" style={{padding:"22px 24px",borderLeft:`3px dashed rgba(255,230,0,.35)`}}>
+              <div className="section-label" style={{marginBottom:8}}>🎟 Admit One · Coimbatore (IST)</div>
+              <div className="syne" style={{fontSize:34,color:ACC,marginBottom:4,textShadow:`0 0 30px ${ACC}44`}}>{istTime}</div>
+              <div style={{fontSize:11,color:"#555"}}>Local showtime — recruiter timezone reference</div>
+            </div>
+          </FadeIn>
+          <FadeIn from="right">
+            <div className="card ticket" style={{padding:"22px 24px",borderLeft:`3px dashed rgba(255,230,0,.35)`}}>
+              <div className="section-label" style={{marginBottom:8}}>🔐 Secret Reel · Decoder</div>
+              <div style={{fontFamily:"'DM Mono',monospace",fontSize:12,color:"#666",marginBottom:8,wordBreak:"break-word",transition:"all .4s"}}>{decodedName}</div>
+              <div style={{fontSize:18,color:ACC,fontFamily:"'Bebas Neue',sans-serif",letterSpacing:".1em"}}>→ DHINESH V</div>
+            </div>
+          </FadeIn>
         </div>
       </section>
 
