@@ -10,42 +10,50 @@ const toId = l => l.toLowerCase().replace(/\s+/g,"-");
 const ACC = "var(--accent-color)";
 
 const SKILLS = [
-  { cat:"Frontend",       items:["Angular (v12+)","TypeScript","JavaScript ES6+","HTML5","CSS3","Bootstrap","AngularJS"] },
-  { cat:"Backend",        items:["Java","Spring Boot","Spring MVC","Spring Security","RESTful APIs","Microservices","SOAP"] },
-  { cat:"Database",       items:["MySQL","PostgreSQL","PL/SQL (Oracle)","MongoDB","Spring Data JPA","Hibernate"] },
-  { cat:"DevOps & Tools", items:["Docker","Kubernetes","Git/GitHub","Maven","Postman","Swagger/OpenAPI","JIRA"] },
+  { cat:"Languages",      items:["Java 21/17/8","SQL","PL/SQL","TypeScript","JavaScript"] },
+  { cat:"Backend",        items:["Spring Boot","Spring Framework","Spring MVC","Spring Security","REST APIs","JPA/Hibernate"] },
+  { cat:"Architecture & Distributed Systems", items:["Microservices","Event-Driven Architecture","Apache Kafka","Redis","API Design"] },
+  { cat:"Frontend",       items:["Angular 18+","React","TypeScript","HTML5","CSS3"] },
+  { cat:"Cloud & DevOps", items:["Microsoft Azure","Docker","Kubernetes","Azure DevOps","CI/CD","Git"] },
+  { cat:"Database",       items:["PostgreSQL","Oracle DB","MySQL","MongoDB"] },
+  { cat:"AI",             items:["Azure AI Foundry","Agentic AI","GitHub Copilot"] },
+  { cat:"Testing & Tools",items:["JUnit","Mockito","MockMvc","Postman","Swagger/OpenAPI"] },
   { cat:"Payments",       items:["CyberSource","N-Genius","e-Wallet Integration","Installment Flows"] },
 ];
 
 const EXPERIENCES = [
-  { company:"Ernst & Young (EY)", role:"Software Engineer", period:"Feb 2026 – Present", location:"Coimbatore, India", color:ACC,
-    desc:"Contributing to high-impact enterprise solutions at one of the world's leading professional services firms.",
-    tags:["Enterprise Solutions","Consulting","Full Stack"] },
-  { company:"KGISL Technologies", role:"Junior Associate – Full Stack Developer", period:"Dec 2022 – Jan 2026", location:"Coimbatore, India", color:"#00C9A7",
-    desc:"Built and delivered large-scale insurance platforms for Dubai-based clients, from policy issuance to claims and compliance.",
-    tags:["Spring Boot","Angular","Oracle","Microservices","Docker"] },
+  { company:"Ernst & Young (EY)", role:"Senior Software Engineer", period:"Feb 2026 – Present", location:"Coimbatore, India", color:ACC,
+    desc:"Design and build 6+ Java 21 / Spring Boot microservices and distributed systems with Swagger/OpenAPI REST APIs, plus Angular 18 front-end features, on Microsoft Azure with CI/CD through Azure DevOps. Prototype automation with Azure AI Foundry and agentic AI.",
+    tags:["Java 21","Spring Boot","Microservices","Angular 18","Azure","Azure DevOps"] },
+  { company:"KGISL Technologies", role:"Junior Associate – Java Full Stack Developer", period:"Dec 2022 – Feb 2026", location:"Coimbatore, India", color:"#00C9A7",
+    desc:"Built enterprise web applications for UAE insurance and government platforms. Designed a group claims workflow that cut settlement time by ~30%, bulk policy issuance (~1,000 policies per batch), and e-wallet, CyberSource and N-Genius payment workflows.",
+    tags:["Java 8/17/21","Spring Boot","Angular 18","Oracle","REST/SOAP"] },
 ];
 
 const PROJECTS = [
-  { name:"Free Zone Portal", client:"Dubai Insurance", period:"Dec 2024 – Jan 2026", icon:"🏛️",
+  { name:"Pharmaceutical Inventory Management System", client:"Client: Pfizer", period:"EY GDS", icon:"💊",
+    genre:"DISTRIBUTED SYSTEMS", rating:"⭐⭐⭐⭐⭐",
+    tech:["Microservices","Apache Kafka","Redis","PostgreSQL","Kubernetes","Docker","API Gateway","OAuth 2.0"],
+    highlights:["Contributed to the high-level architecture: Product, Inventory, Warehouse, Order, Procurement, Quality and Shipment microservices on Kubernetes, each with its own PostgreSQL database","Apache Kafka for event-driven communication between services","Redis for distributed caching of read-heavy data","API gateway with OAuth 2.0 / RBAC security in front of the services"] },
+  { name:"Free Zone Portal", client:"Dubai Insurance", period:"Dec 2024 – Feb 2026", icon:"🏛️",
     genre:"REGULATORY EPIC", rating:"⭐⭐⭐⭐⭐",
-    tech:["Spring Boot","Angular","Microservices","Oracle","Event-Driven Arch."],
-    highlights:["Policy issuance & claims modules compliant with Freezone regulations","Tax-invoice generation with automated dispatch from DIN to Freezone entities","RBAC for secure data handling","Optimized REST APIs for mobile & web"] },
-  { name:"Worker Health Insurance (WHI)", client:"Dubai Insurance", period:"Dec 2024 – Jan 2026", icon:"🏥",
-    genre:"AGAINST THE CLOCK", rating:"⭐⭐⭐⭐⭐",
-    tech:["Angular","Java","Spring Boot","Oracle","SOAP","CyberSource","N-Genius"],
-    highlights:["Delivered entire platform in 30 days under strict government deadlines","Real-time MOHRE data sync for regulatory compliance","Installment-based payment flows & COI generation","Dashboard-driven admin panel with finance & audit"] },
+    tech:["Spring Boot","Angular","Microservices","Oracle","Swagger","REST APIs","RBAC"],
+    highlights:["Policy issuance, claims and tax-invoice functionality aligned with Freezone regulatory requirements","Swagger-documented REST APIs for premium collection, policy administration and worker compensation claims","Mobile and web access with automated invoice dispatch for Freezone entities"] },
+  { name:"Worker Health Insurance (WHI)", client:"Dubai Insurance", period:"Dec 2024 – Jul 2025", icon:"🏥",
+    genre:"FULL LIFECYCLE", rating:"⭐⭐⭐⭐⭐",
+    tech:["Angular","Java","Spring Boot","Oracle","SOAP/XML","CyberSource","N-Genius","REST APIs"],
+    highlights:["Built the full policy lifecycle platform end-to-end: installment-based payments, COI generation, admin dashboards, and finance/audit/reporting modules","Multi-role RBAC and Swagger-documented REST endpoints for third-party integrations"] },
   { name:"Worker Protection Program (WPP)", client:"Dubai Insurance", period:"Jan 2023 – Dec 2024", icon:"🛡️",
     genre:"THE ORIGIN STORY", rating:"⭐⭐⭐⭐",
-    tech:["Angular","Java","Spring Boot","Oracle","CyberSource","N-Genius"],
-    highlights:["Reduced premium collection processing time by ~30%","Secure payment gateway integrations (CyberSource, N-Genius)","Automated endorsements, claims workflows & invoice generation","e-Wallet payment system for seamless premium collection"] },
+    tech:["Angular","Java","Spring Boot","Oracle","CyberSource","N-Genius","REST APIs"],
+    highlights:["Insurance management workflows covering claims, policy issuance, sponsor/worker management and employer compliance","Reduced premium collection processing time by ~30%, with e-wallet, CyberSource and N-Genius payment flows","Automated claims, endorsements and dynamic invoice document generation"] },
 ];
 
 const ACHIEVEMENTS = [
-  { icon:"⚡", title:"30-Day WHI Delivery",  desc:"Delivered the entire Workers Health Insurance platform in 30 days, meeting strict government go-live deadlines." },
-  { icon:"📉", title:"30% Faster Claims",     desc:"Designed a Group Claims Processing workflow that reduced settlement time by 30% — adopted by the client." },
-  { icon:"🚀", title:"Bulk Policy Issuance",  desc:"Introduced bulk policy issuance functionality, dramatically improving operational throughput." },
-  { icon:"💳", title:"e-Wallet Innovation",   desc:"Integrated an innovative e-wallet system in WPP enabling seamless automatic premium collection." },
+  { icon:"🏗️", title:"Pfizer Platform Architecture",  desc:"Contributed to the high-level architecture of a distributed pharma inventory platform: seven microservices with Kafka, Redis and an OAuth 2.0 API gateway." },
+  { icon:"📉", title:"~30% Faster Claims",     desc:"Designed a group claims processing and approval workflow that cut claim settlement time by approximately 30% versus the legacy process." },
+  { icon:"🚀", title:"Bulk Policy Issuance",  desc:"Implemented bulk policy issuance for high-volume processing, about 1,000 policies per batch." },
+  { icon:"💳", title:"e-Wallet & Payments",   desc:"Integrated e-wallet, CyberSource and N-Genius payment workflows across WPP and KGISL insurance platforms." },
 ];
 
 const MOVIE_QUOTES = [
@@ -101,7 +109,7 @@ function useScrollProgress(){
 
 /* ═══════════ UTILS ═══════════ */
 function triggerDownload(){
-  const t=`DHINESH V — Full Stack Software Engineer\njavadevdhinesh@gmail.com | 8754447528 | Coimbatore, India\nLinkedIn: linkedin.com/in/dhineshse | GitHub: github.com/Dhinesh-Se\n\nEXPERIENCE\nErnst & Young (EY) — Software Engineer | Feb 2026 – Present\nKGiSL Technologies — Junior Associate / Full Stack Developer | Dec 2022 – Jan 2026\n\nSKILLS\nFrontend: Angular (v12+), TypeScript, JavaScript ES6+, HTML5, CSS3\nBackend: Java, Spring Boot, Spring MVC, Spring Security, RESTful APIs, Microservices\nDatabase: MySQL, PostgreSQL, PL/SQL (Oracle), MongoDB, Spring Data JPA, Hibernate\nDevOps: Docker, Kubernetes, Git/GitHub, Maven, Postman, Swagger/OpenAPI, JIRA\nPayments: CyberSource, N-Genius, e-Wallet Integration, Installment Flows\n\nPROJECTS\n1. Free Zone Portal (Dubai Insurance) — Spring Boot, Angular, Microservices, Oracle\n2. Worker Health Insurance WHI (Dubai Insurance) — Angular, Java, Spring Boot, SOAP\n3. Worker Protection Program WPP (Dubai Insurance) — Angular, Java, Spring Boot\n\nKEY ACHIEVEMENTS\n- WHI platform delivered in 30 days meeting government deadline\n- Group Claims workflow reduced settlement time by 30%\n- Bulk Policy Issuance dramatically improved throughput\n- Innovative e-wallet system integrated in WPP\n\nEDUCATION\nB.Tech – Information Technology (2018 – 2022)\nCoimbatore Institute of Engineering and Technology\nCertificate: Learn Java Programming – Beginner to Master`;
+  const t=`DHINESH V — Senior Software Engineer\njavadevdhinesh@gmail.com | 8754447528 | Coimbatore, India\nLinkedIn: linkedin.com/in/dhineshse | GitHub: github.com/Dhinesh-Se\n\nEXPERIENCE\nEY GDS — Senior Software Engineer | Feb 2026 – Present\nKGISL Technologies — Junior Associate, Java Full Stack Developer | Dec 2022 – Feb 2026\n\nSKILLS\nLanguages: Java 21/17/8, SQL, PL/SQL, TypeScript, JavaScript\nBackend: Spring Boot, Spring Framework, Spring MVC, Spring Security, REST APIs, JPA/Hibernate\nArchitecture & Distributed Systems: Microservices, Event-Driven Architecture, Apache Kafka, Redis, API Design\nFrontend: Angular 18+, React, TypeScript, HTML5, CSS3\nCloud & DevOps: Microsoft Azure, Docker, Kubernetes, Azure DevOps, CI/CD, Git\nDatabases: PostgreSQL, Oracle DB, MySQL, MongoDB\nAI: Azure AI Foundry, Agentic AI, GitHub Copilot\n\nPROJECTS\n1. Pharmaceutical Inventory Management System (EY GDS, Client: Pfizer) — Microservices, Kafka, Redis, PostgreSQL, Kubernetes, OAuth 2.0\n2. Free Zone Portal (Dubai Insurance) — Spring Boot, Angular, Microservices, Oracle\n3. Worker Health Insurance WHI (Dubai Insurance) — Angular, Java, Spring Boot, SOAP/XML\n4. Worker Protection Program WPP (Dubai Insurance) — Angular, Java, Spring Boot\n\nKEY ACHIEVEMENTS\n- Contributed to Pfizer distributed platform architecture (7 microservices, Kafka, Redis, API gateway)\n- Group claims workflow cut settlement time by ~30%\n- Bulk policy issuance (~1,000 policies per batch)\n- E-wallet, CyberSource and N-Genius payment workflows\n\nEDUCATION\nB.Tech – Information Technology (2018 – 2022)\nCoimbatore Institute of Engineering and Technology\nCertifications: Microsoft Azure Fundamentals (AZ-900), GitHub Copilot (GH-300)`;
   const b=new Blob([t],{type:"text/plain"});const u=URL.createObjectURL(b);
   const a=document.createElement("a");a.href=u;a.download="Dhinesh_V_Resume.txt";a.click();URL.revokeObjectURL(u);
 }
@@ -720,11 +728,11 @@ export default function Portfolio(){
           <div style={{display:"flex",alignItems:"center",gap:14,marginBottom:20,flexWrap:"wrap"}}>
             <div style={{width:36,height:2,background:ACC,flexShrink:0}}/>
             <p style={{fontSize:"clamp(12px,1.8vw,15px)",color:"#888",letterSpacing:".08em",textTransform:"uppercase"}}>
-              Software Engineer <span style={{color:ACC}}>@</span> Ernst & Young
+              Senior Software Engineer <span style={{color:ACC}}>@</span> Ernst & Young
             </p>
           </div>
           <p style={{fontSize:"clamp(13px,1.5vw,15px)",color:"#888",maxWidth:580,lineHeight:1.9,marginBottom:36,fontWeight:300,minHeight:48}}>
-            <Typewriter text="3+ years building enterprise-grade platforms in insurance & fintech. Expert in Java · Spring Boot · Angular — from microservices to secure payment systems." delay={.2}/>
+            <Typewriter text="Close to 4 years building scalable, event-driven microservices and distributed systems in Java 21 · Spring Boot · Angular, cloud-native on Azure with Docker and Kubernetes." delay={.2}/>
           </p>
           <div style={{display:"flex",gap:10,flexWrap:"wrap",marginBottom:20}}>
             <button data-hover className="btn btn-primary" onClick={()=>scrollTo("Projects")}>▶ View Projects</button>
@@ -739,7 +747,7 @@ export default function Portfolio(){
             <span>to chat with my AI</span>
           </div>
           <div style={{display:"flex",gap:"clamp(20px,5vw,48px)",flexWrap:"wrap"}}>
-            {[[3,"+","Years Exp."],[3,"","Platforms Built"],[30,"%","Faster Claims"],[30,"d","WHI Delivery"]].map(([n,s,l])=>(
+            {[[3,"+","Years Exp."],[7,"","Pfizer Microservices"],[30,"%","Faster Claims"],[1000,"","Policies per Batch"]].map(([n,s,l])=>(
               <div key={l}>
                 <div className="syne" style={{fontWeight:800,fontSize:"clamp(22px,3.5vw,40px)",color:ACC}}><Counter to={n} suffix={s} dur={1800}/></div>
                 <div style={{fontSize:10,color:"#444",letterSpacing:".1em",textTransform:"uppercase",marginTop:2}}>{l}</div>
@@ -935,7 +943,7 @@ export default function Portfolio(){
               "In a world of enterprise software..."
             </h3>
             <p style={{color:"#888",lineHeight:1.85,fontSize:13,marginBottom:16}}>
-              <span style={{color:ACC}}>One developer</span> built insurance platforms at scale, delivered a government-grade WHI rollout in <span style={{color:ACC}}>30 days</span>, and keeps shipping secure fintech experiences across Dubai and India. Now at <span style={{color:ACC}}>Ernst & Young</span>, the next chapter begins.
+              <span style={{color:ACC}}>One developer</span> built insurance platforms at scale, contributed to the architecture of a <span style={{color:ACC}}>Kafka-based pharma platform for Pfizer</span>, and keeps shipping secure fintech experiences across Dubai and India. Now at <span style={{color:ACC}}>Ernst & Young</span>, the next chapter begins.
             </p>
             <p style={{color:"#555",fontSize:12,fontStyle:"italic",marginBottom:20}}>"Every passing minute is another chance to turn it all around." — Vanilla Sky</p>
             <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
@@ -999,7 +1007,7 @@ export default function Portfolio(){
       <footer style={{padding:"22px clamp(20px,7vw,120px)",borderTop:"1px solid rgba(255,230,0,.08)",display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:10,flexDirection:isMobile?"column":"row",textAlign:isMobile?"center":"left"}}>
         <span className="syne" style={{fontWeight:800,color:ACC,fontSize:19}}>DV.</span>
         <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:4}}>
-          <span style={{color:"#444",fontSize:11}}>© 2026 Dhinesh V · Full Stack Software Engineer @ EY</span>
+          <span style={{color:"#444",fontSize:11}}>© 2026 Dhinesh V · Senior Software Engineer @ EY</span>
           <span style={{fontSize:10,color:"rgba(255,255,255,.12)"}}>🎬 A portfolio directed with passion · Try ↑↑↓↓←→←→BA 🎮</span>
         </div>
         <DlBtn cls="btn btn-outline" style={{padding:"6px 14px",fontSize:10}}/>
@@ -1007,3 +1015,4 @@ export default function Portfolio(){
     </div>
   );
 }
+
