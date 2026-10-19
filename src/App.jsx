@@ -2,10 +2,11 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import MovieTicker from "./components/MovieTicker";
 import AnimeDimension from "./components/AnimeDimension";
 import TopNavigation from "./components/TopNavigation";
+import ArchitectureSection from "./components/ArchitectureSection";
 import AiChat from "./components/AiChat";
 import ContactForm from "./components/ContactForm";
 /* ═══════════ DATA ═══════════ */
-const NAV_LINKS = ["About","Skills","Experience","Projects","Achievements","Anime Dimension","Cinema Lab","Contact"];
+const NAV_LINKS = ["About","Skills","Experience","Projects","Architecture","Achievements","Anime Dimension","Cinema Lab","Contact"];
 const toId = l => l.toLowerCase().replace(/\s+/g,"-");
 const ACC = "var(--accent-color)";
 
@@ -659,7 +660,7 @@ export default function Portfolio(){
         ::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:${bgColor};}::-webkit-scrollbar-thumb{background:${ACC};border-radius:2px;}
         ::selection{background:rgba(255,230,0,.2);color:#fff;}
         .syne{font-family:'Syne',sans-serif;}.bebas{font-family:'Bebas Neue',sans-serif;}
-        .nav-link{position:relative;font-size:12px;letter-spacing:.1em;color:#888;text-transform:uppercase;transition:color .2s;white-space:nowrap;}
+        .nav-link{position:relative;font-size:10.5px;letter-spacing:.04em;color:#888;text-transform:uppercase;transition:color .2s;white-space:nowrap;}
         .nav-link:hover,.nav-link.active{color:${ACC};}
         .nav-link::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:1px;background:${ACC};transition:width .3s;}
         .nav-link:hover::after,.nav-link.active::after{width:100%;}
@@ -843,7 +844,7 @@ export default function Portfolio(){
                   <span style={{fontSize:28,lineHeight:1,flexShrink:0}}>{p.icon}</span>
                   <div style={{flex:1,minWidth:0}}>
                     <h3 className="bebas" style={{fontSize:"clamp(22px,3.5vw,34px)",letterSpacing:".04em",color:"#E8E8F0",lineHeight:1}}>{p.name}</h3>
-                    <div style={{color:"#444",fontSize:11,marginTop:3}}>{p.client} · {p.period} · {p.rating}</div>
+                    <div style={{color:"#8A8A9C",fontSize:11,marginTop:3}}>{p.client} · {p.period} · {p.rating}</div>
                   </div>
                 </div>
                 <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:14}}>
@@ -856,11 +857,16 @@ export default function Portfolio(){
                     </li>
                   ))}
                 </ul>
+                {p.name.startsWith("Pharmaceutical")&&(
+                  <button data-hover onClick={()=>document.getElementById("architecture")?.scrollIntoView({behavior:"smooth"})} className="btn btn-outline" style={{marginTop:16,fontSize:11,padding:"8px 14px"}}>View architecture ↓</button>
+                )}
               </TiltCard>
             </FadeIn>
           ))}
         </div>
       </section>
+
+      <ArchitectureSection ACC={ACC} FadeIn={FadeIn}/>
 
       {/* ── ACHIEVEMENTS ── */}
       <section id="achievements" style={{padding:"80px clamp(20px,7vw,120px)"}}>
@@ -1015,4 +1021,3 @@ export default function Portfolio(){
     </div>
   );
 }
-
