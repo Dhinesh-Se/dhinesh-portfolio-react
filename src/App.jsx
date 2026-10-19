@@ -6,7 +6,7 @@ import ArchitectureSection from "./components/ArchitectureSection";
 import AiChat from "./components/AiChat";
 import ContactForm from "./components/ContactForm";
 /* ═══════════ DATA ═══════════ */
-const NAV_LINKS = ["About","Skills","Experience","Projects","Architecture","Achievements","Anime Dimension","Cinema Lab","Contact"];
+const NAV_LINKS = ["About","Skills","Architecture","Experience","Projects","Achievements","Anime Dimension","Cinema Lab","Contact"];
 const toId = l => l.toLowerCase().replace(/\s+/g,"-");
 const ACC = "var(--accent-color)";
 
@@ -302,21 +302,6 @@ function TerminalCard({lines=[],style={}}){
           <div key={i} style={{color:l.startsWith("$")?ACC:l.startsWith("//")||l.startsWith("#")?"rgba(255,255,255,.28)":l.startsWith(">")?"#00C9A7":"rgba(255,255,255,.72)"}}>{l}</div>
         ))}
         {n<lines.length&&<span style={{color:ACC,animation:"blink .7s infinite"}}>▌</span>}
-      </div>
-    </div>
-  );
-}
-
-function SkillBar({label,pct,delay=0}){
-  const[r,v]=useInView();
-  return(
-    <div ref={r} style={{marginBottom:10}}>
-      <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}>
-        <span style={{fontSize:11,color:"rgba(255,255,255,.65)",fontFamily:"'DM Mono',monospace"}}>{label}</span>
-        <span style={{fontSize:10,color:ACC,fontFamily:"'DM Mono',monospace"}}>{pct}%</span>
-      </div>
-      <div style={{height:3,background:"rgba(255,255,255,.07)",borderRadius:2,overflow:"hidden"}}>
-        <div style={{height:"100%",background:`linear-gradient(90deg,${ACC},#00C9A7)`,borderRadius:2,width:v?`${pct}%`:"0%",transition:`width 1.1s ease ${delay}s`}}/>
       </div>
     </div>
   );
@@ -729,11 +714,11 @@ export default function Portfolio(){
           <div style={{display:"flex",alignItems:"center",gap:14,marginBottom:20,flexWrap:"wrap"}}>
             <div style={{width:36,height:2,background:ACC,flexShrink:0}}/>
             <p style={{fontSize:"clamp(12px,1.8vw,15px)",color:"#888",letterSpacing:".08em",textTransform:"uppercase"}}>
-              Senior Software Engineer <span style={{color:ACC}}>@</span> Ernst & Young
+              Senior Software Engineer <span style={{color:ACC}}>@</span> Ernst & Young · Distributed Systems & Architecture
             </p>
           </div>
           <p style={{fontSize:"clamp(13px,1.5vw,15px)",color:"#888",maxWidth:580,lineHeight:1.9,marginBottom:36,fontWeight:300,minHeight:48}}>
-            <Typewriter text="Close to 4 years building scalable, event-driven microservices and distributed systems in Java 21 · Spring Boot · Angular, cloud-native on Azure with Docker and Kubernetes." delay={.2}/>
+            <Typewriter text="Close to 4 years designing event-driven microservices and distributed systems in Java 21 · Spring Boot · Angular, cloud-native on Azure. Contributed to the high-level architecture of a Pfizer pharma platform — 7 microservices, Kafka, Redis, OAuth 2.0 gateway." delay={.2}/>
           </p>
           <div style={{display:"flex",gap:10,flexWrap:"wrap",marginBottom:20}}>
             <button data-hover className="btn btn-primary" onClick={()=>scrollTo("Projects")}>▶ View Projects</button>
@@ -748,9 +733,9 @@ export default function Portfolio(){
             <span>to chat with my AI</span>
           </div>
           <div style={{display:"flex",gap:"clamp(20px,5vw,48px)",flexWrap:"wrap"}}>
-            {[[3,"+","Years Exp."],[7,"","Pfizer Microservices"],[30,"%","Faster Claims"],[1000,"","Policies per Batch"]].map(([n,s,l])=>(
+            {[[4,"","Years Experience","~"],[7,"","Pfizer Microservices",""],[30,"%","Faster Claims",""],[1000,"","Policies per Batch",""]].map(([n,s,l,pfx])=>(
               <div key={l}>
-                <div className="syne" style={{fontWeight:800,fontSize:"clamp(22px,3.5vw,40px)",color:ACC}}><Counter to={n} suffix={s} dur={1800}/></div>
+                <div className="syne" style={{fontWeight:800,fontSize:"clamp(22px,3.5vw,40px)",color:ACC}}>{pfx}<Counter to={n} suffix={s} dur={1800}/></div>
                 <div style={{fontSize:10,color:"#444",letterSpacing:".1em",textTransform:"uppercase",marginTop:2}}>{l}</div>
               </div>
             ))}
@@ -770,14 +755,21 @@ export default function Portfolio(){
         </FadeIn>
         <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"1fr 1fr",gap:20,marginBottom:24}}>
           <FadeIn from="left">
-            <TerminalCard lines={["$ whoami","// Dhinesh V — Full Stack Engineer","","$ cat stack.json","","> Frontend:  Angular, TypeScript, JS","> Backend:   Java, Spring Boot, APIs","> Database:  Oracle, MySQL, MongoDB","> DevOps:    Docker, Kubernetes, Git","> Payments:  CyberSource, N-Genius","","$ echo status","> Available & Building Great Things ✓"]} style={{height:"100%"}}/>
+            <TerminalCard lines={["$ whoami","// Dhinesh V — Senior Software Engineer","","$ cat stack.json","","> Backend:      Java 21, Spring Boot, REST APIs","> Architecture: Microservices, Kafka, Redis, API Design","> Frontend:     Angular 18, React, TypeScript","> Data:         PostgreSQL, Oracle, MySQL, MongoDB","> Cloud/DevOps: Azure, Docker, Kubernetes, CI/CD","> AI:           Azure AI Foundry, GitHub Copilot","","$ echo status","> Available & Building Great Things ✓"]} style={{height:"100%"}}/>
           </FadeIn>
           <FadeIn from="right">
             <div className="card" style={{padding:"22px 24px",height:"100%"}}>
-              <div style={{fontSize:10,letterSpacing:".16em",color:ACC,marginBottom:18,textTransform:"uppercase"}}>Proficiency Levels</div>
-              {[["Java / Spring Boot",95],["Angular / TypeScript",90],["REST APIs / Microservices",92],["Oracle / MySQL / MongoDB",85],["Docker / Kubernetes",78],["Payment Gateway Integration",88]].map(([k,v],i)=>(
-                <SkillBar key={k} label={k} pct={v} delay={i*.1}/>
+              <div style={{fontSize:10,letterSpacing:".16em",color:ACC,marginBottom:16,textTransform:"uppercase"}}>How I Think About Architecture</div>
+              {[["🏗️","Domains own their data","Each service owns its database, so teams deploy and scale independently."],["⚡","Events over tight coupling","Kafka domain events keep services asynchronous and resilient."],["🚀","Cache the read-heavy paths","Redis serves hot reference data; the database stays the source of truth."],["🔐","Security lives at the edge","OAuth 2.0 / RBAC at the API gateway, before any business service."]].map(([ic,h,d],i)=>(
+                <div key={h} style={{display:"flex",gap:12,alignItems:"flex-start",padding:"7px 0",borderBottom:i<3?"1px solid rgba(255,255,255,.05)":"none"}}>
+                  <span style={{fontSize:15,lineHeight:1.4}}>{ic}</span>
+                  <div>
+                    <div style={{fontSize:12,color:"#E8E8F0",fontWeight:500,marginBottom:2}}>{h}</div>
+                    <div style={{fontSize:11,color:"#777",lineHeight:1.6}}>{d}</div>
+                  </div>
+                </div>
               ))}
+              <button data-hover onClick={()=>document.getElementById("architecture")?.scrollIntoView({behavior:"smooth"})} className="btn btn-outline" style={{marginTop:14,fontSize:10,padding:"7px 12px",width:"100%",justifyContent:"center"}}>See it applied — Pfizer platform ↓</button>
             </div>
           </FadeIn>
         </div>
@@ -794,6 +786,8 @@ export default function Portfolio(){
           ))}
         </div>
       </section>
+
+      <ArchitectureSection ACC={ACC} FadeIn={FadeIn}/>
 
       {/* ── EXPERIENCE ── */}
       <section id="experience" style={{padding:"80px clamp(20px,7vw,120px)"}}>
@@ -866,8 +860,6 @@ export default function Portfolio(){
         </div>
       </section>
 
-      <ArchitectureSection ACC={ACC} FadeIn={FadeIn}/>
-
       {/* ── ACHIEVEMENTS ── */}
       <section id="achievements" style={{padding:"80px clamp(20px,7vw,120px)"}}>
         <FadeIn>
@@ -897,7 +889,7 @@ export default function Portfolio(){
               <h3 className="syne" style={{fontWeight:700,fontSize:"clamp(15px,2.5vw,19px)",color:"#E8E8F0",marginBottom:4}}>B.Tech – Information Technology</h3>
               <p style={{color:"#888",fontSize:13,marginBottom:16}}>Coimbatore Institute of Engineering and Technology</p>
               <div style={{color:ACC,fontSize:13,marginBottom:10}}>2018 – 2022</div>
-              <span className="tag">Java Programming – Beginner to Master</span>
+              <div style={{display:"flex",flexWrap:"wrap",gap:6}}><span className="tag">Microsoft Azure Fundamentals (AZ-900)</span><span className="tag">GitHub Copilot (GH-300)</span></div>
             </div>
           </FadeIn>
           <FadeIn from="right"><GitHubStats/></FadeIn>
